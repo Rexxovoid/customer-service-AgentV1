@@ -11,7 +11,6 @@ class OrderQueryTool:
         "根据订单号查询当前用户的订单状态、发货物流与商品信息。"
         "用户身份由程序注入，不要传入user_id。未提供订单号时先询问。"
     )
-    arguments_model = OrderQuery
 
     def __init__(self, repository: OrderRepository):
         self.repository = repository

@@ -1,6 +1,6 @@
 {
-  "schema_version": "1.0.1",
-  "note": "Original Markdown removed; historical locations remain as audit metadata.",
+  "schema_version": "1.0.2",
+  "note": "Canonical JSON collections only; aggregate, category views and derived indexes removed after equality checks. Historical Markdown provenance is audit-only.",
   "files": [
     {
       "path": "after_sales_cases.json",
@@ -8,34 +8,9 @@
       "sha256": "d511ddb9d6460fc3c9f68589b8e75f920ad5047d9f92c6a0a8d38068bf1e185e"
     },
     {
-      "path": "all_data.json",
-      "bytes": 13801194,
-      "sha256": "21552ce3bdbf903fa0143da8321f53cdcf7e612cafdcb3d131211159b90b8733"
-    },
-    {
       "path": "business_rules.json",
       "bytes": 2898,
       "sha256": "540696a1f0da737e3fe31f840ba6a21197866f215555ec02cd73b68a9d7c556b"
-    },
-    {
-      "path": "by_category/headphones.json",
-      "bytes": 4605882,
-      "sha256": "f60ee4db08ccb441ae560d665d75551e63e32c5367fd2b246c59d61e8e84b00f"
-    },
-    {
-      "path": "by_category/keyboards.json",
-      "bytes": 4511561,
-      "sha256": "89991aefb06e164544ed97db0eb2a089cafd3a22f10da1eaf11611f3d9f4af72"
-    },
-    {
-      "path": "by_category/mice.json",
-      "bytes": 4492329,
-      "sha256": "d7ebc971f2068bb2caa43d0851b1f2ce03f603bd9b0faac06904d149d93461e1"
-    },
-    {
-      "path": "indexes.json",
-      "bytes": 93655,
-      "sha256": "8cfbaf28b8f2615006ad6506ede9b49b841e1173c1240a70d83c8bc7e6265f86"
     },
     {
       "path": "metadata.json",

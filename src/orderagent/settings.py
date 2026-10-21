@@ -18,7 +18,7 @@ class Settings(BaseModel):
     base_url: str = "https://api.deepseek.com"
     api_key: SecretStr = SecretStr("")
     model_name: str = "deepseek-chat"
-    orders_path: Path = PROJECT_ROOT / "数据集" / "json" / "orders.json"
+    orders_path: Path = PROJECT_ROOT / "data" / "orders.json"
     timeout_seconds: float = Field(default=30, gt=0, le=120)
     max_model_calls: int = Field(default=6, ge=1, le=20)
     max_tool_calls: int = Field(default=8, ge=1, le=30)
