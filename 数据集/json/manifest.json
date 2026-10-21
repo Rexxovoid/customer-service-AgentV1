@@ -1,0 +1,86 @@
+{
+  "schema_version": "1.0.1",
+  "note": "Original Markdown removed; historical locations remain as audit metadata.",
+  "files": [
+    {
+      "path": "after_sales_cases.json",
+      "bytes": 8897114,
+      "sha256": "d511ddb9d6460fc3c9f68589b8e75f920ad5047d9f92c6a0a8d38068bf1e185e"
+    },
+    {
+      "path": "all_data.json",
+      "bytes": 13801194,
+      "sha256": "21552ce3bdbf903fa0143da8321f53cdcf7e612cafdcb3d131211159b90b8733"
+    },
+    {
+      "path": "business_rules.json",
+      "bytes": 2898,
+      "sha256": "540696a1f0da737e3fe31f840ba6a21197866f215555ec02cd73b68a9d7c556b"
+    },
+    {
+      "path": "by_category/headphones.json",
+      "bytes": 4605882,
+      "sha256": "f60ee4db08ccb441ae560d665d75551e63e32c5367fd2b246c59d61e8e84b00f"
+    },
+    {
+      "path": "by_category/keyboards.json",
+      "bytes": 4511561,
+      "sha256": "89991aefb06e164544ed97db0eb2a089cafd3a22f10da1eaf11611f3d9f4af72"
+    },
+    {
+      "path": "by_category/mice.json",
+      "bytes": 4492329,
+      "sha256": "d7ebc971f2068bb2caa43d0851b1f2ce03f603bd9b0faac06904d149d93461e1"
+    },
+    {
+      "path": "indexes.json",
+      "bytes": 93655,
+      "sha256": "8cfbaf28b8f2615006ad6506ede9b49b841e1173c1240a70d83c8bc7e6265f86"
+    },
+    {
+      "path": "metadata.json",
+      "bytes": 1046,
+      "sha256": "f8f82d84663c2ef1d136facbc4cad6893104472b4d1f984974b3508eeb8d3ec5"
+    },
+    {
+      "path": "orders.json",
+      "bytes": 139647,
+      "sha256": "0a127534de51f9a0b42843861440833065924a50049a8a8a02ee1f38b511fa83"
+    },
+    {
+      "path": "product_faqs.json",
+      "bytes": 2356935,
+      "sha256": "a8d5f3cc83ea6dcbe5f41dec9604522e356444ec82d54ac8727d58863d141f92"
+    },
+    {
+      "path": "products.json",
+      "bytes": 1805246,
+      "sha256": "40962360f469368d1686d49242f1a034b06d33887b047b71e168b9a988fa09c9"
+    },
+    {
+      "path": "source_license.json",
+      "bytes": 6811,
+      "sha256": "92f28215c3faa45c77aeb3622b1281fc4799167c6f0534c179afbdaf07e6eddc"
+    },
+    {
+      "path": "sources.json",
+      "bytes": 13459,
+      "sha256": "162613d0d8e04d5044c3922f66d72ed5fc186336f03291dbbde185289fa77ba2"
+    },
+    {
+      "path": "support_knowledge.json",
+      "bytes": 119100,
+      "sha256": "8fd3cb0f02f87ba98ee72de0e5bc3724975366576ba236deb754af5b51ce951b"
+    },
+    {
+      "path": "tickets.json",
+      "bytes": 24839,
+      "sha256": "4cda4e59adfb041f656dac7f58aad225aec1fec11c6ce5d6b3098f896729806c"
+    },
+    {
+      "path": "validation_report.json",
+      "bytes": 3234,
+      "sha256": "f2ad8d95f2dcc31f2b1b00fcf901663f2a6beb1f20a679de0df31bd53dc72b57"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+[project]
+name = "orderagent"
+version = "0.2.0"
+description = "Deep Agents order-query assistant powered by ChatDeepSeek"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "deepagents>=0.7.29,<0.8",
+    "langchain>=1.4.6,<2",
+    "langchain-core>=1.6.12,<2",
+    "langchain-deepseek>=1.1.1,<2",
+    "langgraph>=1.2.16,<2",
+    "pydantic>=2.10,<3",
+    "python-dotenv>=1.0,<2",
+]
+
+[project.scripts]
+orderagent = "orderagent.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8,<10", "ruff>=0.9,<1"]
+
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/orderagent"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]

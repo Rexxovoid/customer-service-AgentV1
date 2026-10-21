@@ -1,0 +1,62 @@
+[
+  {
+    "id": "BIZ-ORDER",
+    "record_type": "synthetic_business_policy",
+    "synthetic": true,
+    "text": "查询前验证订单归属。物流、库存、退款均从演示业务数据查询；没有结果就说明未知。发生工具超时不冒充成功。内部工单与平台正式售后申请分开表示。",
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示处理规则.md",
+      "original_heading": "BIZ-ORDER",
+      "original_file_retained": false
+    }
+  },
+  {
+    "id": "BIZ-RETURN",
+    "record_type": "synthetic_business_policy",
+    "synthetic": true,
+    "text": "第一版支持退货引导和内部意向登记。登记前展示订单、商品、原因和最小必要材料，待用户确认。没有预设统一退货天数、运费承担或自动批准条件；缺少有效店铺规则时转人工。不得将厂商支持文章当作本店政策。",
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示处理规则.md",
+      "original_heading": "BIZ-RETURN",
+      "original_file_retained": false
+    }
+  },
+  {
+    "id": "BIZ-WRITE",
+    "record_type": "synthetic_business_policy",
+    "synthetic": true,
+    "text": "取消订单、改地址、退货申请、退款、补发等写入在本阶段均未实现。后续实现时先查询最新状态，展示影响并确认；采用幂等标识防止重复执行。不得仅凭模型文本宣称已完成。",
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示处理规则.md",
+      "original_heading": "BIZ-WRITE",
+      "original_file_retained": false
+    }
+  },
+  {
+    "id": "BIZ-SAFE",
+    "record_type": "synthetic_business_policy",
+    "synthetic": true,
+    "text": "用户报告异常发热、鼓包、异味、裸露导线或进液等风险时，优先建议停止使用，在可安全操作时断开电源；不要求拆机、烘烤、短接、刺破电池或重新通电复现。立即转人工并仅收集必要情况。",
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示处理规则.md",
+      "original_heading": "BIZ-SAFE",
+      "original_file_retained": false
+    }
+  },
+  {
+    "id": "BIZ-HUMAN",
+    "record_type": "synthetic_business_policy",
+    "synthetic": true,
+    "text": "用户明确要求人工时停止新的排查。已完成的步骤不反复要求；基础排查无效、具体型号资料不足、跨设备复现或无法确认规则时整理摘要交人工。不得将概率判断当作最终质量鉴定。",
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示处理规则.md",
+      "original_heading": "BIZ-HUMAN",
+      "original_file_retained": false
+    }
+  }
+]

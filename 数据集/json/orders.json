@@ -1,0 +1,4022 @@
+[
+  {
+    "id": "DEMO-HP-O-0001",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-001",
+      "商品 ID": "HP-P-0001",
+      "源 SKU": "1019184",
+      "商品名称": "Stanton - DJ PRO 60 Over-the-Ear Stereo Headphones - White",
+      "型号": "Djpro60w",
+      "数量": "1",
+      "演示实付金额": "0 CNY",
+      "演示应付金额": "319 CNY",
+      "订单状态": "待付款",
+      "发货状态": "未发货",
+      "物流状态": "无物流",
+      "物流单号": "无",
+      "售后状态": "不适用",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-HP-O-0001",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "user_id": "DEMO-U-001",
+    "order_status": "pending_payment",
+    "order_status_label": "待付款",
+    "shipping_status": "未发货",
+    "logistics_status": "无物流",
+    "tracking_number": null,
+    "after_sales_status": "不适用",
+    "items": [
+      {
+        "product_id": "HP-P-0001",
+        "source_sku": "1019184",
+        "name": "Stanton - DJ PRO 60 Over-the-Ear Stereo Headphones - White",
+        "model": "Djpro60w",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 0.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 319.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-HP-O-0002",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-002",
+      "商品 ID": "HP-P-0002",
+      "源 SKU": "1095039",
+      "商品名称": "Blue Microphones - Mo-Fi Over-the-Ear Headphones - Gray",
+      "型号": "7020",
+      "数量": "1",
+      "演示实付金额": "339 CNY",
+      "演示应付金额": "339 CNY",
+      "订单状态": "已付款待发货",
+      "发货状态": "未发货",
+      "物流状态": "尚未揽收",
+      "物流单号": "无",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-HP-O-0002",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "user_id": "DEMO-U-002",
+    "order_status": "paid_unshipped",
+    "order_status_label": "已付款待发货",
+    "shipping_status": "未发货",
+    "logistics_status": "尚未揽收",
+    "tracking_number": null,
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "HP-P-0002",
+        "source_sku": "1095039",
+        "name": "Blue Microphones - Mo-Fi Over-the-Ear Headphones - Gray",
+        "model": "7020",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 339.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 339.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-HP-O-0003",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-003",
+      "商品 ID": "HP-P-0003",
+      "源 SKU": "1152086",
+      "商品名称": "Klipsch - Reference R6m Earbud Headphones - Black",
+      "型号": "R6M",
+      "数量": "1",
+      "演示实付金额": "299 CNY",
+      "演示应付金额": "299 CNY",
+      "订单状态": "已发货",
+      "发货状态": "已发货",
+      "物流状态": "运输中",
+      "物流单号": "DEMO-TRACK-HP-0003",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "2026-10-19 09:00 Asia/Shanghai",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-HP-O-0003",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "user_id": "DEMO-U-003",
+    "order_status": "shipped",
+    "order_status_label": "已发货",
+    "shipping_status": "已发货",
+    "logistics_status": "运输中",
+    "tracking_number": "DEMO-TRACK-HP-0003",
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "HP-P-0003",
+        "source_sku": "1152086",
+        "name": "Klipsch - Reference R6m Earbud Headphones - Black",
+        "model": "R6M",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 299.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 299.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": "2026-10-19T09:00:00+08:00",
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-HP-O-0004",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-004",
+      "商品 ID": "HP-P-0004",
+      "源 SKU": "1154093",
+      "商品名称": "Life N Soul - Bluetooth Over-the-Ear Headphones - White",
+      "型号": "BE501-W",
+      "数量": "1",
+      "演示实付金额": "319 CNY",
+      "演示应付金额": "319 CNY",
+      "订单状态": "已签收",
+      "发货状态": "已发货",
+      "物流状态": "已签收",
+      "物流单号": "DEMO-TRACK-HP-0004",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "2026-10-19 09:00 Asia/Shanghai",
+      "签收时间": "2026-10-20 18:00 Asia/Shanghai",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-HP-O-0004",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "user_id": "DEMO-U-004",
+    "order_status": "delivered",
+    "order_status_label": "已签收",
+    "shipping_status": "已发货",
+    "logistics_status": "已签收",
+    "tracking_number": "DEMO-TRACK-HP-0004",
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "HP-P-0004",
+        "source_sku": "1154093",
+        "name": "Life N Soul - Bluetooth Over-the-Ear Headphones - White",
+        "model": "BE501-W",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 319.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 319.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": "2026-10-19T09:00:00+08:00",
+    "delivered_at": "2026-10-20T18:00:00+08:00",
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-HP-O-0005",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-001",
+      "商品 ID": "HP-P-0005",
+      "源 SKU": "1196144",
+      "商品名称": "Creative - Fatal1ty Gaming Headset - Black",
+      "型号": "MZ0310AA005",
+      "数量": "1",
+      "演示实付金额": "0 CNY",
+      "演示应付金额": "339 CNY",
+      "订单状态": "已取消",
+      "发货状态": "未发货",
+      "物流状态": "无物流",
+      "物流单号": "无",
+      "售后状态": "不适用",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-HP-O-0005",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "user_id": "DEMO-U-001",
+    "order_status": "cancelled",
+    "order_status_label": "已取消",
+    "shipping_status": "未发货",
+    "logistics_status": "无物流",
+    "tracking_number": null,
+    "after_sales_status": "不适用",
+    "items": [
+      {
+        "product_id": "HP-P-0005",
+        "source_sku": "1196144",
+        "name": "Creative - Fatal1ty Gaming Headset - Black",
+        "model": "MZ0310AA005",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 0.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 339.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-HP-O-0006",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-002",
+      "商品 ID": "HP-P-0006",
+      "源 SKU": "1239501",
+      "商品名称": "Sennheiser - Earbud Headphones - Black",
+      "型号": "IE 800",
+      "数量": "1",
+      "演示实付金额": "0 CNY",
+      "演示应付金额": "299 CNY",
+      "订单状态": "待付款",
+      "发货状态": "未发货",
+      "物流状态": "无物流",
+      "物流单号": "无",
+      "售后状态": "不适用",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-HP-O-0006",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "user_id": "DEMO-U-002",
+    "order_status": "pending_payment",
+    "order_status_label": "待付款",
+    "shipping_status": "未发货",
+    "logistics_status": "无物流",
+    "tracking_number": null,
+    "after_sales_status": "不适用",
+    "items": [
+      {
+        "product_id": "HP-P-0006",
+        "source_sku": "1239501",
+        "name": "Sennheiser - Earbud Headphones - Black",
+        "model": "IE 800",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 0.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 299.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-HP-O-0007",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-003",
+      "商品 ID": "HP-P-0007",
+      "源 SKU": "1310232",
+      "商品名称": "Atomic9 - RumbleBuds - White",
+      "型号": "85346900273",
+      "数量": "1",
+      "演示实付金额": "319 CNY",
+      "演示应付金额": "319 CNY",
+      "订单状态": "已付款待发货",
+      "发货状态": "未发货",
+      "物流状态": "尚未揽收",
+      "物流单号": "无",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-HP-O-0007",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "user_id": "DEMO-U-003",
+    "order_status": "paid_unshipped",
+    "order_status_label": "已付款待发货",
+    "shipping_status": "未发货",
+    "logistics_status": "尚未揽收",
+    "tracking_number": null,
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "HP-P-0007",
+        "source_sku": "1310232",
+        "name": "Atomic9 - RumbleBuds - White",
+        "model": "85346900273",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 319.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 319.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-HP-O-0008",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-004",
+      "商品 ID": "HP-P-0008",
+      "源 SKU": "1388362",
+      "商品名称": "Logitech - G930 Wireless Gaming Headset - Black",
+      "型号": "981-000257",
+      "数量": "1",
+      "演示实付金额": "339 CNY",
+      "演示应付金额": "339 CNY",
+      "订单状态": "已发货",
+      "发货状态": "已发货",
+      "物流状态": "运输中",
+      "物流单号": "DEMO-TRACK-HP-0008",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "2026-10-19 09:00 Asia/Shanghai",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-HP-O-0008",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "user_id": "DEMO-U-004",
+    "order_status": "shipped",
+    "order_status_label": "已发货",
+    "shipping_status": "已发货",
+    "logistics_status": "运输中",
+    "tracking_number": "DEMO-TRACK-HP-0008",
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "HP-P-0008",
+        "source_sku": "1388362",
+        "name": "Logitech - G930 Wireless Gaming Headset - Black",
+        "model": "981-000257",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 339.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 339.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": "2026-10-19T09:00:00+08:00",
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-HP-O-0009",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-001",
+      "商品 ID": "HP-P-0009",
+      "源 SKU": "1433042",
+      "商品名称": "Urbanears - Plattan On-Ear Headphones - True White",
+      "型号": "4091008",
+      "数量": "1",
+      "演示实付金额": "299 CNY",
+      "演示应付金额": "299 CNY",
+      "订单状态": "已签收",
+      "发货状态": "已发货",
+      "物流状态": "已签收",
+      "物流单号": "DEMO-TRACK-HP-0009",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "2026-10-19 09:00 Asia/Shanghai",
+      "签收时间": "2026-10-20 18:00 Asia/Shanghai",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-HP-O-0009",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "user_id": "DEMO-U-001",
+    "order_status": "delivered",
+    "order_status_label": "已签收",
+    "shipping_status": "已发货",
+    "logistics_status": "已签收",
+    "tracking_number": "DEMO-TRACK-HP-0009",
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "HP-P-0009",
+        "source_sku": "1433042",
+        "name": "Urbanears - Plattan On-Ear Headphones - True White",
+        "model": "4091008",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 299.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 299.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": "2026-10-19T09:00:00+08:00",
+    "delivered_at": "2026-10-20T18:00:00+08:00",
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-HP-O-0010",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-002",
+      "商品 ID": "HP-P-0010",
+      "源 SKU": "1434974",
+      "商品名称": "Denon - Music Maniac Earbud Headphones - Black/Silver",
+      "型号": "AH-C250",
+      "数量": "1",
+      "演示实付金额": "0 CNY",
+      "演示应付金额": "319 CNY",
+      "订单状态": "已取消",
+      "发货状态": "未发货",
+      "物流状态": "无物流",
+      "物流单号": "无",
+      "售后状态": "不适用",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-HP-O-0010",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "user_id": "DEMO-U-002",
+    "order_status": "cancelled",
+    "order_status_label": "已取消",
+    "shipping_status": "未发货",
+    "logistics_status": "无物流",
+    "tracking_number": null,
+    "after_sales_status": "不适用",
+    "items": [
+      {
+        "product_id": "HP-P-0010",
+        "source_sku": "1434974",
+        "name": "Denon - Music Maniac Earbud Headphones - Black/Silver",
+        "model": "AH-C250",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 0.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 319.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-HP-O-0011",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-003",
+      "商品 ID": "HP-P-0011",
+      "源 SKU": "1463199",
+      "商品名称": "MEElectronics - Air-Fi Venture Stereo Bluetooth Wireless Headphones - Black",
+      "型号": "HP-AF52-BK-MEE",
+      "数量": "1",
+      "演示实付金额": "0 CNY",
+      "演示应付金额": "339 CNY",
+      "订单状态": "待付款",
+      "发货状态": "未发货",
+      "物流状态": "无物流",
+      "物流单号": "无",
+      "售后状态": "不适用",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-HP-O-0011",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "user_id": "DEMO-U-003",
+    "order_status": "pending_payment",
+    "order_status_label": "待付款",
+    "shipping_status": "未发货",
+    "logistics_status": "无物流",
+    "tracking_number": null,
+    "after_sales_status": "不适用",
+    "items": [
+      {
+        "product_id": "HP-P-0011",
+        "source_sku": "1463199",
+        "name": "MEElectronics - Air-Fi Venture Stereo Bluetooth Wireless Headphones - Black",
+        "model": "HP-AF52-BK-MEE",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 0.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 339.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-HP-O-0012",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-004",
+      "商品 ID": "HP-P-0012",
+      "源 SKU": "1504478",
+      "商品名称": "Beats by Dr. Dre - Beats Studio Over-the-Ear Headphones - Glossy Black",
+      "型号": "900-00059-01",
+      "数量": "1",
+      "演示实付金额": "299 CNY",
+      "演示应付金额": "299 CNY",
+      "订单状态": "已付款待发货",
+      "发货状态": "未发货",
+      "物流状态": "尚未揽收",
+      "物流单号": "无",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-HP-O-0012",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "user_id": "DEMO-U-004",
+    "order_status": "paid_unshipped",
+    "order_status_label": "已付款待发货",
+    "shipping_status": "未发货",
+    "logistics_status": "尚未揽收",
+    "tracking_number": null,
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "HP-P-0012",
+        "source_sku": "1504478",
+        "name": "Beats by Dr. Dre - Beats Studio Over-the-Ear Headphones - Glossy Black",
+        "model": "900-00059-01",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 299.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 299.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-HP-O-0013",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-001",
+      "商品 ID": "HP-P-0013",
+      "源 SKU": "1517458",
+      "商品名称": "Audio-Technica - SonicFuel In-Ear Headphones - Blue",
+      "型号": "ATH-CK323IBL",
+      "数量": "1",
+      "演示实付金额": "319 CNY",
+      "演示应付金额": "319 CNY",
+      "订单状态": "已发货",
+      "发货状态": "已发货",
+      "物流状态": "运输中",
+      "物流单号": "DEMO-TRACK-HP-0013",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "2026-10-19 09:00 Asia/Shanghai",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-HP-O-0013",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "user_id": "DEMO-U-001",
+    "order_status": "shipped",
+    "order_status_label": "已发货",
+    "shipping_status": "已发货",
+    "logistics_status": "运输中",
+    "tracking_number": "DEMO-TRACK-HP-0013",
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "HP-P-0013",
+        "source_sku": "1517458",
+        "name": "Audio-Technica - SonicFuel In-Ear Headphones - Blue",
+        "model": "ATH-CK323IBL",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 319.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 319.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": "2026-10-19T09:00:00+08:00",
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-HP-O-0014",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-002",
+      "商品 ID": "HP-P-0014",
+      "源 SKU": "1522001",
+      "商品名称": "iLive - Wireless Over-the-Ear Headphones - Black",
+      "型号": "IAHB64B",
+      "数量": "1",
+      "演示实付金额": "339 CNY",
+      "演示应付金额": "339 CNY",
+      "订单状态": "已签收",
+      "发货状态": "已发货",
+      "物流状态": "已签收",
+      "物流单号": "DEMO-TRACK-HP-0014",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "2026-10-19 09:00 Asia/Shanghai",
+      "签收时间": "2026-10-20 18:00 Asia/Shanghai",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-HP-O-0014",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "user_id": "DEMO-U-002",
+    "order_status": "delivered",
+    "order_status_label": "已签收",
+    "shipping_status": "已发货",
+    "logistics_status": "已签收",
+    "tracking_number": "DEMO-TRACK-HP-0014",
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "HP-P-0014",
+        "source_sku": "1522001",
+        "name": "iLive - Wireless Over-the-Ear Headphones - Black",
+        "model": "IAHB64B",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 339.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 339.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": "2026-10-19T09:00:00+08:00",
+    "delivered_at": "2026-10-20T18:00:00+08:00",
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-HP-O-0015",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-003",
+      "商品 ID": "HP-P-0015",
+      "源 SKU": "1542011",
+      "商品名称": "SMS Audio - BioSport Street by 50 Cent Earbud Headphones - Black",
+      "型号": "SMS-EB-BIOSPRT-BLK",
+      "数量": "1",
+      "演示实付金额": "0 CNY",
+      "演示应付金额": "299 CNY",
+      "订单状态": "已取消",
+      "发货状态": "未发货",
+      "物流状态": "无物流",
+      "物流单号": "无",
+      "售后状态": "不适用",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-HP-O-0015",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "user_id": "DEMO-U-003",
+    "order_status": "cancelled",
+    "order_status_label": "已取消",
+    "shipping_status": "未发货",
+    "logistics_status": "无物流",
+    "tracking_number": null,
+    "after_sales_status": "不适用",
+    "items": [
+      {
+        "product_id": "HP-P-0015",
+        "source_sku": "1542011",
+        "name": "SMS Audio - BioSport Street by 50 Cent Earbud Headphones - Black",
+        "model": "SMS-EB-BIOSPRT-BLK",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 0.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 299.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-HP-O-0016",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-004",
+      "商品 ID": "HP-P-0016",
+      "源 SKU": "1573073",
+      "商品名称": "Turtle Beach - Ear Force XO SEVEN PRO Gaming Headset for Xbox One - Black/Green",
+      "型号": "TBS-2228-01",
+      "数量": "1",
+      "演示实付金额": "0 CNY",
+      "演示应付金额": "319 CNY",
+      "订单状态": "待付款",
+      "发货状态": "未发货",
+      "物流状态": "无物流",
+      "物流单号": "无",
+      "售后状态": "不适用",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-HP-O-0016",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "user_id": "DEMO-U-004",
+    "order_status": "pending_payment",
+    "order_status_label": "待付款",
+    "shipping_status": "未发货",
+    "logistics_status": "无物流",
+    "tracking_number": null,
+    "after_sales_status": "不适用",
+    "items": [
+      {
+        "product_id": "HP-P-0016",
+        "source_sku": "1573073",
+        "name": "Turtle Beach - Ear Force XO SEVEN PRO Gaming Headset for Xbox One - Black/Green",
+        "model": "TBS-2228-01",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 0.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 319.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-HP-O-0017",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-001",
+      "商品 ID": "HP-P-0017",
+      "源 SKU": "1581001",
+      "商品名称": "JBL - Synchros Premium Powered Over-the-Ear Stereo Headphones - Black",
+      "型号": "SYNAE700BLK",
+      "数量": "1",
+      "演示实付金额": "339 CNY",
+      "演示应付金额": "339 CNY",
+      "订单状态": "已付款待发货",
+      "发货状态": "未发货",
+      "物流状态": "尚未揽收",
+      "物流单号": "无",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-HP-O-0017",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "user_id": "DEMO-U-001",
+    "order_status": "paid_unshipped",
+    "order_status_label": "已付款待发货",
+    "shipping_status": "未发货",
+    "logistics_status": "尚未揽收",
+    "tracking_number": null,
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "HP-P-0017",
+        "source_sku": "1581001",
+        "name": "JBL - Synchros Premium Powered Over-the-Ear Stereo Headphones - Black",
+        "model": "SYNAE700BLK",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 339.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 339.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-HP-O-0018",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-002",
+      "商品 ID": "HP-P-0018",
+      "源 SKU": "1600596",
+      "商品名称": "American Audio - Pro DJ Headphones - Black",
+      "型号": "HP550",
+      "数量": "1",
+      "演示实付金额": "299 CNY",
+      "演示应付金额": "299 CNY",
+      "订单状态": "已发货",
+      "发货状态": "已发货",
+      "物流状态": "运输中",
+      "物流单号": "DEMO-TRACK-HP-0018",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "2026-10-19 09:00 Asia/Shanghai",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-HP-O-0018",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "user_id": "DEMO-U-002",
+    "order_status": "shipped",
+    "order_status_label": "已发货",
+    "shipping_status": "已发货",
+    "logistics_status": "运输中",
+    "tracking_number": "DEMO-TRACK-HP-0018",
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "HP-P-0018",
+        "source_sku": "1600596",
+        "name": "American Audio - Pro DJ Headphones - Black",
+        "model": "HP550",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 299.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 299.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": "2026-10-19T09:00:00+08:00",
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-HP-O-0019",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-003",
+      "商品 ID": "HP-P-0019",
+      "源 SKU": "1636825",
+      "商品名称": "V-MODA - CROSSFADE M-100 Over-the-Ear Headphones - Black",
+      "型号": "M-100-U-MBLACKM",
+      "数量": "1",
+      "演示实付金额": "319 CNY",
+      "演示应付金额": "319 CNY",
+      "订单状态": "已签收",
+      "发货状态": "已发货",
+      "物流状态": "已签收",
+      "物流单号": "DEMO-TRACK-HP-0019",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "2026-10-19 09:00 Asia/Shanghai",
+      "签收时间": "2026-10-20 18:00 Asia/Shanghai",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-HP-O-0019",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "user_id": "DEMO-U-003",
+    "order_status": "delivered",
+    "order_status_label": "已签收",
+    "shipping_status": "已发货",
+    "logistics_status": "已签收",
+    "tracking_number": "DEMO-TRACK-HP-0019",
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "HP-P-0019",
+        "source_sku": "1636825",
+        "name": "V-MODA - CROSSFADE M-100 Over-the-Ear Headphones - Black",
+        "model": "M-100-U-MBLACKM",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 319.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 319.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": "2026-10-19T09:00:00+08:00",
+    "delivered_at": "2026-10-20T18:00:00+08:00",
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-HP-O-0020",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-004",
+      "商品 ID": "HP-P-0020",
+      "源 SKU": "1647006",
+      "商品名称": "chicBuds - Luvbuds Earbud Headphones - Black/White Polka Dots",
+      "型号": "EF-010001-03",
+      "数量": "1",
+      "演示实付金额": "0 CNY",
+      "演示应付金额": "339 CNY",
+      "订单状态": "已取消",
+      "发货状态": "未发货",
+      "物流状态": "无物流",
+      "物流单号": "无",
+      "售后状态": "不适用",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-HP-O-0020",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "user_id": "DEMO-U-004",
+    "order_status": "cancelled",
+    "order_status_label": "已取消",
+    "shipping_status": "未发货",
+    "logistics_status": "无物流",
+    "tracking_number": null,
+    "after_sales_status": "不适用",
+    "items": [
+      {
+        "product_id": "HP-P-0020",
+        "source_sku": "1647006",
+        "name": "chicBuds - Luvbuds Earbud Headphones - Black/White Polka Dots",
+        "model": "EF-010001-03",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 0.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 339.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-MS-O-0001",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-001",
+      "商品 ID": "MS-P-0001",
+      "源 SKU": "1117361",
+      "商品名称": "Seal Shield - Waterproof Laser Mouse - Black",
+      "型号": "Sm7",
+      "数量": "1",
+      "演示实付金额": "0 CNY",
+      "演示应付金额": "149 CNY",
+      "订单状态": "待付款",
+      "发货状态": "未发货",
+      "物流状态": "无物流",
+      "物流单号": "无",
+      "售后状态": "不适用",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-MS-O-0001",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "user_id": "DEMO-U-001",
+    "order_status": "pending_payment",
+    "order_status_label": "待付款",
+    "shipping_status": "未发货",
+    "logistics_status": "无物流",
+    "tracking_number": null,
+    "after_sales_status": "不适用",
+    "items": [
+      {
+        "product_id": "MS-P-0001",
+        "source_sku": "1117361",
+        "name": "Seal Shield - Waterproof Laser Mouse - Black",
+        "model": "Sm7",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 0.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 149.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-MS-O-0002",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-002",
+      "商品 ID": "MS-P-0002",
+      "源 SKU": "1192068",
+      "商品名称": "Logitech - M185 Wireless Optical Mouse - Gray",
+      "型号": "910-004426",
+      "数量": "1",
+      "演示实付金额": "169 CNY",
+      "演示应付金额": "169 CNY",
+      "订单状态": "已付款待发货",
+      "发货状态": "未发货",
+      "物流状态": "尚未揽收",
+      "物流单号": "无",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-MS-O-0002",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "user_id": "DEMO-U-002",
+    "order_status": "paid_unshipped",
+    "order_status_label": "已付款待发货",
+    "shipping_status": "未发货",
+    "logistics_status": "尚未揽收",
+    "tracking_number": null,
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "MS-P-0002",
+        "source_sku": "1192068",
+        "name": "Logitech - M185 Wireless Optical Mouse - Gray",
+        "model": "910-004426",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 169.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 169.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-MS-O-0003",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-003",
+      "商品 ID": "MS-P-0003",
+      "源 SKU": "1261563",
+      "商品名称": "Microsoft - Arc Touch Mouse - Black",
+      "型号": "RVF-00001",
+      "数量": "1",
+      "演示实付金额": "129 CNY",
+      "演示应付金额": "129 CNY",
+      "订单状态": "已发货",
+      "发货状态": "已发货",
+      "物流状态": "运输中",
+      "物流单号": "DEMO-TRACK-MS-0003",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "2026-10-19 09:00 Asia/Shanghai",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-MS-O-0003",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "user_id": "DEMO-U-003",
+    "order_status": "shipped",
+    "order_status_label": "已发货",
+    "shipping_status": "已发货",
+    "logistics_status": "运输中",
+    "tracking_number": "DEMO-TRACK-MS-0003",
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "MS-P-0003",
+        "source_sku": "1261563",
+        "name": "Microsoft - Arc Touch Mouse - Black",
+        "model": "RVF-00001",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 129.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 129.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": "2026-10-19T09:00:00+08:00",
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-MS-O-0004",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-004",
+      "商品 ID": "MS-P-0004",
+      "源 SKU": "1682513",
+      "商品名称": "Razer - Ouroboros Gaming Mouse - Black",
+      "型号": "RZ01-00770100-R3U1",
+      "数量": "1",
+      "演示实付金额": "149 CNY",
+      "演示应付金额": "149 CNY",
+      "订单状态": "已签收",
+      "发货状态": "已发货",
+      "物流状态": "已签收",
+      "物流单号": "DEMO-TRACK-MS-0004",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "2026-10-19 09:00 Asia/Shanghai",
+      "签收时间": "2026-10-20 18:00 Asia/Shanghai",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-MS-O-0004",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "user_id": "DEMO-U-004",
+    "order_status": "delivered",
+    "order_status_label": "已签收",
+    "shipping_status": "已发货",
+    "logistics_status": "已签收",
+    "tracking_number": "DEMO-TRACK-MS-0004",
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "MS-P-0004",
+        "source_sku": "1682513",
+        "name": "Razer - Ouroboros Gaming Mouse - Black",
+        "model": "RZ01-00770100-R3U1",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 149.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 149.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": "2026-10-19T09:00:00+08:00",
+    "delivered_at": "2026-10-20T18:00:00+08:00",
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-MS-O-0005",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-001",
+      "商品 ID": "MS-P-0005",
+      "源 SKU": "2380394",
+      "商品名称": "Prestige - Evoluent VM4 Vertical Left-Handed Mouse - Black",
+      "型号": "VM4L",
+      "数量": "1",
+      "演示实付金额": "0 CNY",
+      "演示应付金额": "169 CNY",
+      "订单状态": "已取消",
+      "发货状态": "未发货",
+      "物流状态": "无物流",
+      "物流单号": "无",
+      "售后状态": "不适用",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-MS-O-0005",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "user_id": "DEMO-U-001",
+    "order_status": "cancelled",
+    "order_status_label": "已取消",
+    "shipping_status": "未发货",
+    "logistics_status": "无物流",
+    "tracking_number": null,
+    "after_sales_status": "不适用",
+    "items": [
+      {
+        "product_id": "MS-P-0005",
+        "source_sku": "2380394",
+        "name": "Prestige - Evoluent VM4 Vertical Left-Handed Mouse - Black",
+        "model": "VM4L",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 0.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 169.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-MS-O-0006",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-002",
+      "商品 ID": "MS-P-0006",
+      "源 SKU": "2499055",
+      "商品名称": "EVGA - TORQ X3L Laser Gaming Mouse - Blue",
+      "型号": "901-X1-1031-KR",
+      "数量": "1",
+      "演示实付金额": "0 CNY",
+      "演示应付金额": "129 CNY",
+      "订单状态": "待付款",
+      "发货状态": "未发货",
+      "物流状态": "无物流",
+      "物流单号": "无",
+      "售后状态": "不适用",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-MS-O-0006",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "user_id": "DEMO-U-002",
+    "order_status": "pending_payment",
+    "order_status_label": "待付款",
+    "shipping_status": "未发货",
+    "logistics_status": "无物流",
+    "tracking_number": null,
+    "after_sales_status": "不适用",
+    "items": [
+      {
+        "product_id": "MS-P-0006",
+        "source_sku": "2499055",
+        "name": "EVGA - TORQ X3L Laser Gaming Mouse - Blue",
+        "model": "901-X1-1031-KR",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 0.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 129.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-MS-O-0007",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-003",
+      "商品 ID": "MS-P-0007",
+      "源 SKU": "2921796",
+      "商品名称": "Hello Kitty - Optical Mouse - Multi",
+      "型号": "KT4098",
+      "数量": "1",
+      "演示实付金额": "149 CNY",
+      "演示应付金额": "149 CNY",
+      "订单状态": "已付款待发货",
+      "发货状态": "未发货",
+      "物流状态": "尚未揽收",
+      "物流单号": "无",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-MS-O-0007",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "user_id": "DEMO-U-003",
+    "order_status": "paid_unshipped",
+    "order_status_label": "已付款待发货",
+    "shipping_status": "未发货",
+    "logistics_status": "尚未揽收",
+    "tracking_number": null,
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "MS-P-0007",
+        "source_sku": "2921796",
+        "name": "Hello Kitty - Optical Mouse - Multi",
+        "model": "KT4098",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 149.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 149.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-MS-O-0008",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-004",
+      "商品 ID": "MS-P-0008",
+      "源 SKU": "3489023",
+      "商品名称": "Insignia™ - USB Optical Mouse - Black/Gray",
+      "型号": "NS-PNM5013",
+      "数量": "1",
+      "演示实付金额": "169 CNY",
+      "演示应付金额": "169 CNY",
+      "订单状态": "已发货",
+      "发货状态": "已发货",
+      "物流状态": "运输中",
+      "物流单号": "DEMO-TRACK-MS-0008",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "2026-10-19 09:00 Asia/Shanghai",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-MS-O-0008",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "user_id": "DEMO-U-004",
+    "order_status": "shipped",
+    "order_status_label": "已发货",
+    "shipping_status": "已发货",
+    "logistics_status": "运输中",
+    "tracking_number": "DEMO-TRACK-MS-0008",
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "MS-P-0008",
+        "source_sku": "3489023",
+        "name": "Insignia™ - USB Optical Mouse - Black/Gray",
+        "model": "NS-PNM5013",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 169.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 169.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": "2026-10-19T09:00:00+08:00",
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-MS-O-0009",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-001",
+      "商品 ID": "MS-P-0009",
+      "源 SKU": "4289003",
+      "商品名称": "Samsung - S Action Mouse - White",
+      "型号": "ET-MP900DWEGUJ",
+      "数量": "1",
+      "演示实付金额": "129 CNY",
+      "演示应付金额": "129 CNY",
+      "订单状态": "已签收",
+      "发货状态": "已发货",
+      "物流状态": "已签收",
+      "物流单号": "DEMO-TRACK-MS-0009",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "2026-10-19 09:00 Asia/Shanghai",
+      "签收时间": "2026-10-20 18:00 Asia/Shanghai",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-MS-O-0009",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "user_id": "DEMO-U-001",
+    "order_status": "delivered",
+    "order_status_label": "已签收",
+    "shipping_status": "已发货",
+    "logistics_status": "已签收",
+    "tracking_number": "DEMO-TRACK-MS-0009",
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "MS-P-0009",
+        "source_sku": "4289003",
+        "name": "Samsung - S Action Mouse - White",
+        "model": "ET-MP900DWEGUJ",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 129.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 129.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": "2026-10-19T09:00:00+08:00",
+    "delivered_at": "2026-10-20T18:00:00+08:00",
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-MS-O-0010",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-002",
+      "商品 ID": "MS-P-0010",
+      "源 SKU": "4370903",
+      "商品名称": "Corsair - Scimitar RGB MOBA/MMO Gaming Mouse - Black",
+      "型号": "SCIMITAR RGB",
+      "数量": "1",
+      "演示实付金额": "0 CNY",
+      "演示应付金额": "149 CNY",
+      "订单状态": "已取消",
+      "发货状态": "未发货",
+      "物流状态": "无物流",
+      "物流单号": "无",
+      "售后状态": "不适用",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-MS-O-0010",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "user_id": "DEMO-U-002",
+    "order_status": "cancelled",
+    "order_status_label": "已取消",
+    "shipping_status": "未发货",
+    "logistics_status": "无物流",
+    "tracking_number": null,
+    "after_sales_status": "不适用",
+    "items": [
+      {
+        "product_id": "MS-P-0010",
+        "source_sku": "4370903",
+        "name": "Corsair - Scimitar RGB MOBA/MMO Gaming Mouse - Black",
+        "model": "SCIMITAR RGB",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 0.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 149.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-MS-O-0011",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-003",
+      "商品 ID": "MS-P-0011",
+      "源 SKU": "4411200",
+      "商品名称": "Lenovo - Y Gaming Precision Mouse - Black",
+      "型号": "Y Gaming Precision Mouse - GX30J34225",
+      "数量": "1",
+      "演示实付金额": "0 CNY",
+      "演示应付金额": "169 CNY",
+      "订单状态": "待付款",
+      "发货状态": "未发货",
+      "物流状态": "无物流",
+      "物流单号": "无",
+      "售后状态": "不适用",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-MS-O-0011",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "user_id": "DEMO-U-003",
+    "order_status": "pending_payment",
+    "order_status_label": "待付款",
+    "shipping_status": "未发货",
+    "logistics_status": "无物流",
+    "tracking_number": null,
+    "after_sales_status": "不适用",
+    "items": [
+      {
+        "product_id": "MS-P-0011",
+        "source_sku": "4411200",
+        "name": "Lenovo - Y Gaming Precision Mouse - Black",
+        "model": "Y Gaming Precision Mouse - GX30J34225",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 0.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 169.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-MS-O-0012",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-004",
+      "商品 ID": "MS-P-0012",
+      "源 SKU": "4455600",
+      "商品名称": "AZIO - Optical Gaming Mouse - Black",
+      "型号": "GM2400",
+      "数量": "1",
+      "演示实付金额": "129 CNY",
+      "演示应付金额": "129 CNY",
+      "订单状态": "已付款待发货",
+      "发货状态": "未发货",
+      "物流状态": "尚未揽收",
+      "物流单号": "无",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-MS-O-0012",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "user_id": "DEMO-U-004",
+    "order_status": "paid_unshipped",
+    "order_status_label": "已付款待发货",
+    "shipping_status": "未发货",
+    "logistics_status": "尚未揽收",
+    "tracking_number": null,
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "MS-P-0012",
+        "source_sku": "4455600",
+        "name": "AZIO - Optical Gaming Mouse - Black",
+        "model": "GM2400",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 129.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 129.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-MS-O-0013",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-001",
+      "商品 ID": "MS-P-0013",
+      "源 SKU": "4538448",
+      "商品名称": "HP - X4000 Wireless Laser Mouse - Black",
+      "型号": "A0X35AA#ABA",
+      "数量": "1",
+      "演示实付金额": "149 CNY",
+      "演示应付金额": "149 CNY",
+      "订单状态": "已发货",
+      "发货状态": "已发货",
+      "物流状态": "运输中",
+      "物流单号": "DEMO-TRACK-MS-0013",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "2026-10-19 09:00 Asia/Shanghai",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-MS-O-0013",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "user_id": "DEMO-U-001",
+    "order_status": "shipped",
+    "order_status_label": "已发货",
+    "shipping_status": "已发货",
+    "logistics_status": "运输中",
+    "tracking_number": "DEMO-TRACK-MS-0013",
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "MS-P-0013",
+        "source_sku": "4538448",
+        "name": "HP - X4000 Wireless Laser Mouse - Black",
+        "model": "A0X35AA#ABA",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 149.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 149.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": "2026-10-19T09:00:00+08:00",
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-MS-O-0014",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-002",
+      "商品 ID": "MS-P-0014",
+      "源 SKU": "4639400",
+      "商品名称": "Apple - Magic Mouse 2 - Silver",
+      "型号": "MLA02LL/A",
+      "数量": "1",
+      "演示实付金额": "169 CNY",
+      "演示应付金额": "169 CNY",
+      "订单状态": "已签收",
+      "发货状态": "已发货",
+      "物流状态": "已签收",
+      "物流单号": "DEMO-TRACK-MS-0014",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "2026-10-19 09:00 Asia/Shanghai",
+      "签收时间": "2026-10-20 18:00 Asia/Shanghai",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-MS-O-0014",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "user_id": "DEMO-U-002",
+    "order_status": "delivered",
+    "order_status_label": "已签收",
+    "shipping_status": "已发货",
+    "logistics_status": "已签收",
+    "tracking_number": "DEMO-TRACK-MS-0014",
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "MS-P-0014",
+        "source_sku": "4639400",
+        "name": "Apple - Magic Mouse 2 - Silver",
+        "model": "MLA02LL/A",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 169.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 169.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": "2026-10-19T09:00:00+08:00",
+    "delivered_at": "2026-10-20T18:00:00+08:00",
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-MS-O-0015",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-003",
+      "商品 ID": "MS-P-0015",
+      "源 SKU": "4969700",
+      "商品名称": "IOGEAR - Kaliber Gaming Chimera M2",
+      "型号": "GME652UR",
+      "数量": "1",
+      "演示实付金额": "0 CNY",
+      "演示应付金额": "129 CNY",
+      "订单状态": "已取消",
+      "发货状态": "未发货",
+      "物流状态": "无物流",
+      "物流单号": "无",
+      "售后状态": "不适用",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-MS-O-0015",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "user_id": "DEMO-U-003",
+    "order_status": "cancelled",
+    "order_status_label": "已取消",
+    "shipping_status": "未发货",
+    "logistics_status": "无物流",
+    "tracking_number": null,
+    "after_sales_status": "不适用",
+    "items": [
+      {
+        "product_id": "MS-P-0015",
+        "source_sku": "4969700",
+        "name": "IOGEAR - Kaliber Gaming Chimera M2",
+        "model": "GME652UR",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 0.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 129.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-MS-O-0016",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-004",
+      "商品 ID": "MS-P-0016",
+      "源 SKU": "4972800",
+      "商品名称": "Hori - EDGE 101 Optical Gaming Mouse",
+      "型号": "EGU-101",
+      "数量": "1",
+      "演示实付金额": "0 CNY",
+      "演示应付金额": "149 CNY",
+      "订单状态": "待付款",
+      "发货状态": "未发货",
+      "物流状态": "无物流",
+      "物流单号": "无",
+      "售后状态": "不适用",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-MS-O-0016",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "user_id": "DEMO-U-004",
+    "order_status": "pending_payment",
+    "order_status_label": "待付款",
+    "shipping_status": "未发货",
+    "logistics_status": "无物流",
+    "tracking_number": null,
+    "after_sales_status": "不适用",
+    "items": [
+      {
+        "product_id": "MS-P-0016",
+        "source_sku": "4972800",
+        "name": "Hori - EDGE 101 Optical Gaming Mouse",
+        "model": "EGU-101",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 0.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 149.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-MS-O-0017",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-001",
+      "商品 ID": "MS-P-0017",
+      "源 SKU": "5023202",
+      "商品名称": "Rock Candy - Rock Candy Optical Mouse - Cosmoberry",
+      "型号": "904-002-NA-PR",
+      "数量": "1",
+      "演示实付金额": "169 CNY",
+      "演示应付金额": "169 CNY",
+      "订单状态": "已付款待发货",
+      "发货状态": "未发货",
+      "物流状态": "尚未揽收",
+      "物流单号": "无",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-MS-O-0017",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "user_id": "DEMO-U-001",
+    "order_status": "paid_unshipped",
+    "order_status_label": "已付款待发货",
+    "shipping_status": "未发货",
+    "logistics_status": "尚未揽收",
+    "tracking_number": null,
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "MS-P-0017",
+        "source_sku": "5023202",
+        "name": "Rock Candy - Rock Candy Optical Mouse - Cosmoberry",
+        "model": "904-002-NA-PR",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 169.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 169.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-MS-O-0018",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-002",
+      "商品 ID": "MS-P-0018",
+      "源 SKU": "5079700",
+      "商品名称": "ROCCAT - ROCCAT KONE XTD Optical Mouse - Black",
+      "型号": "ROC-11-811",
+      "数量": "1",
+      "演示实付金额": "129 CNY",
+      "演示应付金额": "129 CNY",
+      "订单状态": "已发货",
+      "发货状态": "已发货",
+      "物流状态": "运输中",
+      "物流单号": "DEMO-TRACK-MS-0018",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "2026-10-19 09:00 Asia/Shanghai",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-MS-O-0018",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "user_id": "DEMO-U-002",
+    "order_status": "shipped",
+    "order_status_label": "已发货",
+    "shipping_status": "已发货",
+    "logistics_status": "运输中",
+    "tracking_number": "DEMO-TRACK-MS-0018",
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "MS-P-0018",
+        "source_sku": "5079700",
+        "name": "ROCCAT - ROCCAT KONE XTD Optical Mouse - Black",
+        "model": "ROC-11-811",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 129.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 129.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": "2026-10-19T09:00:00+08:00",
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-MS-O-0019",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-003",
+      "商品 ID": "MS-P-0019",
+      "源 SKU": "7653088",
+      "商品名称": "Dynex™ - USB Optical Mouse - Black",
+      "型号": "DX-WRM1402",
+      "数量": "1",
+      "演示实付金额": "149 CNY",
+      "演示应付金额": "149 CNY",
+      "订单状态": "已签收",
+      "发货状态": "已发货",
+      "物流状态": "已签收",
+      "物流单号": "DEMO-TRACK-MS-0019",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "2026-10-19 09:00 Asia/Shanghai",
+      "签收时间": "2026-10-20 18:00 Asia/Shanghai",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-MS-O-0019",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "user_id": "DEMO-U-003",
+    "order_status": "delivered",
+    "order_status_label": "已签收",
+    "shipping_status": "已发货",
+    "logistics_status": "已签收",
+    "tracking_number": "DEMO-TRACK-MS-0019",
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "MS-P-0019",
+        "source_sku": "7653088",
+        "name": "Dynex™ - USB Optical Mouse - Black",
+        "model": "DX-WRM1402",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 149.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 149.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": "2026-10-19T09:00:00+08:00",
+    "delivered_at": "2026-10-20T18:00:00+08:00",
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-MS-O-0020",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-004",
+      "商品 ID": "MS-P-0020",
+      "源 SKU": "8521016",
+      "商品名称": "Thermaltake - THERON Plus+ Laser Smart Mouse - Black/Red",
+      "型号": "MO-TRP-WDLOBK",
+      "数量": "1",
+      "演示实付金额": "0 CNY",
+      "演示应付金额": "169 CNY",
+      "订单状态": "已取消",
+      "发货状态": "未发货",
+      "物流状态": "无物流",
+      "物流单号": "无",
+      "售后状态": "不适用",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-MS-O-0020",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "user_id": "DEMO-U-004",
+    "order_status": "cancelled",
+    "order_status_label": "已取消",
+    "shipping_status": "未发货",
+    "logistics_status": "无物流",
+    "tracking_number": null,
+    "after_sales_status": "不适用",
+    "items": [
+      {
+        "product_id": "MS-P-0020",
+        "source_sku": "8521016",
+        "name": "Thermaltake - THERON Plus+ Laser Smart Mouse - Black/Red",
+        "model": "MO-TRP-WDLOBK",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 0.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 169.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-KB-O-0001",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-001",
+      "商品 ID": "KB-P-0001",
+      "源 SKU": "1117476",
+      "商品名称": "Seal Shield - Silver Storm Washable Keyboard - Black",
+      "型号": "Stk503",
+      "数量": "1",
+      "演示实付金额": "0 CNY",
+      "演示应付金额": "419 CNY",
+      "订单状态": "待付款",
+      "发货状态": "未发货",
+      "物流状态": "无物流",
+      "物流单号": "无",
+      "售后状态": "不适用",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-KB-O-0001",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "user_id": "DEMO-U-001",
+    "order_status": "pending_payment",
+    "order_status_label": "待付款",
+    "shipping_status": "未发货",
+    "logistics_status": "无物流",
+    "tracking_number": null,
+    "after_sales_status": "不适用",
+    "items": [
+      {
+        "product_id": "KB-P-0001",
+        "source_sku": "1117476",
+        "name": "Seal Shield - Silver Storm Washable Keyboard - Black",
+        "model": "Stk503",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 0.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 419.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-KB-O-0002",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-002",
+      "商品 ID": "KB-P-0002",
+      "源 SKU": "1261466",
+      "商品名称": "Logitech - K800 Wireless Illuminated Keyboard - Black",
+      "型号": "920-002359",
+      "数量": "1",
+      "演示实付金额": "439 CNY",
+      "演示应付金额": "439 CNY",
+      "订单状态": "已付款待发货",
+      "发货状态": "未发货",
+      "物流状态": "尚未揽收",
+      "物流单号": "无",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-KB-O-0002",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "user_id": "DEMO-U-002",
+    "order_status": "paid_unshipped",
+    "order_status_label": "已付款待发货",
+    "shipping_status": "未发货",
+    "logistics_status": "尚未揽收",
+    "tracking_number": null,
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "KB-P-0002",
+        "source_sku": "1261466",
+        "name": "Logitech - K800 Wireless Illuminated Keyboard - Black",
+        "model": "920-002359",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 439.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 439.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-KB-O-0003",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-003",
+      "商品 ID": "KB-P-0003",
+      "源 SKU": "1297009",
+      "商品名称": "HP - K3500 Wireless Keyboard - Black",
+      "型号": "K3500",
+      "数量": "1",
+      "演示实付金额": "399 CNY",
+      "演示应付金额": "399 CNY",
+      "订单状态": "已发货",
+      "发货状态": "已发货",
+      "物流状态": "运输中",
+      "物流单号": "DEMO-TRACK-KB-0003",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "2026-10-19 09:00 Asia/Shanghai",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-KB-O-0003",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "user_id": "DEMO-U-003",
+    "order_status": "shipped",
+    "order_status_label": "已发货",
+    "shipping_status": "已发货",
+    "logistics_status": "运输中",
+    "tracking_number": "DEMO-TRACK-KB-0003",
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "KB-P-0003",
+        "source_sku": "1297009",
+        "name": "HP - K3500 Wireless Keyboard - Black",
+        "model": "K3500",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 399.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 399.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": "2026-10-19T09:00:00+08:00",
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-KB-O-0004",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-004",
+      "商品 ID": "KB-P-0004",
+      "源 SKU": "1310702",
+      "商品名称": "Razer - DeathStalker Ultimate Gaming Keyboard - Black",
+      "型号": "RZ03-00790100-R3M1",
+      "数量": "1",
+      "演示实付金额": "419 CNY",
+      "演示应付金额": "419 CNY",
+      "订单状态": "已签收",
+      "发货状态": "已发货",
+      "物流状态": "已签收",
+      "物流单号": "DEMO-TRACK-KB-0004",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "2026-10-19 09:00 Asia/Shanghai",
+      "签收时间": "2026-10-20 18:00 Asia/Shanghai",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-KB-O-0004",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "user_id": "DEMO-U-004",
+    "order_status": "delivered",
+    "order_status_label": "已签收",
+    "shipping_status": "已发货",
+    "logistics_status": "已签收",
+    "tracking_number": "DEMO-TRACK-KB-0004",
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "KB-P-0004",
+        "source_sku": "1310702",
+        "name": "Razer - DeathStalker Ultimate Gaming Keyboard - Black",
+        "model": "RZ03-00790100-R3M1",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 419.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 419.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": "2026-10-19T09:00:00+08:00",
+    "delivered_at": "2026-10-20T18:00:00+08:00",
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-KB-O-0005",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-001",
+      "商品 ID": "KB-P-0005",
+      "源 SKU": "1355058",
+      "商品名称": "Adesso - SlimTouch Pro Wireless Keyboard - Black",
+      "型号": "Wkb-4200ub",
+      "数量": "1",
+      "演示实付金额": "0 CNY",
+      "演示应付金额": "439 CNY",
+      "订单状态": "已取消",
+      "发货状态": "未发货",
+      "物流状态": "无物流",
+      "物流单号": "无",
+      "售后状态": "不适用",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-KB-O-0005",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "user_id": "DEMO-U-001",
+    "order_status": "cancelled",
+    "order_status_label": "已取消",
+    "shipping_status": "未发货",
+    "logistics_status": "无物流",
+    "tracking_number": null,
+    "after_sales_status": "不适用",
+    "items": [
+      {
+        "product_id": "KB-P-0005",
+        "source_sku": "1355058",
+        "name": "Adesso - SlimTouch Pro Wireless Keyboard - Black",
+        "model": "Wkb-4200ub",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 0.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 439.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-KB-O-0006",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-002",
+      "商品 ID": "KB-P-0006",
+      "源 SKU": "3489041",
+      "商品名称": "Insignia™ - USB Keyboard - Black",
+      "型号": "NS-PNK5001",
+      "数量": "1",
+      "演示实付金额": "0 CNY",
+      "演示应付金额": "399 CNY",
+      "订单状态": "待付款",
+      "发货状态": "未发货",
+      "物流状态": "无物流",
+      "物流单号": "无",
+      "售后状态": "不适用",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-KB-O-0006",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "user_id": "DEMO-U-002",
+    "order_status": "pending_payment",
+    "order_status_label": "待付款",
+    "shipping_status": "未发货",
+    "logistics_status": "无物流",
+    "tracking_number": null,
+    "after_sales_status": "不适用",
+    "items": [
+      {
+        "product_id": "KB-P-0006",
+        "source_sku": "3489041",
+        "name": "Insignia™ - USB Keyboard - Black",
+        "model": "NS-PNK5001",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 0.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 399.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-KB-O-0007",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-003",
+      "商品 ID": "KB-P-0007",
+      "源 SKU": "3530113",
+      "商品名称": "SMK-Link - Ultra-Mini Wireless Keyboard and Touchpad - Black",
+      "型号": "VP6364",
+      "数量": "1",
+      "演示实付金额": "419 CNY",
+      "演示应付金额": "419 CNY",
+      "订单状态": "已付款待发货",
+      "发货状态": "未发货",
+      "物流状态": "尚未揽收",
+      "物流单号": "无",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-KB-O-0007",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "user_id": "DEMO-U-003",
+    "order_status": "paid_unshipped",
+    "order_status_label": "已付款待发货",
+    "shipping_status": "未发货",
+    "logistics_status": "尚未揽收",
+    "tracking_number": null,
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "KB-P-0007",
+        "source_sku": "3530113",
+        "name": "SMK-Link - Ultra-Mini Wireless Keyboard and Touchpad - Black",
+        "model": "VP6364",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 419.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 419.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-KB-O-0008",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-004",
+      "商品 ID": "KB-P-0008",
+      "源 SKU": "3730897",
+      "商品名称": "Verbatim - Keyboard",
+      "型号": "97537",
+      "数量": "1",
+      "演示实付金额": "439 CNY",
+      "演示应付金额": "439 CNY",
+      "订单状态": "已发货",
+      "发货状态": "已发货",
+      "物流状态": "运输中",
+      "物流单号": "DEMO-TRACK-KB-0008",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "2026-10-19 09:00 Asia/Shanghai",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-KB-O-0008",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "user_id": "DEMO-U-004",
+    "order_status": "shipped",
+    "order_status_label": "已发货",
+    "shipping_status": "已发货",
+    "logistics_status": "运输中",
+    "tracking_number": "DEMO-TRACK-KB-0008",
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "KB-P-0008",
+        "source_sku": "3730897",
+        "name": "Verbatim - Keyboard",
+        "model": "97537",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 439.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 439.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": "2026-10-19T09:00:00+08:00",
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-KB-O-0009",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-001",
+      "商品 ID": "KB-P-0009",
+      "源 SKU": "3744935",
+      "商品名称": "DataCal - Arabic and English Bilingual Keyboard - Black",
+      "型号": "CD-1049",
+      "数量": "1",
+      "演示实付金额": "399 CNY",
+      "演示应付金额": "399 CNY",
+      "订单状态": "已签收",
+      "发货状态": "已发货",
+      "物流状态": "已签收",
+      "物流单号": "DEMO-TRACK-KB-0009",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "2026-10-19 09:00 Asia/Shanghai",
+      "签收时间": "2026-10-20 18:00 Asia/Shanghai",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-KB-O-0009",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "user_id": "DEMO-U-001",
+    "order_status": "delivered",
+    "order_status_label": "已签收",
+    "shipping_status": "已发货",
+    "logistics_status": "已签收",
+    "tracking_number": "DEMO-TRACK-KB-0009",
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "KB-P-0009",
+        "source_sku": "3744935",
+        "name": "DataCal - Arabic and English Bilingual Keyboard - Black",
+        "model": "CD-1049",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 399.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 399.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": "2026-10-19T09:00:00+08:00",
+    "delivered_at": "2026-10-20T18:00:00+08:00",
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-KB-O-0010",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-002",
+      "商品 ID": "KB-P-0010",
+      "源 SKU": "4370907",
+      "商品名称": "Corsair - Strafe RGB MX Silent Gaming Keyboard - Black",
+      "型号": "STRAFE RGB SILENT",
+      "数量": "1",
+      "演示实付金额": "0 CNY",
+      "演示应付金额": "419 CNY",
+      "订单状态": "已取消",
+      "发货状态": "未发货",
+      "物流状态": "无物流",
+      "物流单号": "无",
+      "售后状态": "不适用",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-KB-O-0010",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "user_id": "DEMO-U-002",
+    "order_status": "cancelled",
+    "order_status_label": "已取消",
+    "shipping_status": "未发货",
+    "logistics_status": "无物流",
+    "tracking_number": null,
+    "after_sales_status": "不适用",
+    "items": [
+      {
+        "product_id": "KB-P-0010",
+        "source_sku": "4370907",
+        "name": "Corsair - Strafe RGB MX Silent Gaming Keyboard - Black",
+        "model": "STRAFE RGB SILENT",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 0.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 419.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-KB-O-0011",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-003",
+      "商品 ID": "KB-P-0011",
+      "源 SKU": "4455605",
+      "商品名称": "AZIO - L70 Backlit Gaming Keyboard - Black",
+      "型号": "KB501",
+      "数量": "1",
+      "演示实付金额": "0 CNY",
+      "演示应付金额": "439 CNY",
+      "订单状态": "待付款",
+      "发货状态": "未发货",
+      "物流状态": "无物流",
+      "物流单号": "无",
+      "售后状态": "不适用",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-KB-O-0011",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "user_id": "DEMO-U-003",
+    "order_status": "pending_payment",
+    "order_status_label": "待付款",
+    "shipping_status": "未发货",
+    "logistics_status": "无物流",
+    "tracking_number": null,
+    "after_sales_status": "不适用",
+    "items": [
+      {
+        "product_id": "KB-P-0011",
+        "source_sku": "4455605",
+        "name": "AZIO - L70 Backlit Gaming Keyboard - Black",
+        "model": "KB501",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 0.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 439.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-KB-O-0012",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-004",
+      "商品 ID": "KB-P-0012",
+      "源 SKU": "4519200",
+      "商品名称": "Lenovo - Y Gaming Mechanical Switch Keyboard - Black",
+      "型号": "Y GAMING KEYBOARD - GX30K04088",
+      "数量": "1",
+      "演示实付金额": "399 CNY",
+      "演示应付金额": "399 CNY",
+      "订单状态": "已付款待发货",
+      "发货状态": "未发货",
+      "物流状态": "尚未揽收",
+      "物流单号": "无",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-KB-O-0012",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "user_id": "DEMO-U-004",
+    "order_status": "paid_unshipped",
+    "order_status_label": "已付款待发货",
+    "shipping_status": "未发货",
+    "logistics_status": "尚未揽收",
+    "tracking_number": null,
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "KB-P-0012",
+        "source_sku": "4519200",
+        "name": "Lenovo - Y Gaming Mechanical Switch Keyboard - Black",
+        "model": "Y GAMING KEYBOARD - GX30K04088",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 399.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 399.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-KB-O-0013",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-001",
+      "商品 ID": "KB-P-0013",
+      "源 SKU": "4639101",
+      "商品名称": "Apple - Magic Keyboard - Silver",
+      "型号": "MLA22LL/A",
+      "数量": "1",
+      "演示实付金额": "419 CNY",
+      "演示应付金额": "419 CNY",
+      "订单状态": "已发货",
+      "发货状态": "已发货",
+      "物流状态": "运输中",
+      "物流单号": "DEMO-TRACK-KB-0013",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "2026-10-19 09:00 Asia/Shanghai",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-KB-O-0013",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "user_id": "DEMO-U-001",
+    "order_status": "shipped",
+    "order_status_label": "已发货",
+    "shipping_status": "已发货",
+    "logistics_status": "运输中",
+    "tracking_number": "DEMO-TRACK-KB-0013",
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "KB-P-0013",
+        "source_sku": "4639101",
+        "name": "Apple - Magic Keyboard - Silver",
+        "model": "MLA22LL/A",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 419.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 419.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": "2026-10-19T09:00:00+08:00",
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-KB-O-0014",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-002",
+      "商品 ID": "KB-P-0014",
+      "源 SKU": "4826005",
+      "商品名称": "IOGEAR - Kaliber Gaming IKON Gaming Keyboard - Black",
+      "型号": "GKB703L",
+      "数量": "1",
+      "演示实付金额": "439 CNY",
+      "演示应付金额": "439 CNY",
+      "订单状态": "已签收",
+      "发货状态": "已发货",
+      "物流状态": "已签收",
+      "物流单号": "DEMO-TRACK-KB-0014",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "2026-10-19 09:00 Asia/Shanghai",
+      "签收时间": "2026-10-20 18:00 Asia/Shanghai",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-KB-O-0014",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "user_id": "DEMO-U-002",
+    "order_status": "delivered",
+    "order_status_label": "已签收",
+    "shipping_status": "已发货",
+    "logistics_status": "已签收",
+    "tracking_number": "DEMO-TRACK-KB-0014",
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "KB-P-0014",
+        "source_sku": "4826005",
+        "name": "IOGEAR - Kaliber Gaming IKON Gaming Keyboard - Black",
+        "model": "GKB703L",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 439.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 439.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": "2026-10-19T09:00:00+08:00",
+    "delivered_at": "2026-10-20T18:00:00+08:00",
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-KB-O-0015",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-003",
+      "商品 ID": "KB-P-0015",
+      "源 SKU": "4973101",
+      "商品名称": "Hori - EDGE 201 Mechanical Gaming Keyboard",
+      "型号": "EGU-201",
+      "数量": "1",
+      "演示实付金额": "0 CNY",
+      "演示应付金额": "399 CNY",
+      "订单状态": "已取消",
+      "发货状态": "未发货",
+      "物流状态": "无物流",
+      "物流单号": "无",
+      "售后状态": "不适用",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-KB-O-0015",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "user_id": "DEMO-U-003",
+    "order_status": "cancelled",
+    "order_status_label": "已取消",
+    "shipping_status": "未发货",
+    "logistics_status": "无物流",
+    "tracking_number": null,
+    "after_sales_status": "不适用",
+    "items": [
+      {
+        "product_id": "KB-P-0015",
+        "source_sku": "4973101",
+        "name": "Hori - EDGE 201 Mechanical Gaming Keyboard",
+        "model": "EGU-201",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 0.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 399.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-KB-O-0016",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-004",
+      "商品 ID": "KB-P-0016",
+      "源 SKU": "5057503",
+      "商品名称": "ROCCAT - Isku FX Multicolor Gaming Keyboard - White",
+      "型号": "ROC-12-921",
+      "数量": "1",
+      "演示实付金额": "0 CNY",
+      "演示应付金额": "419 CNY",
+      "订单状态": "待付款",
+      "发货状态": "未发货",
+      "物流状态": "无物流",
+      "物流单号": "无",
+      "售后状态": "不适用",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-KB-O-0016",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "user_id": "DEMO-U-004",
+    "order_status": "pending_payment",
+    "order_status_label": "待付款",
+    "shipping_status": "未发货",
+    "logistics_status": "无物流",
+    "tracking_number": null,
+    "after_sales_status": "不适用",
+    "items": [
+      {
+        "product_id": "KB-P-0016",
+        "source_sku": "5057503",
+        "name": "ROCCAT - Isku FX Multicolor Gaming Keyboard - White",
+        "model": "ROC-12-921",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 0.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 419.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-KB-O-0017",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-001",
+      "商品 ID": "KB-P-0017",
+      "源 SKU": "5222503",
+      "商品名称": "TG3 Electronics - CK103S Keyboard - Black",
+      "型号": "KBA-CK103S-BNUN-US",
+      "数量": "1",
+      "演示实付金额": "439 CNY",
+      "演示应付金额": "439 CNY",
+      "订单状态": "已付款待发货",
+      "发货状态": "未发货",
+      "物流状态": "尚未揽收",
+      "物流单号": "无",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-KB-O-0017",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "user_id": "DEMO-U-001",
+    "order_status": "paid_unshipped",
+    "order_status_label": "已付款待发货",
+    "shipping_status": "未发货",
+    "logistics_status": "尚未揽收",
+    "tracking_number": null,
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "KB-P-0017",
+        "source_sku": "5222503",
+        "name": "TG3 Electronics - CK103S Keyboard - Black",
+        "model": "KBA-CK103S-BNUN-US",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 439.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 439.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-KB-O-0018",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-002",
+      "商品 ID": "KB-P-0018",
+      "源 SKU": "5222507",
+      "商品名称": "Deck - Francium Pro Gaming Keyboard",
+      "型号": "KBA-CBL87P-BLU-DPU-E1",
+      "数量": "1",
+      "演示实付金额": "399 CNY",
+      "演示应付金额": "399 CNY",
+      "订单状态": "已发货",
+      "发货状态": "已发货",
+      "物流状态": "运输中",
+      "物流单号": "DEMO-TRACK-KB-0018",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "2026-10-19 09:00 Asia/Shanghai",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-KB-O-0018",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "user_id": "DEMO-U-002",
+    "order_status": "shipped",
+    "order_status_label": "已发货",
+    "shipping_status": "已发货",
+    "logistics_status": "运输中",
+    "tracking_number": "DEMO-TRACK-KB-0018",
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "KB-P-0018",
+        "source_sku": "5222507",
+        "name": "Deck - Francium Pro Gaming Keyboard",
+        "model": "KBA-CBL87P-BLU-DPU-E1",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 399.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 399.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": "2026-10-19T09:00:00+08:00",
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-KB-O-0019",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-003",
+      "商品 ID": "KB-P-0019",
+      "源 SKU": "6032006",
+      "商品名称": "Celluon - Epic Wireless Projection Keyboard - Silver",
+      "型号": "EPIC",
+      "数量": "1",
+      "演示实付金额": "419 CNY",
+      "演示应付金额": "419 CNY",
+      "订单状态": "已签收",
+      "发货状态": "已发货",
+      "物流状态": "已签收",
+      "物流单号": "DEMO-TRACK-KB-0019",
+      "售后状态": "无售后",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "2026-10-19 09:00 Asia/Shanghai",
+      "签收时间": "2026-10-20 18:00 Asia/Shanghai",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-KB-O-0019",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "user_id": "DEMO-U-003",
+    "order_status": "delivered",
+    "order_status_label": "已签收",
+    "shipping_status": "已发货",
+    "logistics_status": "已签收",
+    "tracking_number": "DEMO-TRACK-KB-0019",
+    "after_sales_status": "无售后",
+    "items": [
+      {
+        "product_id": "KB-P-0019",
+        "source_sku": "6032006",
+        "name": "Celluon - Epic Wireless Projection Keyboard - Silver",
+        "model": "EPIC",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 419.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 419.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": "2026-10-19T09:00:00+08:00",
+    "delivered_at": "2026-10-20T18:00:00+08:00",
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  },
+  {
+    "id": "DEMO-KB-O-0020",
+    "record_type": "synthetic_order",
+    "synthetic": true,
+    "original_fields": {
+      "synthetic": "true",
+      "用户 ID": "DEMO-U-004",
+      "商品 ID": "KB-P-0020",
+      "源 SKU": "7332059",
+      "商品名称": "Microsoft - Natural Ergonomic Keyboard 4000 - Black",
+      "型号": "B2M-00012",
+      "数量": "1",
+      "演示实付金额": "0 CNY",
+      "演示应付金额": "439 CNY",
+      "订单状态": "已取消",
+      "发货状态": "未发货",
+      "物流状态": "无物流",
+      "物流单号": "无",
+      "售后状态": "不适用",
+      "创建时间": "2026-10-18 10:00 Asia/Shanghai",
+      "发货时间": "无",
+      "签收时间": "无",
+      "状态快照时间": "2026-10-21 12:00 Asia/Shanghai",
+      "收货信息": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+      "说明": "无真实平台执行；查询结果按本订单快照展示"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "演示业务/演示订单.md",
+      "original_heading": "DEMO-KB-O-0020",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "user_id": "DEMO-U-004",
+    "order_status": "cancelled",
+    "order_status_label": "已取消",
+    "shipping_status": "未发货",
+    "logistics_status": "无物流",
+    "tracking_number": null,
+    "after_sales_status": "不适用",
+    "items": [
+      {
+        "product_id": "KB-P-0020",
+        "source_sku": "7332059",
+        "name": "Microsoft - Natural Ergonomic Keyboard 4000 - Black",
+        "model": "B2M-00012",
+        "quantity": 1
+      }
+    ],
+    "paid_amount": {
+      "amount": 0.0,
+      "currency": "CNY"
+    },
+    "payable_amount": {
+      "amount": 439.0,
+      "currency": "CNY"
+    },
+    "created_at": "2026-10-18T10:00:00+08:00",
+    "shipped_at": null,
+    "delivered_at": null,
+    "snapshot_at": "2026-10-21T12:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "address": null,
+    "address_note": "未采集，演示仅用 DEMO-ADDRESS 标识，不含个人信息",
+    "notes": "无真实平台执行；查询结果按本订单快照展示"
+  }
+]

@@ -1,0 +1,53 @@
+{
+  "status": "passed",
+  "counts": {
+    "products": 379,
+    "product_faqs": 1140,
+    "support_knowledge": 60,
+    "after_sales_cases": 2021,
+    "orders": 60,
+    "tickets": 18,
+    "sources": 12,
+    "business_rules": 5
+  },
+  "main_record_count": 3600,
+  "unique_record_ids": 3695,
+  "checks": [
+    "JSON读回与转换对象一致",
+    "ID全局唯一",
+    "商品问答关联完整",
+    "知识与来源引用完整",
+    "订单商品SKU一致",
+    "工单与订单用户及商品一致",
+    "模拟标记为布尔值",
+    "用户要求人工的路由保留",
+    "每类主体1200条"
+  ],
+  "historical_source_markdown_hashes": {
+    "来源登记册.md": "cb341549036823008058b585dd64fab2aa19bcd8cf932ab1d3ee5980974bc1cf",
+    "演示业务/演示处理规则.md": "e1a4ddb6f07849e7caa83a71fa5bd0916866323de51ca65ad3a61122a560a4ae",
+    "演示业务/演示工单.md": "af3e6cdbb410887b0b1f1030cf3da46664e954ebd90e23cfae81fd46cbbe5d9f",
+    "演示业务/演示订单.md": "0ba597c309e552f3c666a0dc51d537fe187a405836be71379b5a3b6b2ddae45f",
+    "耳机/商品事实问答.md": "9ecdd19023bdbed3406f6caa32556c910180896d4e740a17b96eefb3f116b2d6",
+    "耳机/商品资料.md": "1121b55695da01422d7e76e5e23b8ccf714ceb5ada235ef2f117b78318067414",
+    "耳机/故障知识.md": "da94c358ecb14b33f04b3aca685f299af4967e5ef598fb822ee55a27c2ba0dc7",
+    "耳机/模拟售后案例_01.md": "8c5580422c3e524fe5aaa2ff8539871e1547bafd74048cb7b7fd2d4d02acaa9d",
+    "耳机/模拟售后案例_02.md": "12f833f6f2000fd6884d4b6f5be8674ce01bc7915f9434f6f7348bb9b6733e78",
+    "耳机/模拟售后案例_03.md": "0c9dbcc839e0a0bdd121e73bbdd37c6c94fb04564ebd4dfcbba0768090c4d76d",
+    "键盘/商品事实问答.md": "f8f0289d140a328780f3a36186455dde00af88c76671bf0286d20467f23896a8",
+    "键盘/商品资料.md": "c1d142aea266c426cde65f2dd0a81f98d3c4157fc473d1bfe21b41045b488a7a",
+    "键盘/故障知识.md": "6676a263ddf5b5c01ea57dd505b1a0096933a2e80634ba2a0bb9383e458d21a0",
+    "键盘/模拟售后案例_01.md": "422f03b7f6c06e2ef718a224200a90a32c293e9b1e6c2132f42086fca3bd447f",
+    "键盘/模拟售后案例_02.md": "bcf1330fc448ebbb432fff1ccced5b24626e38deb42b6dec7cf7b46f5519abd1",
+    "键盘/模拟售后案例_03.md": "5b5c3a5ed096f904b039165a02340e15067ad955f58b42118d734b399b3b5f24",
+    "键盘/模拟售后案例_04.md": "db9565916b672091bd1ea5e80de2059c365bd6ff602a4c535957dd9d909d523b",
+    "鼠标/商品事实问答.md": "65bea9efd121f23b508d366fc3649db3e5d415b010bcf22090d1f65bffef4cd4",
+    "鼠标/商品资料.md": "fb1385c55f8313d5ba36d89b1b7316ded61636e72f745efd919bf93b5373fb48",
+    "鼠标/故障知识.md": "13fa220642a0bb2d742e6da1616aa915368d34c09f6381fe2e55458203958b92",
+    "鼠标/模拟售后案例_01.md": "cff9f62bebb718d3629961c8c85b94d9b8ffb40279d8660b43cd65bd0acf7f86",
+    "鼠标/模拟售后案例_02.md": "39785ac74b186df6d5e4f0c2277457c85501bef70e02fa957c77d7f742cef77a",
+    "鼠标/模拟售后案例_03.md": "39b4c18a41b065ae7394b3a1bf4552a7584c636432b3d98c1247c2e277a3948d",
+    "鼠标/模拟售后案例_04.md": "a8f346cd900b35655be7470077966bdccaf5378d5b705b48399c5469e9d7144b"
+  },
+  "original_markdown_retained": false
+}

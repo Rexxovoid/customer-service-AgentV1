@@ -1,0 +1,2342 @@
+[
+  {
+    "id": "HP-K-0001",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "蓝牙找不到设备",
+      "答案": "核对蓝牙开启与配对状态。",
+      "适用条件": "Windows 蓝牙设备；具体配对键以型号手册为准",
+      "来源": "[S02 · Windows 蓝牙连接排查](https://support.microsoft.com/en-us/windows/hardware/bluetooth/troubleshoot-bluetooth-not-connecting-in-windows)",
+      "原文定位": "Solution 2",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "耳机/故障知识.md",
+      "original_heading": "HP-K-0001",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "蓝牙找不到设备",
+    "answer": "核对蓝牙开启与配对状态。",
+    "applicability": "Windows 蓝牙设备；具体配对键以型号手册为准",
+    "source": {
+      "source_id": "S02",
+      "url": "https://support.microsoft.com/en-us/windows/hardware/bluetooth/troubleshoot-bluetooth-not-connecting-in-windows",
+      "reference_text": "[S02 · Windows 蓝牙连接排查](https://support.microsoft.com/en-us/windows/hardware/bluetooth/troubleshoot-bluetooth-not-connecting-in-windows)"
+    },
+    "source_locator": "Solution 2",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "HP-K-0002",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "蓝牙连接不稳定",
+      "答案": "靠近主机，检查电量。",
+      "适用条件": "Windows 蓝牙设备；具体配对键以型号手册为准",
+      "来源": "[S02 · Windows 蓝牙连接排查](https://support.microsoft.com/en-us/windows/hardware/bluetooth/troubleshoot-bluetooth-not-connecting-in-windows)",
+      "原文定位": "Solutions 2/4",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "耳机/故障知识.md",
+      "original_heading": "HP-K-0002",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "蓝牙连接不稳定",
+    "answer": "靠近主机，检查电量。",
+    "applicability": "Windows 蓝牙设备；具体配对键以型号手册为准",
+    "source": {
+      "source_id": "S02",
+      "url": "https://support.microsoft.com/en-us/windows/hardware/bluetooth/troubleshoot-bluetooth-not-connecting-in-windows",
+      "reference_text": "[S02 · Windows 蓝牙连接排查](https://support.microsoft.com/en-us/windows/hardware/bluetooth/troubleshoot-bluetooth-not-connecting-in-windows)"
+    },
+    "source_locator": "Solutions 2/4",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "HP-K-0003",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "记录存在但连不上",
+      "答案": "移除旧配对后重新添加。",
+      "适用条件": "Windows 蓝牙设备；具体配对键以型号手册为准",
+      "来源": "[S02 · Windows 蓝牙连接排查](https://support.microsoft.com/en-us/windows/hardware/bluetooth/troubleshoot-bluetooth-not-connecting-in-windows)",
+      "原文定位": "Solution 3",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "耳机/故障知识.md",
+      "original_heading": "HP-K-0003",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "记录存在但连不上",
+    "answer": "移除旧配对后重新添加。",
+    "applicability": "Windows 蓝牙设备；具体配对键以型号手册为准",
+    "source": {
+      "source_id": "S02",
+      "url": "https://support.microsoft.com/en-us/windows/hardware/bluetooth/troubleshoot-bluetooth-not-connecting-in-windows",
+      "reference_text": "[S02 · Windows 蓝牙连接排查](https://support.microsoft.com/en-us/windows/hardware/bluetooth/troubleshoot-bluetooth-not-connecting-in-windows)"
+    },
+    "source_locator": "Solution 3",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "HP-K-0004",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "系统无声先查哪里",
+      "答案": "核对当前音频输出设备。",
+      "适用条件": "Windows 系统音频，非特定耳机硬件结论",
+      "来源": "[S07 · Windows 音频排查](https://support.microsoft.com/en-US/Windows/Hardware/Audio/fix-sound-or-audio-problems-in-windows)",
+      "原文定位": "Step 1",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "耳机/故障知识.md",
+      "original_heading": "HP-K-0004",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "系统无声先查哪里",
+    "answer": "核对当前音频输出设备。",
+    "applicability": "Windows 系统音频，非特定耳机硬件结论",
+    "source": {
+      "source_id": "S07",
+      "url": "https://support.microsoft.com/en-US/Windows/Hardware/Audio/fix-sound-or-audio-problems-in-windows",
+      "reference_text": "[S07 · Windows 音频排查](https://support.microsoft.com/en-US/Windows/Hardware/Audio/fix-sound-or-audio-problems-in-windows)"
+    },
+    "source_locator": "Step 1",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "HP-K-0005",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "音量仍为零",
+      "答案": "检查系统与应用静音。",
+      "适用条件": "Windows 系统音频，非特定耳机硬件结论",
+      "来源": "[S07 · Windows 音频排查](https://support.microsoft.com/en-US/Windows/Hardware/Audio/fix-sound-or-audio-problems-in-windows)",
+      "原文定位": "Step 2",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "耳机/故障知识.md",
+      "original_heading": "HP-K-0005",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "音量仍为零",
+    "answer": "检查系统与应用静音。",
+    "applicability": "Windows 系统音频，非特定耳机硬件结论",
+    "source": {
+      "source_id": "S07",
+      "url": "https://support.microsoft.com/en-US/Windows/Hardware/Audio/fix-sound-or-audio-problems-in-windows",
+      "reference_text": "[S07 · Windows 音频排查](https://support.microsoft.com/en-US/Windows/Hardware/Audio/fix-sound-or-audio-problems-in-windows)"
+    },
+    "source_locator": "Step 2",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "HP-K-0006",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "插线后无声",
+      "答案": "检查线缆、接口是否接妥。",
+      "适用条件": "Windows 系统音频，非特定耳机硬件结论",
+      "来源": "[S07 · Windows 音频排查](https://support.microsoft.com/en-US/Windows/Hardware/Audio/fix-sound-or-audio-problems-in-windows)",
+      "原文定位": "Step 2",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "耳机/故障知识.md",
+      "original_heading": "HP-K-0006",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "插线后无声",
+    "answer": "检查线缆、接口是否接妥。",
+    "applicability": "Windows 系统音频，非特定耳机硬件结论",
+    "source": {
+      "source_id": "S07",
+      "url": "https://support.microsoft.com/en-US/Windows/Hardware/Audio/fix-sound-or-audio-problems-in-windows",
+      "reference_text": "[S07 · Windows 音频排查](https://support.microsoft.com/en-US/Windows/Hardware/Audio/fix-sound-or-audio-problems-in-windows)"
+    },
+    "source_locator": "Step 2",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "HP-K-0007",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "音效异常可先查什么",
+      "答案": "核查音频增强设置。",
+      "适用条件": "Windows 系统音频，非特定耳机硬件结论",
+      "来源": "[S07 · Windows 音频排查](https://support.microsoft.com/en-US/Windows/Hardware/Audio/fix-sound-or-audio-problems-in-windows)",
+      "原文定位": "Step 3",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "耳机/故障知识.md",
+      "original_heading": "HP-K-0007",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "音效异常可先查什么",
+    "answer": "核查音频增强设置。",
+    "applicability": "Windows 系统音频，非特定耳机硬件结论",
+    "source": {
+      "source_id": "S07",
+      "url": "https://support.microsoft.com/en-US/Windows/Hardware/Audio/fix-sound-or-audio-problems-in-windows",
+      "reference_text": "[S07 · Windows 音频排查](https://support.microsoft.com/en-US/Windows/Hardware/Audio/fix-sound-or-audio-problems-in-windows)"
+    },
+    "source_locator": "Step 3",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "HP-K-0008",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "Windows 音频如何诊断",
+      "答案": "使用系统音频疑难解答。",
+      "适用条件": "Windows 系统音频，非特定耳机硬件结论",
+      "来源": "[S07 · Windows 音频排查](https://support.microsoft.com/en-US/Windows/Hardware/Audio/fix-sound-or-audio-problems-in-windows)",
+      "原文定位": "Run troubleshooter",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "耳机/故障知识.md",
+      "original_heading": "HP-K-0008",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "Windows 音频如何诊断",
+    "answer": "使用系统音频疑难解答。",
+    "applicability": "Windows 系统音频，非特定耳机硬件结论",
+    "source": {
+      "source_id": "S07",
+      "url": "https://support.microsoft.com/en-US/Windows/Hardware/Audio/fix-sound-or-audio-problems-in-windows",
+      "reference_text": "[S07 · Windows 音频排查](https://support.microsoft.com/en-US/Windows/Hardware/Audio/fix-sound-or-audio-problems-in-windows)"
+    },
+    "source_locator": "Run troubleshooter",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "HP-K-0009",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "更新后音频异常",
+      "答案": "记录驱动更新前后的差异。",
+      "适用条件": "Windows 系统音频，非特定耳机硬件结论",
+      "来源": "[S07 · Windows 音频排查](https://support.microsoft.com/en-US/Windows/Hardware/Audio/fix-sound-or-audio-problems-in-windows)",
+      "原文定位": "Audio issues after updates",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "耳机/故障知识.md",
+      "original_heading": "HP-K-0009",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "更新后音频异常",
+    "answer": "记录驱动更新前后的差异。",
+    "applicability": "Windows 系统音频，非特定耳机硬件结论",
+    "source": {
+      "source_id": "S07",
+      "url": "https://support.microsoft.com/en-US/Windows/Hardware/Audio/fix-sound-or-audio-problems-in-windows",
+      "reference_text": "[S07 · Windows 音频排查](https://support.microsoft.com/en-US/Windows/Hardware/Audio/fix-sound-or-audio-problems-in-windows)"
+    },
+    "source_locator": "Audio issues after updates",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "HP-K-0010",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "会议中别人听不到",
+      "答案": "检查麦克风静音。",
+      "适用条件": "Windows 带麦克风设备；不推定所有耳机有麦克风",
+      "来源": "[S08 · Windows 麦克风排查](https://support.microsoft.com/en-us/windows/hardware/drivers/fix-microphone-problems)",
+      "原文定位": "Others cannot hear me",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "耳机/故障知识.md",
+      "original_heading": "HP-K-0010",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "会议中别人听不到",
+    "answer": "检查麦克风静音。",
+    "applicability": "Windows 带麦克风设备；不推定所有耳机有麦克风",
+    "source": {
+      "source_id": "S08",
+      "url": "https://support.microsoft.com/en-us/windows/hardware/drivers/fix-microphone-problems",
+      "reference_text": "[S08 · Windows 麦克风排查](https://support.microsoft.com/en-us/windows/hardware/drivers/fix-microphone-problems)"
+    },
+    "source_locator": "Others cannot hear me",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "HP-K-0011",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "应用没有录音权限",
+      "答案": "核查系统麦克风权限。",
+      "适用条件": "Windows 带麦克风设备；不推定所有耳机有麦克风",
+      "来源": "[S08 · Windows 麦克风排查](https://support.microsoft.com/en-us/windows/hardware/drivers/fix-microphone-problems)",
+      "原文定位": "App access",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "耳机/故障知识.md",
+      "original_heading": "HP-K-0011",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "应用没有录音权限",
+    "answer": "核查系统麦克风权限。",
+    "applicability": "Windows 带麦克风设备；不推定所有耳机有麦克风",
+    "source": {
+      "source_id": "S08",
+      "url": "https://support.microsoft.com/en-us/windows/hardware/drivers/fix-microphone-problems",
+      "reference_text": "[S08 · Windows 麦克风排查](https://support.microsoft.com/en-us/windows/hardware/drivers/fix-microphone-problems)"
+    },
+    "source_locator": "App access",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "HP-K-0012",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "录音设备选错",
+      "答案": "选定正确输入设备。",
+      "适用条件": "Windows 带麦克风设备；不推定所有耳机有麦克风",
+      "来源": "[S08 · Windows 麦克风排查](https://support.microsoft.com/en-us/windows/hardware/drivers/fix-microphone-problems)",
+      "原文定位": "Others cannot hear me",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "耳机/故障知识.md",
+      "original_heading": "HP-K-0012",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "录音设备选错",
+    "answer": "选定正确输入设备。",
+    "applicability": "Windows 带麦克风设备；不推定所有耳机有麦克风",
+    "source": {
+      "source_id": "S08",
+      "url": "https://support.microsoft.com/en-us/windows/hardware/drivers/fix-microphone-problems",
+      "reference_text": "[S08 · Windows 麦克风排查](https://support.microsoft.com/en-us/windows/hardware/drivers/fix-microphone-problems)"
+    },
+    "source_locator": "Others cannot hear me",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "HP-K-0013",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "如何确认录音效果",
+      "答案": "使用系统麦克风测试。",
+      "适用条件": "Windows 带麦克风设备；不推定所有耳机有麦克风",
+      "来源": "[S08 · Windows 麦克风排查](https://support.microsoft.com/en-us/windows/hardware/drivers/fix-microphone-problems)",
+      "原文定位": "Microphone test",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "耳机/故障知识.md",
+      "original_heading": "HP-K-0013",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "如何确认录音效果",
+    "answer": "使用系统麦克风测试。",
+    "applicability": "Windows 带麦克风设备；不推定所有耳机有麦克风",
+    "source": {
+      "source_id": "S08",
+      "url": "https://support.microsoft.com/en-us/windows/hardware/drivers/fix-microphone-problems",
+      "reference_text": "[S08 · Windows 麦克风排查](https://support.microsoft.com/en-us/windows/hardware/drivers/fix-microphone-problems)"
+    },
+    "source_locator": "Microphone test",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "HP-K-0014",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "USB 耳机未识别",
+      "答案": "按接口类型换端口直连。",
+      "适用条件": "Corsair 对应连接方式；iCUE 仅限兼容设备",
+      "来源": "[S06 · Corsair 耳机识别排查](https://help.corsair.com/hc/en-us/articles/14791910782477-My-headset-isn-t-being-detected-by-my-computer)",
+      "原文定位": "Wired headset",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "耳机/故障知识.md",
+      "original_heading": "HP-K-0014",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "USB 耳机未识别",
+    "answer": "按接口类型换端口直连。",
+    "applicability": "Corsair 对应连接方式；iCUE 仅限兼容设备",
+    "source": {
+      "source_id": "S06",
+      "url": "https://help.corsair.com/hc/en-us/articles/14791910782477-My-headset-isn-t-being-detected-by-my-computer",
+      "reference_text": "[S06 · Corsair 耳机识别排查](https://help.corsair.com/hc/en-us/articles/14791910782477-My-headset-isn-t-being-detected-by-my-computer)"
+    },
+    "source_locator": "Wired headset",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "HP-K-0015",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "接收器耳机未识别",
+      "答案": "确认接收器接入且耳机开机。",
+      "适用条件": "Corsair 对应连接方式；iCUE 仅限兼容设备",
+      "来源": "[S06 · Corsair 耳机识别排查](https://help.corsair.com/hc/en-us/articles/14791910782477-My-headset-isn-t-being-detected-by-my-computer)",
+      "原文定位": "Wireless dongle",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "耳机/故障知识.md",
+      "original_heading": "HP-K-0015",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "接收器耳机未识别",
+    "answer": "确认接收器接入且耳机开机。",
+    "applicability": "Corsair 对应连接方式；iCUE 仅限兼容设备",
+    "source": {
+      "source_id": "S06",
+      "url": "https://help.corsair.com/hc/en-us/articles/14791910782477-My-headset-isn-t-being-detected-by-my-computer",
+      "reference_text": "[S06 · Corsair 耳机识别排查](https://help.corsair.com/hc/en-us/articles/14791910782477-My-headset-isn-t-being-detected-by-my-computer)"
+    },
+    "source_locator": "Wireless dongle",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "HP-K-0016",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "如何定位主机问题",
+      "答案": "使用另一设备对照。",
+      "适用条件": "Corsair 对应连接方式；iCUE 仅限兼容设备",
+      "来源": "[S06 · Corsair 耳机识别排查](https://help.corsair.com/hc/en-us/articles/14791910782477-My-headset-isn-t-being-detected-by-my-computer)",
+      "原文定位": "Wired headset step 7",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "耳机/故障知识.md",
+      "original_heading": "HP-K-0016",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "如何定位主机问题",
+    "answer": "使用另一设备对照。",
+    "applicability": "Corsair 对应连接方式；iCUE 仅限兼容设备",
+    "source": {
+      "source_id": "S06",
+      "url": "https://help.corsair.com/hc/en-us/articles/14791910782477-My-headset-isn-t-being-detected-by-my-computer",
+      "reference_text": "[S06 · Corsair 耳机识别排查](https://help.corsair.com/hc/en-us/articles/14791910782477-My-headset-isn-t-being-detected-by-my-computer)"
+    },
+    "source_locator": "Wired headset step 7",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "HP-K-0017",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "耳机如何重置",
+      "答案": "查询该型号快速指南。",
+      "适用条件": "Corsair 对应连接方式；iCUE 仅限兼容设备",
+      "来源": "[S06 · Corsair 耳机识别排查](https://help.corsair.com/hc/en-us/articles/14791910782477-My-headset-isn-t-being-detected-by-my-computer)",
+      "原文定位": "Bluetooth step 6",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "耳机/故障知识.md",
+      "original_heading": "HP-K-0017",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "耳机如何重置",
+    "answer": "查询该型号快速指南。",
+    "applicability": "Corsair 对应连接方式；iCUE 仅限兼容设备",
+    "source": {
+      "source_id": "S06",
+      "url": "https://help.corsair.com/hc/en-us/articles/14791910782477-My-headset-isn-t-being-detected-by-my-computer",
+      "reference_text": "[S06 · Corsair 耳机识别排查](https://help.corsair.com/hc/en-us/articles/14791910782477-My-headset-isn-t-being-detected-by-my-computer)"
+    },
+    "source_locator": "Bluetooth step 6",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "HP-K-0018",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "单侧无声选哪个入口",
+      "答案": "进入单侧声音问题分类。",
+      "适用条件": "Sony 耳机问题分类；实际步骤转对应型号资料",
+      "来源": "[S12 · Sony 耳机自助入口](https://www.sony.co.uk/electronics/support/articles/00204483)",
+      "原文定位": "Self-help topics",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "耳机/故障知识.md",
+      "original_heading": "HP-K-0018",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "单侧无声选哪个入口",
+    "answer": "进入单侧声音问题分类。",
+    "applicability": "Sony 耳机问题分类；实际步骤转对应型号资料",
+    "source": {
+      "source_id": "S12",
+      "url": "https://www.sony.co.uk/electronics/support/articles/00204483",
+      "reference_text": "[S12 · Sony 耳机自助入口](https://www.sony.co.uk/electronics/support/articles/00204483)"
+    },
+    "source_locator": "Self-help topics",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "HP-K-0019",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "无法充电选哪个入口",
+      "答案": "进入供电与电池分类。",
+      "适用条件": "Sony 耳机问题分类；实际步骤转对应型号资料",
+      "来源": "[S12 · Sony 耳机自助入口](https://www.sony.co.uk/electronics/support/articles/00204483)",
+      "原文定位": "Self-help topics",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "耳机/故障知识.md",
+      "original_heading": "HP-K-0019",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "无法充电选哪个入口",
+    "answer": "进入供电与电池分类。",
+    "applicability": "Sony 耳机问题分类；实际步骤转对应型号资料",
+    "source": {
+      "source_id": "S12",
+      "url": "https://www.sony.co.uk/electronics/support/articles/00204483",
+      "reference_text": "[S12 · Sony 耳机自助入口](https://www.sony.co.uk/electronics/support/articles/00204483)"
+    },
+    "source_locator": "Self-help topics",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "HP-K-0020",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "外观损伤怎么查",
+      "答案": "进入物理损伤分类。",
+      "适用条件": "Sony 耳机问题分类；实际步骤转对应型号资料",
+      "来源": "[S12 · Sony 耳机自助入口](https://www.sony.co.uk/electronics/support/articles/00204483)",
+      "原文定位": "Self-help topics",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "耳机/故障知识.md",
+      "original_heading": "HP-K-0020",
+      "original_file_retained": false
+    },
+    "category": "headphones",
+    "category_name": "耳机",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "外观损伤怎么查",
+    "answer": "进入物理损伤分类。",
+    "applicability": "Sony 耳机问题分类；实际步骤转对应型号资料",
+    "source": {
+      "source_id": "S12",
+      "url": "https://www.sony.co.uk/electronics/support/articles/00204483",
+      "reference_text": "[S12 · Sony 耳机自助入口](https://www.sony.co.uk/electronics/support/articles/00204483)"
+    },
+    "source_locator": "Self-help topics",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "MS-K-0001",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "蓝牙搜不到鼠标",
+      "答案": "核对配对模式与蓝牙。",
+      "适用条件": "Windows 蓝牙设备；具体配对键以型号手册为准",
+      "来源": "[S02 · Windows 蓝牙连接排查](https://support.microsoft.com/en-us/windows/hardware/bluetooth/troubleshoot-bluetooth-not-connecting-in-windows)",
+      "原文定位": "Solution 2",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "鼠标/故障知识.md",
+      "original_heading": "MS-K-0001",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "蓝牙搜不到鼠标",
+    "answer": "核对配对模式与蓝牙。",
+    "applicability": "Windows 蓝牙设备；具体配对键以型号手册为准",
+    "source": {
+      "source_id": "S02",
+      "url": "https://support.microsoft.com/en-us/windows/hardware/bluetooth/troubleshoot-bluetooth-not-connecting-in-windows",
+      "reference_text": "[S02 · Windows 蓝牙连接排查](https://support.microsoft.com/en-us/windows/hardware/bluetooth/troubleshoot-bluetooth-not-connecting-in-windows)"
+    },
+    "source_locator": "Solution 2",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "MS-K-0002",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "蓝牙鼠标已存但不连",
+      "答案": "删除配对后重新添加。",
+      "适用条件": "Windows 蓝牙设备；具体配对键以型号手册为准",
+      "来源": "[S02 · Windows 蓝牙连接排查](https://support.microsoft.com/en-us/windows/hardware/bluetooth/troubleshoot-bluetooth-not-connecting-in-windows)",
+      "原文定位": "Solution 3",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "鼠标/故障知识.md",
+      "original_heading": "MS-K-0002",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "蓝牙鼠标已存但不连",
+    "answer": "删除配对后重新添加。",
+    "applicability": "Windows 蓝牙设备；具体配对键以型号手册为准",
+    "source": {
+      "source_id": "S02",
+      "url": "https://support.microsoft.com/en-us/windows/hardware/bluetooth/troubleshoot-bluetooth-not-connecting-in-windows",
+      "reference_text": "[S02 · Windows 蓝牙连接排查](https://support.microsoft.com/en-us/windows/hardware/bluetooth/troubleshoot-bluetooth-not-connecting-in-windows)"
+    },
+    "source_locator": "Solution 3",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "MS-K-0003",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "蓝牙时断时续",
+      "答案": "检查电量并靠近主机。",
+      "适用条件": "Windows 蓝牙设备；具体配对键以型号手册为准",
+      "来源": "[S02 · Windows 蓝牙连接排查](https://support.microsoft.com/en-us/windows/hardware/bluetooth/troubleshoot-bluetooth-not-connecting-in-windows)",
+      "原文定位": "Solutions 2/4",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "鼠标/故障知识.md",
+      "original_heading": "MS-K-0003",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "蓝牙时断时续",
+    "answer": "检查电量并靠近主机。",
+    "applicability": "Windows 蓝牙设备；具体配对键以型号手册为准",
+    "source": {
+      "source_id": "S02",
+      "url": "https://support.microsoft.com/en-us/windows/hardware/bluetooth/troubleshoot-bluetooth-not-connecting-in-windows",
+      "reference_text": "[S02 · Windows 蓝牙连接排查](https://support.microsoft.com/en-us/windows/hardware/bluetooth/troubleshoot-bluetooth-not-connecting-in-windows)"
+    },
+    "source_locator": "Solutions 2/4",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "MS-K-0004",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "USB 鼠标不响应",
+      "答案": "重新插接并换 USB 端口。",
+      "适用条件": "Windows 键盘鼠标基础连接排查",
+      "来源": "[S03 · Windows 键鼠排查](https://support.microsoft.com/en-au/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows)",
+      "原文定位": "Hardware",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "鼠标/故障知识.md",
+      "original_heading": "MS-K-0004",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "USB 鼠标不响应",
+    "answer": "重新插接并换 USB 端口。",
+    "applicability": "Windows 键盘鼠标基础连接排查",
+    "source": {
+      "source_id": "S03",
+      "url": "https://support.microsoft.com/en-au/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows",
+      "reference_text": "[S03 · Windows 键鼠排查](https://support.microsoft.com/en-au/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows)"
+    },
+    "source_locator": "Hardware",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "MS-K-0005",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "经过集线器失效",
+      "答案": "直接连接电脑对照。",
+      "适用条件": "Windows 键盘鼠标基础连接排查",
+      "来源": "[S03 · Windows 键鼠排查](https://support.microsoft.com/en-au/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows)",
+      "原文定位": "Hardware",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "鼠标/故障知识.md",
+      "original_heading": "MS-K-0005",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "经过集线器失效",
+    "answer": "直接连接电脑对照。",
+    "applicability": "Windows 键盘鼠标基础连接排查",
+    "source": {
+      "source_id": "S03",
+      "url": "https://support.microsoft.com/en-au/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows",
+      "reference_text": "[S03 · Windows 键鼠排查](https://support.microsoft.com/en-au/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows)"
+    },
+    "source_locator": "Hardware",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "MS-K-0006",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "无线鼠标没有电",
+      "答案": "检查电池或充电状态。",
+      "适用条件": "Windows 键盘鼠标基础连接排查",
+      "来源": "[S03 · Windows 键鼠排查](https://support.microsoft.com/en-au/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows)",
+      "原文定位": "Hardware",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "鼠标/故障知识.md",
+      "original_heading": "MS-K-0006",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "无线鼠标没有电",
+    "answer": "检查电池或充电状态。",
+    "applicability": "Windows 键盘鼠标基础连接排查",
+    "source": {
+      "source_id": "S03",
+      "url": "https://support.microsoft.com/en-au/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows",
+      "reference_text": "[S03 · Windows 键鼠排查](https://support.microsoft.com/en-au/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows)"
+    },
+    "source_locator": "Hardware",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "MS-K-0007",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "接收器连接异常",
+      "答案": "拔下接收器稍候再插。",
+      "适用条件": "Windows 键盘鼠标基础连接排查",
+      "来源": "[S03 · Windows 键鼠排查](https://support.microsoft.com/en-au/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows)",
+      "原文定位": "Wireless connections",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "鼠标/故障知识.md",
+      "original_heading": "MS-K-0007",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "接收器连接异常",
+    "answer": "拔下接收器稍候再插。",
+    "applicability": "Windows 键盘鼠标基础连接排查",
+    "source": {
+      "source_id": "S03",
+      "url": "https://support.microsoft.com/en-au/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows",
+      "reference_text": "[S03 · Windows 键鼠排查](https://support.microsoft.com/en-au/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows)"
+    },
+    "source_locator": "Wireless connections",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "MS-K-0008",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "如何判断主机相关",
+      "答案": "连接另一台电脑对照。",
+      "适用条件": "Windows 键盘鼠标基础连接排查",
+      "来源": "[S03 · Windows 键鼠排查](https://support.microsoft.com/en-au/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows)",
+      "原文定位": "Check device",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "鼠标/故障知识.md",
+      "original_heading": "MS-K-0008",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "如何判断主机相关",
+    "answer": "连接另一台电脑对照。",
+    "applicability": "Windows 键盘鼠标基础连接排查",
+    "source": {
+      "source_id": "S03",
+      "url": "https://support.microsoft.com/en-au/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows",
+      "reference_text": "[S03 · Windows 键鼠排查](https://support.microsoft.com/en-au/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows)"
+    },
+    "source_locator": "Check device",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "MS-K-0009",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "单击变双击",
+      "答案": "核查按键映射设置。",
+      "适用条件": "Logitech 键鼠；不推荐已停用的旧软件",
+      "来源": "[S04 · Logitech 按键异常排查](https://support.logi.com/hc/en-au/articles/360023371053-Keyboard-Mice-Buttons-or-keys-do-not-work-correctly)",
+      "原文定位": "Pointing devices",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "鼠标/故障知识.md",
+      "original_heading": "MS-K-0009",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "单击变双击",
+    "answer": "核查按键映射设置。",
+    "applicability": "Logitech 键鼠；不推荐已停用的旧软件",
+    "source": {
+      "source_id": "S04",
+      "url": "https://support.logi.com/hc/en-au/articles/360023371053-Keyboard-Mice-Buttons-or-keys-do-not-work-correctly",
+      "reference_text": "[S04 · Logitech 按键异常排查](https://support.logi.com/hc/en-au/articles/360023371053-Keyboard-Mice-Buttons-or-keys-do-not-work-correctly)"
+    },
+    "source_locator": "Pointing devices",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "MS-K-0010",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "按键偶发失灵",
+      "答案": "排查按键周围异物。",
+      "适用条件": "Logitech 键鼠；不推荐已停用的旧软件",
+      "来源": "[S04 · Logitech 按键异常排查](https://support.logi.com/hc/en-au/articles/360023371053-Keyboard-Mice-Buttons-or-keys-do-not-work-correctly)",
+      "原文定位": "Possible solutions 1",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "鼠标/故障知识.md",
+      "original_heading": "MS-K-0010",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "按键偶发失灵",
+    "answer": "排查按键周围异物。",
+    "applicability": "Logitech 键鼠；不推荐已停用的旧软件",
+    "source": {
+      "source_id": "S04",
+      "url": "https://support.logi.com/hc/en-au/articles/360023371053-Keyboard-Mice-Buttons-or-keys-do-not-work-correctly",
+      "reference_text": "[S04 · Logitech 按键异常排查](https://support.logi.com/hc/en-au/articles/360023371053-Keyboard-Mice-Buttons-or-keys-do-not-work-correctly)"
+    },
+    "source_locator": "Possible solutions 1",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "MS-K-0011",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "仅一个程序异常",
+      "答案": "换其他程序对照。",
+      "适用条件": "Logitech 键鼠；不推荐已停用的旧软件",
+      "来源": "[S04 · Logitech 按键异常排查](https://support.logi.com/hc/en-au/articles/360023371053-Keyboard-Mice-Buttons-or-keys-do-not-work-correctly)",
+      "原文定位": "Note",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "鼠标/故障知识.md",
+      "original_heading": "MS-K-0011",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "仅一个程序异常",
+    "answer": "换其他程序对照。",
+    "applicability": "Logitech 键鼠；不推荐已停用的旧软件",
+    "source": {
+      "source_id": "S04",
+      "url": "https://support.logi.com/hc/en-au/articles/360023371053-Keyboard-Mice-Buttons-or-keys-do-not-work-correctly",
+      "reference_text": "[S04 · Logitech 按键异常排查](https://support.logi.com/hc/en-au/articles/360023371053-Keyboard-Mice-Buttons-or-keys-do-not-work-correctly)"
+    },
+    "source_locator": "Note",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "MS-K-0012",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "区分按键与设置问题",
+      "答案": "互换主次键观察故障位置。",
+      "适用条件": "Logitech 键鼠；不推荐已停用的旧软件",
+      "来源": "[S04 · Logitech 按键异常排查](https://support.logi.com/hc/en-au/articles/360023371053-Keyboard-Mice-Buttons-or-keys-do-not-work-correctly)",
+      "原文定位": "Pointing devices",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "鼠标/故障知识.md",
+      "original_heading": "MS-K-0012",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "区分按键与设置问题",
+    "answer": "互换主次键观察故障位置。",
+    "applicability": "Logitech 键鼠；不推荐已停用的旧软件",
+    "source": {
+      "source_id": "S04",
+      "url": "https://support.logi.com/hc/en-au/articles/360023371053-Keyboard-Mice-Buttons-or-keys-do-not-work-correctly",
+      "reference_text": "[S04 · Logitech 按键异常排查](https://support.logi.com/hc/en-au/articles/360023371053-Keyboard-Mice-Buttons-or-keys-do-not-work-correctly)"
+    },
+    "source_locator": "Pointing devices",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "MS-K-0013",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "光标随机跳动",
+      "答案": "检查底部传感器污物。",
+      "适用条件": "Logitech 鼠标；清洁须关机，不拆机",
+      "来源": "[S09 · Logitech 光标异常](https://support.logi.com/hc/en-in/articles/360023371213-Erratic-cursor-movement)",
+      "原文定位": "Jittering",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "鼠标/故障知识.md",
+      "original_heading": "MS-K-0013",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "光标随机跳动",
+    "answer": "检查底部传感器污物。",
+    "applicability": "Logitech 鼠标；清洁须关机，不拆机",
+    "source": {
+      "source_id": "S09",
+      "url": "https://support.logi.com/hc/en-in/articles/360023371213-Erratic-cursor-movement",
+      "reference_text": "[S09 · Logitech 光标异常](https://support.logi.com/hc/en-in/articles/360023371213-Erratic-cursor-movement)"
+    },
+    "source_locator": "Jittering",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "MS-K-0014",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "无线移动有延迟",
+      "答案": "检查接收器距离与干扰。",
+      "适用条件": "Logitech 鼠标；清洁须关机，不拆机",
+      "来源": "[S09 · Logitech 光标异常](https://support.logi.com/hc/en-in/articles/360023371213-Erratic-cursor-movement)",
+      "原文定位": "Lagging",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "鼠标/故障知识.md",
+      "original_heading": "MS-K-0014",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "无线移动有延迟",
+    "answer": "检查接收器距离与干扰。",
+    "applicability": "Logitech 鼠标；清洁须关机，不拆机",
+    "source": {
+      "source_id": "S09",
+      "url": "https://support.logi.com/hc/en-in/articles/360023371213-Erratic-cursor-movement",
+      "reference_text": "[S09 · Logitech 光标异常](https://support.logi.com/hc/en-in/articles/360023371213-Erratic-cursor-movement)"
+    },
+    "source_locator": "Lagging",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "MS-K-0015",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "传感器如何清理",
+      "答案": "先关闭或拔下鼠标。",
+      "适用条件": "Logitech 鼠标；清洁须关机，不拆机",
+      "来源": "[S09 · Logitech 光标异常](https://support.logi.com/hc/en-in/articles/360023371213-Erratic-cursor-movement)",
+      "原文定位": "Solutions 2",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "鼠标/故障知识.md",
+      "original_heading": "MS-K-0015",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "传感器如何清理",
+    "answer": "先关闭或拔下鼠标。",
+    "applicability": "Logitech 鼠标；清洁须关机，不拆机",
+    "source": {
+      "source_id": "S09",
+      "url": "https://support.logi.com/hc/en-in/articles/360023371213-Erratic-cursor-movement",
+      "reference_text": "[S09 · Logitech 光标异常](https://support.logi.com/hc/en-in/articles/360023371213-Erratic-cursor-movement)"
+    },
+    "source_locator": "Solutions 2",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "MS-K-0016",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "接收器被机箱挡住",
+      "答案": "换到较无遮挡的端口。",
+      "适用条件": "Logitech 鼠标；清洁须关机，不拆机",
+      "来源": "[S09 · Logitech 光标异常](https://support.logi.com/hc/en-in/articles/360023371213-Erratic-cursor-movement)",
+      "原文定位": "Solutions 3",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "鼠标/故障知识.md",
+      "original_heading": "MS-K-0016",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "接收器被机箱挡住",
+    "answer": "换到较无遮挡的端口。",
+    "applicability": "Logitech 鼠标；清洁须关机，不拆机",
+    "source": {
+      "source_id": "S09",
+      "url": "https://support.logi.com/hc/en-in/articles/360023371213-Erratic-cursor-movement",
+      "reference_text": "[S09 · Logitech 光标异常](https://support.logi.com/hc/en-in/articles/360023371213-Erratic-cursor-movement)"
+    },
+    "source_locator": "Solutions 3",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "MS-K-0017",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "跨主机仍异常",
+      "答案": "记录跨机测试结果供支持。",
+      "适用条件": "Logitech 鼠标；清洁须关机，不拆机",
+      "来源": "[S09 · Logitech 光标异常](https://support.logi.com/hc/en-in/articles/360023371213-Erratic-cursor-movement)",
+      "原文定位": "Solutions 9",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "鼠标/故障知识.md",
+      "original_heading": "MS-K-0017",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "跨主机仍异常",
+    "answer": "记录跨机测试结果供支持。",
+    "applicability": "Logitech 鼠标；清洁须关机，不拆机",
+    "source": {
+      "source_id": "S09",
+      "url": "https://support.logi.com/hc/en-in/articles/360023371213-Erratic-cursor-movement",
+      "reference_text": "[S09 · Logitech 光标异常](https://support.logi.com/hc/en-in/articles/360023371213-Erratic-cursor-movement)"
+    },
+    "source_locator": "Solutions 9",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "MS-K-0018",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "怀疑桌面影响定位",
+      "答案": "用白纸表面作对照。",
+      "适用条件": "Logitech 对应游戏鼠标；跳过已停用软件",
+      "来源": "[S10 · Logitech 游戏鼠标追踪排查](https://support.logi.com/hc/en-ch/articles/360023362033-Inconsistent-gaming-mouse-tracking-behavior)",
+      "原文定位": "Tracking steps 5",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "鼠标/故障知识.md",
+      "original_heading": "MS-K-0018",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "怀疑桌面影响定位",
+    "answer": "用白纸表面作对照。",
+    "applicability": "Logitech 对应游戏鼠标；跳过已停用软件",
+    "source": {
+      "source_id": "S10",
+      "url": "https://support.logi.com/hc/en-ch/articles/360023362033-Inconsistent-gaming-mouse-tracking-behavior",
+      "reference_text": "[S10 · Logitech 游戏鼠标追踪排查](https://support.logi.com/hc/en-ch/articles/360023362033-Inconsistent-gaming-mouse-tracking-behavior)"
+    },
+    "source_locator": "Tracking steps 5",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "MS-K-0019",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "指针速度过快",
+      "答案": "检查系统指针速度。",
+      "适用条件": "Logitech 对应游戏鼠标；跳过已停用软件",
+      "来源": "[S10 · Logitech 游戏鼠标追踪排查](https://support.logi.com/hc/en-ch/articles/360023362033-Inconsistent-gaming-mouse-tracking-behavior)",
+      "原文定位": "Tracking steps 2",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "鼠标/故障知识.md",
+      "original_heading": "MS-K-0019",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "指针速度过快",
+    "answer": "检查系统指针速度。",
+    "applicability": "Logitech 对应游戏鼠标；跳过已停用软件",
+    "source": {
+      "source_id": "S10",
+      "url": "https://support.logi.com/hc/en-ch/articles/360023362033-Inconsistent-gaming-mouse-tracking-behavior",
+      "reference_text": "[S10 · Logitech 游戏鼠标追踪排查](https://support.logi.com/hc/en-ch/articles/360023362033-Inconsistent-gaming-mouse-tracking-behavior)"
+    },
+    "source_locator": "Tracking steps 2",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "MS-K-0020",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "排查无效怎么反馈",
+      "答案": "向支持说明已试步骤。",
+      "适用条件": "Logitech 对应游戏鼠标；跳过已停用软件",
+      "来源": "[S10 · Logitech 游戏鼠标追踪排查](https://support.logi.com/hc/en-ch/articles/360023362033-Inconsistent-gaming-mouse-tracking-behavior)",
+      "原文定位": "Contact support",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "鼠标/故障知识.md",
+      "original_heading": "MS-K-0020",
+      "original_file_retained": false
+    },
+    "category": "mice",
+    "category_name": "鼠标",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "排查无效怎么反馈",
+    "answer": "向支持说明已试步骤。",
+    "applicability": "Logitech 对应游戏鼠标；跳过已停用软件",
+    "source": {
+      "source_id": "S10",
+      "url": "https://support.logi.com/hc/en-ch/articles/360023362033-Inconsistent-gaming-mouse-tracking-behavior",
+      "reference_text": "[S10 · Logitech 游戏鼠标追踪排查](https://support.logi.com/hc/en-ch/articles/360023362033-Inconsistent-gaming-mouse-tracking-behavior)"
+    },
+    "source_locator": "Contact support",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "KB-K-0001",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "蓝牙找不到键盘",
+      "答案": "核对蓝牙和配对状态。",
+      "适用条件": "Windows 蓝牙设备；具体配对键以型号手册为准",
+      "来源": "[S02 · Windows 蓝牙连接排查](https://support.microsoft.com/en-us/windows/hardware/bluetooth/troubleshoot-bluetooth-not-connecting-in-windows)",
+      "原文定位": "Solution 2",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "键盘/故障知识.md",
+      "original_heading": "KB-K-0001",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "蓝牙找不到键盘",
+    "answer": "核对蓝牙和配对状态。",
+    "applicability": "Windows 蓝牙设备；具体配对键以型号手册为准",
+    "source": {
+      "source_id": "S02",
+      "url": "https://support.microsoft.com/en-us/windows/hardware/bluetooth/troubleshoot-bluetooth-not-connecting-in-windows",
+      "reference_text": "[S02 · Windows 蓝牙连接排查](https://support.microsoft.com/en-us/windows/hardware/bluetooth/troubleshoot-bluetooth-not-connecting-in-windows)"
+    },
+    "source_locator": "Solution 2",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "KB-K-0002",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "旧配对无法连接",
+      "答案": "移除后重新配对。",
+      "适用条件": "Windows 蓝牙设备；具体配对键以型号手册为准",
+      "来源": "[S02 · Windows 蓝牙连接排查](https://support.microsoft.com/en-us/windows/hardware/bluetooth/troubleshoot-bluetooth-not-connecting-in-windows)",
+      "原文定位": "Solution 3",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "键盘/故障知识.md",
+      "original_heading": "KB-K-0002",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "旧配对无法连接",
+    "answer": "移除后重新配对。",
+    "applicability": "Windows 蓝牙设备；具体配对键以型号手册为准",
+    "source": {
+      "source_id": "S02",
+      "url": "https://support.microsoft.com/en-us/windows/hardware/bluetooth/troubleshoot-bluetooth-not-connecting-in-windows",
+      "reference_text": "[S02 · Windows 蓝牙连接排查](https://support.microsoft.com/en-us/windows/hardware/bluetooth/troubleshoot-bluetooth-not-connecting-in-windows)"
+    },
+    "source_locator": "Solution 3",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "KB-K-0003",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "无线键盘低电量",
+      "答案": "核对电量后再连接。",
+      "适用条件": "Windows 蓝牙设备；具体配对键以型号手册为准",
+      "来源": "[S02 · Windows 蓝牙连接排查](https://support.microsoft.com/en-us/windows/hardware/bluetooth/troubleshoot-bluetooth-not-connecting-in-windows)",
+      "原文定位": "Solution 4",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "键盘/故障知识.md",
+      "original_heading": "KB-K-0003",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "无线键盘低电量",
+    "answer": "核对电量后再连接。",
+    "applicability": "Windows 蓝牙设备；具体配对键以型号手册为准",
+    "source": {
+      "source_id": "S02",
+      "url": "https://support.microsoft.com/en-us/windows/hardware/bluetooth/troubleshoot-bluetooth-not-connecting-in-windows",
+      "reference_text": "[S02 · Windows 蓝牙连接排查](https://support.microsoft.com/en-us/windows/hardware/bluetooth/troubleshoot-bluetooth-not-connecting-in-windows)"
+    },
+    "source_locator": "Solution 4",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "KB-K-0004",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "USB 键盘无响应",
+      "答案": "重新插接或更换端口。",
+      "适用条件": "Windows 键盘鼠标基础连接排查",
+      "来源": "[S03 · Windows 键鼠排查](https://support.microsoft.com/en-au/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows)",
+      "原文定位": "Hardware",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "键盘/故障知识.md",
+      "original_heading": "KB-K-0004",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "USB 键盘无响应",
+    "answer": "重新插接或更换端口。",
+    "applicability": "Windows 键盘鼠标基础连接排查",
+    "source": {
+      "source_id": "S03",
+      "url": "https://support.microsoft.com/en-au/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows",
+      "reference_text": "[S03 · Windows 键鼠排查](https://support.microsoft.com/en-au/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows)"
+    },
+    "source_locator": "Hardware",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "KB-K-0005",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "集线器下输入失效",
+      "答案": "直连电脑进行对照。",
+      "适用条件": "Windows 键盘鼠标基础连接排查",
+      "来源": "[S03 · Windows 键鼠排查](https://support.microsoft.com/en-au/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows)",
+      "原文定位": "Hardware",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "键盘/故障知识.md",
+      "original_heading": "KB-K-0005",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "集线器下输入失效",
+    "answer": "直连电脑进行对照。",
+    "applicability": "Windows 键盘鼠标基础连接排查",
+    "source": {
+      "source_id": "S03",
+      "url": "https://support.microsoft.com/en-au/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows",
+      "reference_text": "[S03 · Windows 键鼠排查](https://support.microsoft.com/en-au/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows)"
+    },
+    "source_locator": "Hardware",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "KB-K-0006",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "按键有异物",
+      "答案": "检查按键周围堵塞。",
+      "适用条件": "Windows 键盘鼠标基础连接排查",
+      "来源": "[S03 · Windows 键鼠排查](https://support.microsoft.com/en-au/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows)",
+      "原文定位": "Hardware",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "键盘/故障知识.md",
+      "original_heading": "KB-K-0006",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "按键有异物",
+    "answer": "检查按键周围堵塞。",
+    "applicability": "Windows 键盘鼠标基础连接排查",
+    "source": {
+      "source_id": "S03",
+      "url": "https://support.microsoft.com/en-au/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows",
+      "reference_text": "[S03 · Windows 键鼠排查](https://support.microsoft.com/en-au/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows)"
+    },
+    "source_locator": "Hardware",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "KB-K-0007",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "整机是否相关",
+      "答案": "换另一台电脑验证。",
+      "适用条件": "Windows 键盘鼠标基础连接排查",
+      "来源": "[S03 · Windows 键鼠排查](https://support.microsoft.com/en-au/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows)",
+      "原文定位": "Check device",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "键盘/故障知识.md",
+      "original_heading": "KB-K-0007",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "整机是否相关",
+    "answer": "换另一台电脑验证。",
+    "applicability": "Windows 键盘鼠标基础连接排查",
+    "source": {
+      "source_id": "S03",
+      "url": "https://support.microsoft.com/en-au/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows",
+      "reference_text": "[S03 · Windows 键鼠排查](https://support.microsoft.com/en-au/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows)"
+    },
+    "source_locator": "Check device",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "KB-K-0008",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "线缆是否相关",
+      "答案": "观察可见线缆损伤。",
+      "适用条件": "Windows 键盘鼠标基础连接排查",
+      "来源": "[S03 · Windows 键鼠排查](https://support.microsoft.com/en-au/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows)",
+      "原文定位": "Hardware",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "键盘/故障知识.md",
+      "original_heading": "KB-K-0008",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "线缆是否相关",
+    "answer": "观察可见线缆损伤。",
+    "applicability": "Windows 键盘鼠标基础连接排查",
+    "source": {
+      "source_id": "S03",
+      "url": "https://support.microsoft.com/en-au/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows",
+      "reference_text": "[S03 · Windows 键鼠排查](https://support.microsoft.com/en-au/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows)"
+    },
+    "source_locator": "Hardware",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "KB-K-0009",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "输入重复字符",
+      "答案": "核查硬件与软件两条路径。",
+      "适用条件": "Logitech 键鼠；不推荐已停用的旧软件",
+      "来源": "[S04 · Logitech 按键异常排查](https://support.logi.com/hc/en-au/articles/360023371053-Keyboard-Mice-Buttons-or-keys-do-not-work-correctly)",
+      "原文定位": "Symptoms/causes",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "键盘/故障知识.md",
+      "original_heading": "KB-K-0009",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "输入重复字符",
+    "answer": "核查硬件与软件两条路径。",
+    "applicability": "Logitech 键鼠；不推荐已停用的旧软件",
+    "source": {
+      "source_id": "S04",
+      "url": "https://support.logi.com/hc/en-au/articles/360023371053-Keyboard-Mice-Buttons-or-keys-do-not-work-correctly",
+      "reference_text": "[S04 · Logitech 按键异常排查](https://support.logi.com/hc/en-au/articles/360023371053-Keyboard-Mice-Buttons-or-keys-do-not-work-correctly)"
+    },
+    "source_locator": "Symptoms/causes",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "KB-K-0010",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "某个键间歇失效",
+      "答案": "排查按键附近异物。",
+      "适用条件": "Logitech 键鼠；不推荐已停用的旧软件",
+      "来源": "[S04 · Logitech 按键异常排查](https://support.logi.com/hc/en-au/articles/360023371053-Keyboard-Mice-Buttons-or-keys-do-not-work-correctly)",
+      "原文定位": "Possible solutions 1",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "键盘/故障知识.md",
+      "original_heading": "KB-K-0010",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "某个键间歇失效",
+    "answer": "排查按键附近异物。",
+    "applicability": "Logitech 键鼠；不推荐已停用的旧软件",
+    "source": {
+      "source_id": "S04",
+      "url": "https://support.logi.com/hc/en-au/articles/360023371053-Keyboard-Mice-Buttons-or-keys-do-not-work-correctly",
+      "reference_text": "[S04 · Logitech 按键异常排查](https://support.logi.com/hc/en-au/articles/360023371053-Keyboard-Mice-Buttons-or-keys-do-not-work-correctly)"
+    },
+    "source_locator": "Possible solutions 1",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "KB-K-0011",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "仅单个程序乱码",
+      "答案": "换其他程序验证。",
+      "适用条件": "Logitech 键鼠；不推荐已停用的旧软件",
+      "来源": "[S04 · Logitech 按键异常排查](https://support.logi.com/hc/en-au/articles/360023371053-Keyboard-Mice-Buttons-or-keys-do-not-work-correctly)",
+      "原文定位": "Note",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "键盘/故障知识.md",
+      "original_heading": "KB-K-0011",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "仅单个程序乱码",
+    "answer": "换其他程序验证。",
+    "applicability": "Logitech 键鼠；不推荐已停用的旧软件",
+    "source": {
+      "source_id": "S04",
+      "url": "https://support.logi.com/hc/en-au/articles/360023371053-Keyboard-Mice-Buttons-or-keys-do-not-work-correctly",
+      "reference_text": "[S04 · Logitech 按键异常排查](https://support.logi.com/hc/en-au/articles/360023371053-Keyboard-Mice-Buttons-or-keys-do-not-work-correctly)"
+    },
+    "source_locator": "Note",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "KB-K-0012",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "经扩展设备后异常",
+      "答案": "接收器或键盘直连主机。",
+      "适用条件": "Logitech 键鼠；不推荐已停用的旧软件",
+      "来源": "[S04 · Logitech 按键异常排查](https://support.logi.com/hc/en-au/articles/360023371053-Keyboard-Mice-Buttons-or-keys-do-not-work-correctly)",
+      "原文定位": "Possible solutions 2",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "键盘/故障知识.md",
+      "original_heading": "KB-K-0012",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "经扩展设备后异常",
+    "answer": "接收器或键盘直连主机。",
+    "applicability": "Logitech 键鼠；不推荐已停用的旧软件",
+    "source": {
+      "source_id": "S04",
+      "url": "https://support.logi.com/hc/en-au/articles/360023371053-Keyboard-Mice-Buttons-or-keys-do-not-work-correctly",
+      "reference_text": "[S04 · Logitech 按键异常排查](https://support.logi.com/hc/en-au/articles/360023371053-Keyboard-Mice-Buttons-or-keys-do-not-work-correctly)"
+    },
+    "source_locator": "Possible solutions 2",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "KB-K-0013",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "重置能否跨型号照搬",
+      "答案": "先区分型号再查重置方法。",
+      "适用条件": "Corsair；重置按型号区分，不跨品牌复用",
+      "来源": "[S05 · Corsair 键盘排查](https://help.corsair.com/hc/en-us/articles/360025465031-Keyboard-Troubleshooting-Guide-Quick-Solutions-for-Common-Problems)",
+      "原文定位": "Reset sections",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "键盘/故障知识.md",
+      "original_heading": "KB-K-0013",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "重置能否跨型号照搬",
+    "answer": "先区分型号再查重置方法。",
+    "applicability": "Corsair；重置按型号区分，不跨品牌复用",
+    "source": {
+      "source_id": "S05",
+      "url": "https://help.corsair.com/hc/en-us/articles/360025465031-Keyboard-Troubleshooting-Guide-Quick-Solutions-for-Common-Problems",
+      "reference_text": "[S05 · Corsair 键盘排查](https://help.corsair.com/hc/en-us/articles/360025465031-Keyboard-Troubleshooting-Guide-Quick-Solutions-for-Common-Problems)"
+    },
+    "source_locator": "Reset sections",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "KB-K-0014",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "K55 与 Pro 重置相同吗",
+      "答案": "原文区分 K55 与 Pro 系列。",
+      "适用条件": "Corsair；重置按型号区分，不跨品牌复用",
+      "来源": "[S05 · Corsair 键盘排查](https://help.corsair.com/hc/en-us/articles/360025465031-Keyboard-Troubleshooting-Guide-Quick-Solutions-for-Common-Problems)",
+      "原文定位": "K55 note",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "键盘/故障知识.md",
+      "original_heading": "KB-K-0014",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "K55 与 Pro 重置相同吗",
+    "answer": "原文区分 K55 与 Pro 系列。",
+    "applicability": "Corsair；重置按型号区分，不跨品牌复用",
+    "source": {
+      "source_id": "S05",
+      "url": "https://help.corsair.com/hc/en-us/articles/360025465031-Keyboard-Troubleshooting-Guide-Quick-Solutions-for-Common-Problems",
+      "reference_text": "[S05 · Corsair 键盘排查](https://help.corsair.com/hc/en-us/articles/360025465031-Keyboard-Troubleshooting-Guide-Quick-Solutions-for-Common-Problems)"
+    },
+    "source_locator": "K55 note",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "KB-K-0015",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "无线键盘排查前提",
+      "答案": "确认电量与接收器直连。",
+      "适用条件": "Corsair；重置按型号区分，不跨品牌复用",
+      "来源": "[S05 · Corsair 键盘排查](https://help.corsair.com/hc/en-us/articles/360025465031-Keyboard-Troubleshooting-Guide-Quick-Solutions-for-Common-Problems)",
+      "原文定位": "Best practices",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "键盘/故障知识.md",
+      "original_heading": "KB-K-0015",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "无线键盘排查前提",
+    "answer": "确认电量与接收器直连。",
+    "applicability": "Corsair；重置按型号区分，不跨品牌复用",
+    "source": {
+      "source_id": "S05",
+      "url": "https://help.corsair.com/hc/en-us/articles/360025465031-Keyboard-Troubleshooting-Guide-Quick-Solutions-for-Common-Problems",
+      "reference_text": "[S05 · Corsair 键盘排查](https://help.corsair.com/hc/en-us/articles/360025465031-Keyboard-Troubleshooting-Guide-Quick-Solutions-for-Common-Problems)"
+    },
+    "source_locator": "Best practices",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "KB-K-0016",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "重置无效如何交接",
+      "答案": "提供型号与底部料号。",
+      "适用条件": "Corsair；重置按型号区分，不跨品牌复用",
+      "来源": "[S05 · Corsair 键盘排查](https://help.corsair.com/hc/en-us/articles/360025465031-Keyboard-Troubleshooting-Guide-Quick-Solutions-for-Common-Problems)",
+      "原文定位": "Reset does not work",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "键盘/故障知识.md",
+      "original_heading": "KB-K-0016",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "重置无效如何交接",
+    "answer": "提供型号与底部料号。",
+    "applicability": "Corsair；重置按型号区分，不跨品牌复用",
+    "source": {
+      "source_id": "S05",
+      "url": "https://help.corsair.com/hc/en-us/articles/360025465031-Keyboard-Troubleshooting-Guide-Quick-Solutions-for-Common-Problems",
+      "reference_text": "[S05 · Corsair 键盘排查](https://help.corsair.com/hc/en-us/articles/360025465031-Keyboard-Troubleshooting-Guide-Quick-Solutions-for-Common-Problems)"
+    },
+    "source_locator": "Reset does not work",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "KB-K-0017",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "如何排除电脑问题",
+      "答案": "换另一系统对照。",
+      "适用条件": "Corsair；重置按型号区分，不跨品牌复用",
+      "来源": "[S05 · Corsair 键盘排查](https://help.corsair.com/hc/en-us/articles/360025465031-Keyboard-Troubleshooting-Guide-Quick-Solutions-for-Common-Problems)",
+      "原文定位": "Best practices",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "键盘/故障知识.md",
+      "original_heading": "KB-K-0017",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "如何排除电脑问题",
+    "answer": "换另一系统对照。",
+    "applicability": "Corsair；重置按型号区分，不跨品牌复用",
+    "source": {
+      "source_id": "S05",
+      "url": "https://help.corsair.com/hc/en-us/articles/360025465031-Keyboard-Troubleshooting-Guide-Quick-Solutions-for-Common-Problems",
+      "reference_text": "[S05 · Corsair 键盘排查](https://help.corsair.com/hc/en-us/articles/360025465031-Keyboard-Troubleshooting-Guide-Quick-Solutions-for-Common-Problems)"
+    },
+    "source_locator": "Best practices",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "KB-K-0018",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "Microsoft 键盘指示异常",
+      "答案": "检查电源及电池状态。",
+      "适用条件": "Surface/Microsoft 配件；不可推广配对时长至全部品牌",
+      "来源": "[S11 · Microsoft Surface 键鼠排查](https://support.microsoft.com/en-us/surface/accessories/mouse-keyboard/troubleshoot-problems-with-your-surface-mouse-or-keyboard)",
+      "原文定位": "Other issues",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "键盘/故障知识.md",
+      "original_heading": "KB-K-0018",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "Microsoft 键盘指示异常",
+    "answer": "检查电源及电池状态。",
+    "applicability": "Surface/Microsoft 配件；不可推广配对时长至全部品牌",
+    "source": {
+      "source_id": "S11",
+      "url": "https://support.microsoft.com/en-us/surface/accessories/mouse-keyboard/troubleshoot-problems-with-your-surface-mouse-or-keyboard",
+      "reference_text": "[S11 · Microsoft Surface 键鼠排查](https://support.microsoft.com/en-us/surface/accessories/mouse-keyboard/troubleshoot-problems-with-your-surface-mouse-or-keyboard)"
+    },
+    "source_locator": "Other issues",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "KB-K-0019",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "键盘曾配对其他电脑",
+      "答案": "检查旧电脑配对占用。",
+      "适用条件": "Surface/Microsoft 配件；不可推广配对时长至全部品牌",
+      "来源": "[S11 · Microsoft Surface 键鼠排查](https://support.microsoft.com/en-us/surface/accessories/mouse-keyboard/troubleshoot-problems-with-your-surface-mouse-or-keyboard)",
+      "原文定位": "Bluetooth connection",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "键盘/故障知识.md",
+      "original_heading": "KB-K-0019",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "键盘曾配对其他电脑",
+    "answer": "检查旧电脑配对占用。",
+    "applicability": "Surface/Microsoft 配件；不可推广配对时长至全部品牌",
+    "source": {
+      "source_id": "S11",
+      "url": "https://support.microsoft.com/en-us/surface/accessories/mouse-keyboard/troubleshoot-problems-with-your-surface-mouse-or-keyboard",
+      "reference_text": "[S11 · Microsoft Surface 键鼠排查](https://support.microsoft.com/en-us/surface/accessories/mouse-keyboard/troubleshoot-problems-with-your-surface-mouse-or-keyboard)"
+    },
+    "source_locator": "Bluetooth connection",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  },
+  {
+    "id": "KB-K-0020",
+    "record_type": "support_knowledge",
+    "synthetic": false,
+    "original_fields": {
+      "记录类型": "support_knowledge",
+      "数据性质": "source_grounded_summary",
+      "问题": "可否修改键盘功能",
+      "答案": "查对应配件配置功能。",
+      "适用条件": "Surface/Microsoft 配件；不可推广配对时长至全部品牌",
+      "来源": "[S11 · Microsoft Surface 键鼠排查](https://support.microsoft.com/en-us/surface/accessories/mouse-keyboard/troubleshoot-problems-with-your-surface-mouse-or-keyboard)",
+      "原文定位": "Settings",
+      "转人工边界": "按本文件顶部的项目规则执行",
+      "核验状态": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+      "采集日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "键盘/故障知识.md",
+      "original_heading": "KB-K-0020",
+      "original_file_retained": false
+    },
+    "category": "keyboards",
+    "category_name": "键盘",
+    "data_origin": "source_grounded_summary",
+    "paraphrased": true,
+    "question": "可否修改键盘功能",
+    "answer": "查对应配件配置功能。",
+    "applicability": "Surface/Microsoft 配件；不可推广配对时长至全部品牌",
+    "source": {
+      "source_id": "S11",
+      "url": "https://support.microsoft.com/en-us/surface/accessories/mouse-keyboard/troubleshoot-problems-with-your-surface-mouse-or-keyboard",
+      "reference_text": "[S11 · Microsoft Surface 键鼠排查](https://support.microsoft.com/en-us/surface/accessories/mouse-keyboard/troubleshoot-problems-with-your-surface-mouse-or-keyboard)"
+    },
+    "source_locator": "Settings",
+    "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
+    "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
+    "collected_on": "2026-10-21"
+  }
+]

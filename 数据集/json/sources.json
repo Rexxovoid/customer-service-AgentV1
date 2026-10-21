@@ -1,0 +1,302 @@
+[
+  {
+    "id": "S01",
+    "record_type": "source",
+    "synthetic": false,
+    "original_fields": {
+      "标题": "Best Buy 开放商品目录",
+      "URL": "https://raw.githubusercontent.com/BestBuyAPIs/open-data-set/007fab14a0d429fb9d550085888015343c61da3d/products.json",
+      "适用及限制": "CC0 1.0；2016-05-09 历史快照；非当前价格和库存",
+      "获取方式": "S01 公开原始数据下载",
+      "核验等级": "已读来源；未逐款对照厂商手册",
+      "访问日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "来源登记册.md",
+      "original_heading": "S01",
+      "original_file_retained": false
+    },
+    "title": "Best Buy 开放商品目录",
+    "url": "https://raw.githubusercontent.com/BestBuyAPIs/open-data-set/007fab14a0d429fb9d550085888015343c61da3d/products.json",
+    "scope_and_limitations": "CC0 1.0；2016-05-09 历史快照；非当前价格和库存",
+    "retrieval_method": "S01 公开原始数据下载",
+    "verification_status": "已读来源；未逐款对照厂商手册",
+    "accessed_on": "2026-10-21"
+  },
+  {
+    "id": "S02",
+    "record_type": "source",
+    "synthetic": false,
+    "original_fields": {
+      "标题": "Windows 蓝牙连接排查",
+      "URL": "https://support.microsoft.com/en-us/windows/hardware/bluetooth/troubleshoot-bluetooth-not-connecting-in-windows",
+      "适用及限制": "Windows 蓝牙设备；具体配对键以型号手册为准",
+      "获取方式": "网页检索并阅读正文",
+      "核验等级": "已读来源；未逐款对照厂商手册",
+      "访问日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "来源登记册.md",
+      "original_heading": "S02",
+      "original_file_retained": false
+    },
+    "title": "Windows 蓝牙连接排查",
+    "url": "https://support.microsoft.com/en-us/windows/hardware/bluetooth/troubleshoot-bluetooth-not-connecting-in-windows",
+    "scope_and_limitations": "Windows 蓝牙设备；具体配对键以型号手册为准",
+    "retrieval_method": "网页检索并阅读正文",
+    "verification_status": "已读来源；未逐款对照厂商手册",
+    "accessed_on": "2026-10-21"
+  },
+  {
+    "id": "S03",
+    "record_type": "source",
+    "synthetic": false,
+    "original_fields": {
+      "标题": "Windows 键鼠排查",
+      "URL": "https://support.microsoft.com/en-au/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows",
+      "适用及限制": "Windows 键盘鼠标基础连接排查",
+      "获取方式": "网页检索并阅读正文",
+      "核验等级": "已读来源；未逐款对照厂商手册",
+      "访问日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "来源登记册.md",
+      "original_heading": "S03",
+      "original_file_retained": false
+    },
+    "title": "Windows 键鼠排查",
+    "url": "https://support.microsoft.com/en-au/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows",
+    "scope_and_limitations": "Windows 键盘鼠标基础连接排查",
+    "retrieval_method": "网页检索并阅读正文",
+    "verification_status": "已读来源；未逐款对照厂商手册",
+    "accessed_on": "2026-10-21"
+  },
+  {
+    "id": "S04",
+    "record_type": "source",
+    "synthetic": false,
+    "original_fields": {
+      "标题": "Logitech 按键异常排查",
+      "URL": "https://support.logi.com/hc/en-au/articles/360023371053-Keyboard-Mice-Buttons-or-keys-do-not-work-correctly",
+      "适用及限制": "Logitech 键鼠；不推荐已停用的旧软件",
+      "获取方式": "网页检索并阅读正文",
+      "核验等级": "已读来源；未逐款对照厂商手册",
+      "访问日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "来源登记册.md",
+      "original_heading": "S04",
+      "original_file_retained": false
+    },
+    "title": "Logitech 按键异常排查",
+    "url": "https://support.logi.com/hc/en-au/articles/360023371053-Keyboard-Mice-Buttons-or-keys-do-not-work-correctly",
+    "scope_and_limitations": "Logitech 键鼠；不推荐已停用的旧软件",
+    "retrieval_method": "网页检索并阅读正文",
+    "verification_status": "已读来源；未逐款对照厂商手册",
+    "accessed_on": "2026-10-21"
+  },
+  {
+    "id": "S05",
+    "record_type": "source",
+    "synthetic": false,
+    "original_fields": {
+      "标题": "Corsair 键盘排查",
+      "URL": "https://help.corsair.com/hc/en-us/articles/360025465031-Keyboard-Troubleshooting-Guide-Quick-Solutions-for-Common-Problems",
+      "适用及限制": "Corsair；重置按型号区分，不跨品牌复用",
+      "获取方式": "网页检索并阅读正文",
+      "核验等级": "已读来源；未逐款对照厂商手册",
+      "访问日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "来源登记册.md",
+      "original_heading": "S05",
+      "original_file_retained": false
+    },
+    "title": "Corsair 键盘排查",
+    "url": "https://help.corsair.com/hc/en-us/articles/360025465031-Keyboard-Troubleshooting-Guide-Quick-Solutions-for-Common-Problems",
+    "scope_and_limitations": "Corsair；重置按型号区分，不跨品牌复用",
+    "retrieval_method": "网页检索并阅读正文",
+    "verification_status": "已读来源；未逐款对照厂商手册",
+    "accessed_on": "2026-10-21"
+  },
+  {
+    "id": "S06",
+    "record_type": "source",
+    "synthetic": false,
+    "original_fields": {
+      "标题": "Corsair 耳机识别排查",
+      "URL": "https://help.corsair.com/hc/en-us/articles/14791910782477-My-headset-isn-t-being-detected-by-my-computer",
+      "适用及限制": "Corsair 对应连接方式；iCUE 仅限兼容设备",
+      "获取方式": "网页检索并阅读正文",
+      "核验等级": "已读来源；未逐款对照厂商手册",
+      "访问日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "来源登记册.md",
+      "original_heading": "S06",
+      "original_file_retained": false
+    },
+    "title": "Corsair 耳机识别排查",
+    "url": "https://help.corsair.com/hc/en-us/articles/14791910782477-My-headset-isn-t-being-detected-by-my-computer",
+    "scope_and_limitations": "Corsair 对应连接方式；iCUE 仅限兼容设备",
+    "retrieval_method": "网页检索并阅读正文",
+    "verification_status": "已读来源；未逐款对照厂商手册",
+    "accessed_on": "2026-10-21"
+  },
+  {
+    "id": "S07",
+    "record_type": "source",
+    "synthetic": false,
+    "original_fields": {
+      "标题": "Windows 音频排查",
+      "URL": "https://support.microsoft.com/en-US/Windows/Hardware/Audio/fix-sound-or-audio-problems-in-windows",
+      "适用及限制": "Windows 系统音频，非特定耳机硬件结论",
+      "获取方式": "网页检索并阅读正文",
+      "核验等级": "已读来源；未逐款对照厂商手册",
+      "访问日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "来源登记册.md",
+      "original_heading": "S07",
+      "original_file_retained": false
+    },
+    "title": "Windows 音频排查",
+    "url": "https://support.microsoft.com/en-US/Windows/Hardware/Audio/fix-sound-or-audio-problems-in-windows",
+    "scope_and_limitations": "Windows 系统音频，非特定耳机硬件结论",
+    "retrieval_method": "网页检索并阅读正文",
+    "verification_status": "已读来源；未逐款对照厂商手册",
+    "accessed_on": "2026-10-21"
+  },
+  {
+    "id": "S08",
+    "record_type": "source",
+    "synthetic": false,
+    "original_fields": {
+      "标题": "Windows 麦克风排查",
+      "URL": "https://support.microsoft.com/en-us/windows/hardware/drivers/fix-microphone-problems",
+      "适用及限制": "Windows 带麦克风设备；不推定所有耳机有麦克风",
+      "获取方式": "网页检索并阅读正文",
+      "核验等级": "已读来源；未逐款对照厂商手册",
+      "访问日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "来源登记册.md",
+      "original_heading": "S08",
+      "original_file_retained": false
+    },
+    "title": "Windows 麦克风排查",
+    "url": "https://support.microsoft.com/en-us/windows/hardware/drivers/fix-microphone-problems",
+    "scope_and_limitations": "Windows 带麦克风设备；不推定所有耳机有麦克风",
+    "retrieval_method": "网页检索并阅读正文",
+    "verification_status": "已读来源；未逐款对照厂商手册",
+    "accessed_on": "2026-10-21"
+  },
+  {
+    "id": "S09",
+    "record_type": "source",
+    "synthetic": false,
+    "original_fields": {
+      "标题": "Logitech 光标异常",
+      "URL": "https://support.logi.com/hc/en-in/articles/360023371213-Erratic-cursor-movement",
+      "适用及限制": "Logitech 鼠标；清洁须关机，不拆机",
+      "获取方式": "网页检索并阅读正文",
+      "核验等级": "已读来源；未逐款对照厂商手册",
+      "访问日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "来源登记册.md",
+      "original_heading": "S09",
+      "original_file_retained": false
+    },
+    "title": "Logitech 光标异常",
+    "url": "https://support.logi.com/hc/en-in/articles/360023371213-Erratic-cursor-movement",
+    "scope_and_limitations": "Logitech 鼠标；清洁须关机，不拆机",
+    "retrieval_method": "网页检索并阅读正文",
+    "verification_status": "已读来源；未逐款对照厂商手册",
+    "accessed_on": "2026-10-21"
+  },
+  {
+    "id": "S10",
+    "record_type": "source",
+    "synthetic": false,
+    "original_fields": {
+      "标题": "Logitech 游戏鼠标追踪排查",
+      "URL": "https://support.logi.com/hc/en-ch/articles/360023362033-Inconsistent-gaming-mouse-tracking-behavior",
+      "适用及限制": "Logitech 对应游戏鼠标；跳过已停用软件",
+      "获取方式": "网页检索并阅读正文",
+      "核验等级": "已读来源；未逐款对照厂商手册",
+      "访问日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "来源登记册.md",
+      "original_heading": "S10",
+      "original_file_retained": false
+    },
+    "title": "Logitech 游戏鼠标追踪排查",
+    "url": "https://support.logi.com/hc/en-ch/articles/360023362033-Inconsistent-gaming-mouse-tracking-behavior",
+    "scope_and_limitations": "Logitech 对应游戏鼠标；跳过已停用软件",
+    "retrieval_method": "网页检索并阅读正文",
+    "verification_status": "已读来源；未逐款对照厂商手册",
+    "accessed_on": "2026-10-21"
+  },
+  {
+    "id": "S11",
+    "record_type": "source",
+    "synthetic": false,
+    "original_fields": {
+      "标题": "Microsoft Surface 键鼠排查",
+      "URL": "https://support.microsoft.com/en-us/surface/accessories/mouse-keyboard/troubleshoot-problems-with-your-surface-mouse-or-keyboard",
+      "适用及限制": "Surface/Microsoft 配件；不可推广配对时长至全部品牌",
+      "获取方式": "网页检索并阅读正文",
+      "核验等级": "已读来源；未逐款对照厂商手册",
+      "访问日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "来源登记册.md",
+      "original_heading": "S11",
+      "original_file_retained": false
+    },
+    "title": "Microsoft Surface 键鼠排查",
+    "url": "https://support.microsoft.com/en-us/surface/accessories/mouse-keyboard/troubleshoot-problems-with-your-surface-mouse-or-keyboard",
+    "scope_and_limitations": "Surface/Microsoft 配件；不可推广配对时长至全部品牌",
+    "retrieval_method": "网页检索并阅读正文",
+    "verification_status": "已读来源；未逐款对照厂商手册",
+    "accessed_on": "2026-10-21"
+  },
+  {
+    "id": "S12",
+    "record_type": "source",
+    "synthetic": false,
+    "original_fields": {
+      "标题": "Sony 耳机自助入口",
+      "URL": "https://www.sony.co.uk/electronics/support/articles/00204483",
+      "适用及限制": "Sony 耳机问题分类；实际步骤转对应型号资料",
+      "获取方式": "网页检索并阅读正文",
+      "核验等级": "已读来源；未逐款对照厂商手册",
+      "访问日期": "2026-10-21"
+    },
+    "provenance": {
+      "original_format": "markdown",
+      "original_file": "来源登记册.md",
+      "original_heading": "S12",
+      "original_file_retained": false
+    },
+    "title": "Sony 耳机自助入口",
+    "url": "https://www.sony.co.uk/electronics/support/articles/00204483",
+    "scope_and_limitations": "Sony 耳机问题分类；实际步骤转对应型号资料",
+    "retrieval_method": "网页检索并阅读正文",
+    "verification_status": "已读来源；未逐款对照厂商手册",
+    "accessed_on": "2026-10-21"
+  }
+]
