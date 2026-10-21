@@ -65,14 +65,3 @@ class ToolResult(BaseModel):
     @classmethod
     def failure(cls, code: str, message: str) -> "ToolResult":
         return cls(ok=False, error=ToolError(code=code, message=message))
-
-
-class ToolTrace(BaseModel):
-    call_id: str
-    tool: str
-    result: ToolResult
-
-
-class AgentReply(BaseModel):
-    answer: str
-    tool_trace: list[ToolTrace] = Field(default_factory=list)

@@ -1,11 +1,10 @@
 import argparse
 import sys
+from uuid import uuid4
 
 from pydantic import ValidationError
 
 from orderagent.agents.agent_factory import create_order_agent
-from orderagent.agents.order_agent import OrderAgent
-from orderagent.exceptions import AgentExecutionError
 from orderagent.repositories.order_repository import DataLoadError, JsonOrderRepository
 from orderagent.schemas.order_schema import ToolContext
 from orderagent.settings import ConfigurationError, Settings
@@ -19,10 +18,12 @@ def main() -> int:
     parser.add_argument("--user-id", required=True, help="应用提供的演示用户，如 DEMO-U-001")
     parser.add_argument("--message", help="单轮自然语言查询；省略则进入交互会话")
     parser.add_argument("--order-id", help="直接调用查询工具，不调用模型且无需API密钥")
-    parser.add_argument("--trace", action="store_true", help="显示结构化工具执行结果")
+    parser.add_argument("--trace", action="store_true", help="显示框架原生执行更新与工具消息")
     args = parser.parse_args()
     if args.order_id and args.message:
         parser.error("--order-id 与 --message 不能同时使用")
+    if args.message is not None and (not args.message.strip() or len(args.message) > 4000):
+        parser.error("请输入1—4000字符的消息。")
     try:
         settings = Settings.load()
         context = ToolContext(user_id=args.user_id)
@@ -34,11 +35,19 @@ def main() -> int:
             print(result.model_dump_json(indent=2))
             return 0 if result.ok else 1
         graph = create_order_agent(settings)
-        agent = OrderAgent(graph, context)
+        config = {"configurable": {"thread_id": uuid4().hex}, "recursion_limit": 40}
 
         def ask(text: str) -> None:
-            reply = agent.chat(text)
-            print(reply.model_dump_json(indent=2) if args.trace else reply.answer)
+            if not text.strip() or len(text) > 4000:
+                print("请输入1—4000字符的消息。")
+                return
+            result = graph.invoke(
+                {"messages": [{"role": "user", "content": text.strip()}]},
+                config=config,
+                context=context,
+                print_mode="updates" if args.trace else (),
+            )
+            print(result["messages"][-1].text)
 
         if args.message:
             ask(args.message)
@@ -50,21 +59,25 @@ def main() -> int:
                 if text == "/exit":
                     return 0
                 if text == "/reset":
-                    agent.reset()
+                    graph.checkpointer.delete_thread(config["configurable"]["thread_id"])
+                    config["configurable"]["thread_id"] = uuid4().hex
                     print("会话已清空。")
                 elif text:
                     try:
                         ask(text)
-                    except (AgentExecutionError, ValueError) as exc:
-                        print(f"查询失败：{exc}")
+                    except Exception:
+                        print("查询失败，请检查模型配置或稍后重试。可输入 /reset 开始新会话。")
             except (EOFError, KeyboardInterrupt):
                 print()
                 return 0
-    except (ConfigurationError, DataLoadError, AgentExecutionError) as exc:
+    except (ConfigurationError, DataLoadError) as exc:
         print(f"错误：{exc}")
         return 1
     except ValidationError:
         print("错误：用户ID或订单号格式不合法。")
+        return 1
+    except Exception:
+        print("执行失败，请检查模型配置、调用限制或稍后重试。")
         return 1
 
 

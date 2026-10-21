@@ -2,6 +2,14 @@
 
 基于 **Deep Agents `create_deep_agent` + LangGraph + ChatDeepSeek** 的订单查询项目，使用 uv 管理 Python 环境与依赖。当前只实现模型接入、订单查询和命令行多轮会话。
 
+## 开发约束
+
+保持现有架构并优先最小修改，使用 LangChain 官方 `deepagents`。工具调用、Agent执行、消息格式、重试及流式输出优先使用官方接口。
+
+每次修改接口前先核对锁文件、实际依赖版本和相应版本的官方文档或源码。只有官方不支持或兼容性确有必要时才自写；自写前说明理由和最小改动计划，等待用户确认。具体约定见 [AGENTS.md](AGENTS.md)。
+
+2026-10-21 核对的已安装版本：`deepagents 0.7.29`、`langchain 1.4.6`、`langchain-core 1.6.12`、`langgraph 1.2.16`、`langchain-deepseek 1.1.1`。当前使用官方 `create_deep_agent`、`ChatDeepSeek` 和 `InMemorySaver`；CLI直接调用图。`--trace` 使用官方执行更新输出，尚未提供逐字流式输出参数。
+
 ## 安装与运行
 
 要求 Python 3.12 或更新版本，以及 uv。在项目根目录运行：
@@ -13,7 +21,7 @@ uv run orderagent --user-id DEMO-U-001
 
 输入 `/reset` 清空会话，`/exit` 退出。
 
-单轮查询并显示结构化工具轨迹：
+单轮查询并显示框架原生执行更新（含工具消息）：
 
 ```powershell
 uv run orderagent --user-id DEMO-U-001 --message "查询订单 DEMO-HP-O-0001，告诉我发货状态和商品型号。" --trace
@@ -31,7 +39,9 @@ uv run orderagent --user-id DEMO-U-001 --order-id DEMO-HP-O-0001
 
 [agent_factory.py](src/orderagent/agents/agent_factory.py) 调用官方 `deepagents.create_deep_agent` 构建图，传入 ChatDeepSeek、订单工具、系统提示、上下文 Schema 和中间件。模型执行、工具调度与结果回传由框架完成，项目不再维护手写工具循环。
 
-[order_agent.py](src/orderagent/agents/order_agent.py) 只适配会话：校验输入、调用图、提取回答与工具轨迹、在成功后保存最近8轮完整对话。未启用持久化 checkpointer，不跨进程保留历史。一个会话实例绑定一个可信用户；不要跨用户复用会话实例。
+会话改用官方 `InMemorySaver` 检查点。CLI每次仅传入新用户消息，通过 `configurable.thread_id` 关联历史，并直接调用 `graph.invoke`。`/reset` 调用检查点的 `delete_thread` 后生成新线程ID。检查点仅在当前进程内保留，不落盘；同一线程不得跨用户复用。
+
+已删除自写 `OrderAgent` 包装、`AgentReply`／`ToolTrace` 回复格式和 `AgentExecutionError` 异常模块。CLI直接读取官方消息的 `.text`；`--trace` 使用 `invoke(print_mode="updates")`，输出为框架原生调试更新，不再是原先单个JSON回复对象。只保留CLI输入校验和对外错误脱敏。
 
 |依赖|职责|
 |---|---|
@@ -52,12 +62,10 @@ uv run orderagent --user-id DEMO-U-001 --order-id DEMO-HP-O-0001
 ```text
 src/orderagent/
 ├── settings.py                     配置与API基础地址规范化
-├── exceptions.py                   公开执行异常
 ├── cli.py                          命令行入口与应用组装
 ├── __main__.py                     python -m orderagent 入口
 ├── agents/
-│   ├── agent_factory.py            create_deep_agent 图工厂
-│   └── order_agent.py              会话适配，不负责工具循环
+│   └── agent_factory.py            create_deep_agent 图工厂与官方检查点
 ├── models/
 │   └── deepseek_model.py           ChatDeepSeek 模型工厂
 ├── prompts/
@@ -67,7 +75,7 @@ src/orderagent/
 ├── repositories/
 │   └── order_repository.py         只读JSON仓储和可替换的数据访问协议
 ├── schemas/
-│   └── order_schema.py             订单参数、上下文、结果与回复结构
+│   └── order_schema.py             订单参数、可信上下文与业务结果
 └── middleware/
     └── tool_policy.py              模型工具白名单、执行拦截与参数校验
 
@@ -130,11 +138,15 @@ uv run ruff check src tests
 uv run ruff format --check src tests
 ```
 
-当前32项测试通过。测试使用可绑定工具的假模型运行真实 `create_deep_agent` 图，验证工具执行与结构化结果、模型可见工具列表、额外身份参数拒绝、越权订单、默认工具拦截、用户上下文隔离、历史与重置、失败不提交历史、调用限制、配置与仓储校验。默认测试不调用真实供应商。
+当前34项测试通过。测试使用可绑定工具的假模型运行真实 `create_deep_agent` 图，验证订单结果、额外身份参数拒绝、越权订单、非订单工具拦截、用户线程隔离、官方检查点的历史与删除、调用限制、原生调试输出、CLI错误脱敏、配置与仓储校验。默认测试不调用真实供应商。
 
-已使用当前 `.env` 完成一次真实端到端查询，确认 `ChatDeepSeek → Deep Agents → query_order → 订单结果 → 中文回答` 可运行，回答包含“待付款、未发货”和商品型号。该验证不代表完成独立效果评测。
+本次已使用当前 `.env` 完成真实端到端查询，确认 `ChatDeepSeek → Deep Agents → query_order → 订单结果 → 中文回答` 可运行，回答包含“待付款、未发货”和商品型号。该验证不代表完成独立效果评测。
 
-后续可新增商品工具与数据库适配器。当前没有网页、生产登录、持久化会话、退货写入或人工通知。
+官方检查点可能保留失败运行的部分状态；本项目不再维护手写回滚或固定8轮历史截断。失败后可用 `/reset` 清理当前线程。长上下文由 Deep Agents 自带机制处理，本次没有进行长会话总结效果评测。
+
+现有 `OrderToolPolicyMiddleware` 保留不变，因为它同时承担严格订单参数校验和业务结构化拒绝。官方 HarnessProfile 支持排除指定工具，但本次未将其改成提供方全局配置，也未新增替代中间件。
+
+后续可新增商品工具与数据库适配器。当前没有网页、生产登录、跨进程持久化会话、退货写入或人工通知。
 
 ## 更新日志约定
 
@@ -143,6 +155,9 @@ uv run ruff format --check src tests
 日志包含更新内容、解决的问题、涉及文件、验证结果和尚存限制；同日不同主题分别记录，同主题可追加。密钥与敏感配置不写入日志。具体协作要求见 [AGENTS.md](AGENTS.md)。
 
 - [2026-10-21：Deep Agents 架构重构及日志规范](docs/2026-10-21+DeepAgents架构重构及日志规范.md)
+- [2026-10-21：官方 Deep Agents 优先及最小修改原则](docs/2026-10-21+明确官方DeepAgents优先及最小修改原则.md)
+
+- [2026-10-21：采用官方检查点并精简Agent封装](docs/2026-10-21+采用官方检查点并精简Agent封装.md)
 
 ## 官方资料
 

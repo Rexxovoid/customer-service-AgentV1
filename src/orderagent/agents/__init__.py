@@ -1,3 +1,3 @@
-from orderagent.agents.order_agent import OrderAgent
+from orderagent.agents.agent_factory import create_order_agent
 
-__all__ = ["OrderAgent"]
+__all__ = ["create_order_agent"]

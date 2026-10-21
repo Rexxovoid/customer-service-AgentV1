@@ -2,6 +2,7 @@ from deepagents import create_deep_agent
 from deepagents.middleware.filesystem import FilesystemMiddleware
 from langchain.agents.middleware import ModelCallLimitMiddleware, ToolCallLimitMiddleware
 from langchain_core.language_models.chat_models import BaseChatModel
+from langgraph.checkpoint.memory import InMemorySaver
 
 from orderagent.middleware import OrderToolPolicyMiddleware
 from orderagent.models import create_deepseek_model
@@ -20,6 +21,7 @@ def create_order_agent(settings: Settings, *, model: BaseChatModel | None = None
         tools=[query_tool.as_langchain_tool()],
         system_prompt=ORDER_SYSTEM_PROMPT,
         context_schema=ToolContext,
+        checkpointer=InMemorySaver(),
         middleware=[
             # Framework requires read_file internally; policy hides AND blocks it.
             FilesystemMiddleware(tools=["read_file"]),
