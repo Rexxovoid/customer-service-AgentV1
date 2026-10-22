@@ -14,8 +14,8 @@
     },
     {
       "path": "metadata.json",
-      "bytes": 1046,
-      "sha256": "f8f82d84663c2ef1d136facbc4cad6893104472b4d1f984974b3508eeb8d3ec5"
+      "bytes": 1363,
+      "sha256": "36744e99961cf88f6b720298194bebb2a1dfb80e291210cd305db7095ef184cd"
     },
     {
       "path": "orders.json",
@@ -44,8 +44,8 @@
     },
     {
       "path": "support_knowledge.json",
-      "bytes": 119100,
-      "sha256": "8fd3cb0f02f87ba98ee72de0e5bc3724975366576ba236deb754af5b51ce951b"
+      "bytes": 125749,
+      "sha256": "47a9954ed3cb1563808a46932720e60a965c7957cfb032a482a0d2f5faa24a5f"
     },
     {
       "path": "tickets.json",
@@ -54,8 +54,10 @@
     },
     {
       "path": "validation_report.json",
-      "bytes": 3234,
-      "sha256": "f2ad8d95f2dcc31f2b1b00fcf901663f2a6beb1f20a679de0df31bd53dc72b57"
+      "bytes": 4004,
+      "sha256": "501a89338739398a0566abddac11f752a045a4465daa3025e0c57449fde03937"
     }
-  ]
+  ],
+  "supplemental_update_on": "2026-10-22",
+  "consolidated_on": "2026-10-22"
 }

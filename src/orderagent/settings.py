@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from typing import Literal
 from urllib.parse import urlsplit, urlunsplit
 
 from dotenv import dotenv_values
@@ -9,10 +10,12 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 
 class ConfigurationError(ValueError):
-    """Safe-to-display configuration error; never contains environment values."""
+    """可展示给用户的配置异常，消息不包含环境变量值或敏感凭据。"""
 
 
 class Settings(BaseModel):
+    """集中保存模型、数据路径和运行限制，实例创建后配置不可变。"""
+
     model_config = ConfigDict(frozen=True)
 
     base_url: str = "https://api.deepseek.com"
@@ -20,6 +23,8 @@ class Settings(BaseModel):
     model_name: str = "deepseek-chat"
     orders_path: Path = PROJECT_ROOT / "data" / "orders.json"
     products_path: Path = PROJECT_ROOT / "data" / "products.json"
+    support_path: Path = PROJECT_ROOT / "data" / "support_knowledge.json"
+    mock_handoff_scenario: Literal["success", "error"] = "success"
     timeout_seconds: float = Field(default=30, gt=0, le=120)
     max_model_calls: int = Field(default=6, ge=1, le=20)
     max_tool_calls: int = Field(default=8, ge=1, le=30)
@@ -27,6 +32,7 @@ class Settings(BaseModel):
     @field_validator("base_url")
     @classmethod
     def validate_base_url(cls, value: str) -> str:
+        """校验无凭据的HTTPS地址，并去除末尾斜杠。"""
         parsed = urlsplit(value)
         if parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password:
             raise ValueError("DEEP_BASE_URL 必须是不含凭据的 HTTPS 地址。")
@@ -36,6 +42,7 @@ class Settings(BaseModel):
 
     @property
     def api_base_url(self) -> str:
+        """将可能含chat/completions的配置地址规范为SDK所需的服务基础地址。"""
         parsed = urlsplit(self.base_url)
         path = parsed.path.rstrip("/")
         if path.endswith("/chat/completions"):
@@ -44,10 +51,12 @@ class Settings(BaseModel):
 
     @classmethod
     def load(cls, env_file: Path | None = None) -> "Settings":
-        # Environment variables override .env without mutating os.environ.
+        """读取.env和系统环境变量，解析路径并校验配置，系统环境变量优先。"""
+        # 只读取配置，不将.env内容写入进程环境变量。
         file_values = dotenv_values(env_file or PROJECT_ROOT / ".env", encoding="utf-8-sig")
 
         def value(name: str, default: str = "") -> str:
+            """按系统环境、.env、默认值的优先级读取指定配置项。"""
             return os.environ.get(name, file_values.get(name) or default)
 
         try:
@@ -57,10 +66,15 @@ class Settings(BaseModel):
                 model_name=value("DEEP_MODEL") or value("DEEP-SEEK", "deepseek-chat"),
                 orders_path=Path(value("ORDER_DATA_PATH", str(cls().orders_path))).resolve(),
                 products_path=Path(value("PRODUCT_DATA_PATH", str(cls().products_path))).resolve(),
+                support_path=Path(value("SUPPORT_DATA_PATH", str(cls().support_path))).resolve(),
+                mock_handoff_scenario=value("MOCK_HANDOFF_SCENARIO", "success"),
             )
         except ValueError:
-            raise ConfigurationError("配置格式不合法，请检查 API 地址和数据路径。") from None
+            raise ConfigurationError(
+                "配置格式不合法，请检查API地址、数据路径和模拟交接场景。"
+            ) from None
 
     def require_api_key(self) -> None:
+        """在创建模型客户端前检查密钥是否为空，缺失时抛出脱敏配置异常。"""
         if not self.api_key.get_secret_value().strip():
             raise ConfigurationError("缺少 DEEP_API_KEY，请在项目 .env 或环境变量中配置。")

@@ -12,9 +12,10 @@ from orderagent.tools import query_order
 
 
 def main() -> int:
+    """解析命令参数，运行直接订单查询或Agent会话，并返回进程退出码。"""
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
-    parser = argparse.ArgumentParser(description="DeepSeek 订单查询 Agent（本地演示）")
+    parser = argparse.ArgumentParser(description="DeepSeek 数码售后 Agent（本地演示）")
     parser.add_argument("--user-id", required=True, help="应用提供的演示用户，如 DEMO-U-001")
     parser.add_argument("--message", help="单轮自然语言查询；省略则进入交互会话")
     parser.add_argument("--order-id", help="直接调用查询工具，不调用模型且无需API密钥")
@@ -41,6 +42,7 @@ def main() -> int:
         config = {"configurable": {"thread_id": uuid4().hex}, "recursion_limit": 40}
 
         def ask(text: str) -> None:
+            """在当前线程提交一轮消息，按需显示执行更新并打印最终回答。"""
             if not text.strip() or len(text) > 4000:
                 print("请输入1—4000字符的消息。")
                 return
@@ -55,7 +57,7 @@ def main() -> int:
         if args.message:
             ask(args.message)
             return 0
-        print("订单助手已启动。输入 /exit 退出，/reset 清空会话。当前为模拟订单数据。")
+        print("数码售后助手已启动。输入 /exit 退出，/reset 清空会话。订单和人工交接均为模拟。")
         while True:
             try:
                 text = input("你 > ").strip()

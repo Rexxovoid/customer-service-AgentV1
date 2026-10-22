@@ -23,13 +23,15 @@ CATEGORY_ALIASES = {
 
 
 def normalize(text: str) -> str:
+    """统一大小写并提取中英文及数字词元，供确定性的关键词匹配使用。"""
     return " ".join(re.findall(r"[a-z0-9]+|[\u4e00-\u9fff]+", text.casefold()))
 
 
 class JsonProductRepository:
-    """Small read-only catalog: exact identifiers followed by deterministic keyword matching."""
+    """小型只读商品目录，先精确匹配标识，再匹配别名和关键词。"""
 
     def __init__(self, path: Path):
+        """加载商品记录并校验结构及ID唯一性，异常时返回脱敏错误。"""
         try:
             raw = json.loads(path.read_text(encoding="utf-8-sig"))
             if not isinstance(raw, list):
@@ -41,6 +43,7 @@ class JsonProductRepository:
             raise DataLoadError("商品数据无法加载，请检查文件格式、必需字段与重复ID。") from None
 
     def search(self, query: str) -> list[StoredProduct]:
+        """优先查ID、型号或源SKU，再按品类别名及关键词筛选并返回记录深拷贝。"""
         exact = [
             row
             for row in self._products

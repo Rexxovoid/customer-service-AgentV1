@@ -1,5 +1,182 @@
 [
   {
+    "id": "DEMO-HP-K-0001",
+    "category": "headphones",
+    "question": "耳机单侧无声",
+    "aliases": [
+      "左耳没有声音",
+      "左耳没声音",
+      "右耳没有声音",
+      "右耳没声音",
+      "单耳无声",
+      "一边没声音",
+      "左边没声音",
+      "右边没声音"
+    ],
+    "answer": "如果播放设备支持左右声道平衡，请先检查是否偏向一侧，恢复居中后测试；不支持或找不到该设置时不要修改其他未知选项，直接反馈以便人工处理。",
+    "applicability": "通用低风险模拟案例；仅适用于播放设备具有左右声道平衡设置的情况，不代表耳机硬件故障诊断。",
+    "data_origin": "project_authored_demo_guidance",
+    "source": {
+      "reference_text": "项目编写的条件式模拟排查案例，不是品牌官方维修说明"
+    }
+  },
+  {
+    "id": "DEMO-HP-K-0002",
+    "category": "headphones",
+    "question": "AirPods单耳无声",
+    "aliases": [
+      "左耳没有声音",
+      "左耳没声音",
+      "右耳没有声音",
+      "右耳没声音",
+      "单耳无声"
+    ],
+    "answer": "确认充电盒有电，将两只AirPods放入盒中充电30秒；靠近iPhone或iPad打开盒盖，查看两只耳机是否都在充电，然后测试原本无声的一只。",
+    "applicability": "AirPods连接iPhone或iPad；仅为一次基础检查，不能推广至其他品牌。",
+    "required_context": [
+      [
+        "airpods"
+      ],
+      [
+        "iphone",
+        "ipad"
+      ]
+    ],
+    "data_origin": "source_grounded_summary",
+    "source": {
+      "url": "https://support.apple.com/en-us/100494",
+      "reference_text": "Apple：If your left or right AirPod isn't working；2026-10-22核对"
+    }
+  },
+  {
+    "id": "DEMO-MS-K-0001",
+    "category": "mice",
+    "question": "USB鼠标无响应",
+    "aliases": [
+      "USB鼠标没有反应",
+      "usb鼠标没反应",
+      "有线鼠标没反应",
+      "鼠标插上没反应"
+    ],
+    "answer": "拔下鼠标USB连接后稍等再插入；若经过USB集线器，改为直接连接电脑USB端口测试。",
+    "applicability": "Windows电脑上的USB鼠标；不适用于仅蓝牙连接。",
+    "required_context": [
+      [
+        "windows",
+        "win10",
+        "win11"
+      ]
+    ],
+    "data_origin": "source_grounded_summary",
+    "source": {
+      "url": "https://support.microsoft.com/en-us/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows",
+      "reference_text": "Microsoft：First, try checking your hardware；2026-10-22核对"
+    }
+  },
+  {
+    "id": "DEMO-MS-K-0002",
+    "category": "mice",
+    "question": "无线鼠标电量不足",
+    "aliases": [
+      "鼠标没电",
+      "鼠标电量不足",
+      "无线鼠标没反应"
+    ],
+    "answer": "若鼠标有电池或可充电电源，按该型号说明确认供电和剩余电量；电量不足时使用匹配的电池或充电方式，不拆机处理。",
+    "applicability": "通用低风险模拟案例；仅检查无线鼠标供电，不包含重新配对或驱动修复。",
+    "data_origin": "project_authored_demo_guidance",
+    "source": {
+      "reference_text": "项目编写的条件式模拟排查案例，不保证任何型号必然适用"
+    }
+  },
+  {
+    "id": "DEMO-MS-K-0003",
+    "category": "mice",
+    "question": "鼠标传感器遮挡",
+    "aliases": [
+      "鼠标传感器被挡住",
+      "鼠标底部有异物"
+    ],
+    "answer": "查看传感器附近是否有可见异物，按产品说明清理外部遮挡后测试；不要拆开鼠标。",
+    "applicability": "Windows电脑所连鼠标的外部遮挡检查；不涵盖内部传感器维修。",
+    "required_context": [
+      [
+        "windows",
+        "win10",
+        "win11"
+      ]
+    ],
+    "data_origin": "source_grounded_summary",
+    "source": {
+      "url": "https://support.microsoft.com/en-us/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows",
+      "reference_text": "Microsoft：外部传感器遮挡检查；2026-10-22核对"
+    }
+  },
+  {
+    "id": "DEMO-KB-K-0001",
+    "category": "keyboards",
+    "question": "USB键盘无响应",
+    "aliases": [
+      "USB键盘没有反应",
+      "usb键盘没反应",
+      "有线键盘没反应",
+      "键盘插上没反应"
+    ],
+    "answer": "拔下USB键盘，稍等后重新插入电脑端口；若通过集线器连接，改为直连电脑测试。",
+    "applicability": "Windows电脑上的USB键盘；不适用于仅蓝牙连接。",
+    "required_context": [
+      [
+        "windows",
+        "win10",
+        "win11"
+      ]
+    ],
+    "data_origin": "source_grounded_summary",
+    "source": {
+      "url": "https://support.microsoft.com/en-us/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows",
+      "reference_text": "Microsoft：USB连接检查；2026-10-22核对"
+    }
+  },
+  {
+    "id": "DEMO-KB-K-0002",
+    "category": "keyboards",
+    "question": "无线键盘电量不足",
+    "aliases": [
+      "键盘没电",
+      "键盘电量不足",
+      "无线键盘没反应"
+    ],
+    "answer": "若键盘由电池或内置电池供电，按型号说明检查电源开关和剩余电量，必要时采用说明中支持的补电方式；不要尝试不匹配的充电器或拆机。",
+    "applicability": "通用低风险模拟案例；只检查无线键盘供电，不包含特定型号的重置步骤。",
+    "data_origin": "project_authored_demo_guidance",
+    "source": {
+      "reference_text": "项目编写的条件式模拟排查案例，不是品牌官方维修说明"
+    }
+  },
+  {
+    "id": "DEMO-KB-K-0003",
+    "category": "keyboards",
+    "question": "按键周围有异物",
+    "aliases": [
+      "键盘按键周围有异物",
+      "键帽周围有异物"
+    ],
+    "answer": "检查按键周围有无可见遮挡，按产品说明处理外部异物；不要强行拔下不确定能否拆卸的键帽。",
+    "applicability": "Windows电脑所连键盘的外部异物检查；不包含机械轴体维修。",
+    "required_context": [
+      [
+        "windows",
+        "win10",
+        "win11"
+      ]
+    ],
+    "data_origin": "source_grounded_summary",
+    "source": {
+      "url": "https://support.microsoft.com/en-us/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows",
+      "reference_text": "Microsoft：按键周围异物检查；2026-10-22核对"
+    }
+  },
+  {
     "id": "HP-K-0001",
     "record_type": "support_knowledge",
     "synthetic": false,

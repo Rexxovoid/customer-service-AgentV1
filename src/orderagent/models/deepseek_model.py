@@ -4,7 +4,7 @@ from orderagent.settings import Settings
 
 
 def create_deepseek_model(settings: Settings) -> ChatDeepSeek:
-    """Adapt existing environment names to the official LangChain integration."""
+    """校验密钥并创建官方ChatDeepSeek客户端，统一模型、超时及SDK重试配置。"""
     settings.require_api_key()
     return ChatDeepSeek(
         model=settings.model_name,

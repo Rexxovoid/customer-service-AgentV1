@@ -2,14 +2,14 @@
   "schema_version": "1.0.0",
   "exported_on": "2026-10-21",
   "encoding": "UTF-8",
-  "main_record_count": 3600,
+  "main_record_count": 3608,
   "business_record_count": 78,
   "source_count": 12,
   "business_rule_count": 5,
   "counts": {
     "products": 379,
     "product_faqs": 1140,
-    "support_knowledge": 60,
+    "support_knowledge": 68,
     "after_sales_cases": 2021,
     "orders": 60,
     "tickets": 18,
@@ -28,5 +28,17 @@
     "模拟案例为模板情境组合，不是真实用户工单或独立评测集。",
     "synthetic=false表示事实依据为真实来源，不表示问句或摘要未经整理。",
     "原始字段保存在original_fields中；原Markdown已移除，历史位置仅用于审计。"
+  ],
+  "updated_on": "2026-10-22",
+  "collection_merges": [
+    {
+      "date": "2026-10-22",
+      "target": "support_knowledge.json",
+      "merged_source": "support_cases.json",
+      "original_records": 60,
+      "added_records": 8,
+      "total_records": 68,
+      "all_fields_preserved": true
+    }
   ]
 }

@@ -49,5 +49,28 @@
     "鼠标/模拟售后案例_03.md": "39b4c18a41b065ae7394b3a1bf4552a7584c636432b3d98c1247c2e277a3948d",
     "鼠标/模拟售后案例_04.md": "a8f346cd900b35655be7470077966bdccaf5378d5b705b48399c5469e9d7144b"
   },
-  "original_markdown_retained": false
+  "original_markdown_retained": false,
+  "report_scope": "Original conversion snapshot retained; current consolidation checks are recorded separately below.",
+  "consolidation_validation": {
+    "date": "2026-10-22",
+    "status": "passed",
+    "counts": {
+      "products": 379,
+      "product_faqs": 1140,
+      "support_knowledge": 68,
+      "after_sales_cases": 2021,
+      "orders": 60,
+      "tickets": 18,
+      "sources": 12,
+      "business_rules": 5
+    },
+    "main_record_count": 3608,
+    "unique_record_ids": 3703,
+    "checks": [
+      "All 68 support records preserve every original field and ID",
+      "Merged support records pass the runtime schema",
+      "Collection counts agree with metadata",
+      "IDs are globally unique across record collections"
+    ]
+  }
 }

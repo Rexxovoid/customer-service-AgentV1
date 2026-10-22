@@ -27,7 +27,10 @@ def test_actual_deep_agent_graph_executes_order_tool(context, config):
     assert state["messages"][-1].text == "该订单未发货。"
     result = next(m for m in state["messages"] if isinstance(m, ToolMessage))
     assert result.artifact["data"]["order_status"] == "pending_payment"
-    assert all(set(names) == {"query_order", "query_products"} for names in model._bound_tools)
+    assert all(
+        set(names) == {"query_order", "query_products", "query_quality_support", "handoff_to_human"}
+        for names in model._bound_tools
+    )
 
 
 def test_runtime_identity_cannot_be_spoofed(context, config):
@@ -71,7 +74,10 @@ def test_unoffered_framework_and_unknown_tools_cannot_execute(context, config, n
     )
     result = next(m for m in state["messages"] if isinstance(m, ToolMessage))
     assert result.artifact["error"]["code"] == "UNKNOWN_TOOL"
-    assert all(set(names) == {"query_order", "query_products"} for names in model._bound_tools)
+    assert all(
+        set(names) == {"query_order", "query_products", "query_quality_support", "handoff_to_human"}
+        for names in model._bound_tools
+    )
 
 
 def test_official_checkpointer_retains_thread_history(context, config):
@@ -225,7 +231,12 @@ def test_product_tool_runs_in_official_graph_without_order_identity(config):
     message = next(m for m in result["messages"] if isinstance(m, ToolMessage))
     assert message.artifact["ok"]
     assert message.artifact["data"]["products"][0]["id"] == "MS-P-0002"
-    assert set(model._bound_tools[0]) == {"query_order", "query_products"}
+    assert set(model._bound_tools[0]) == {
+        "query_order",
+        "query_products",
+        "query_quality_support",
+        "handoff_to_human",
+    }
 
 
 def test_category_candidates_then_confirmed_model_in_same_thread(context, config):
