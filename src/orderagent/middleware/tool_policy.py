@@ -3,24 +3,30 @@ from langchain_core.messages import ToolMessage
 from pydantic import ValidationError
 
 from orderagent.schemas.order_schema import OrderQuery, ToolResult
+from orderagent.schemas.product_schema import ProductQuery
 
 
-class OrderToolPolicyMiddleware(AgentMiddleware):
-    """Offer only query_order; reject hidden built-in tool calls."""
+class BusinessToolPolicyMiddleware(AgentMiddleware):
+    """Offer business tools only; validate their arguments before execution."""
+
+    argument_schemas = {"query_order": OrderQuery, "query_products": ProductQuery}
 
     def wrap_model_call(self, request, handler):
-        tools = [t for t in request.tools if getattr(t, "name", None) == "query_order"]
+        tools = [t for t in request.tools if getattr(t, "name", None) in self.argument_schemas]
         return handler(request.override(tools=tools))
 
     def wrap_tool_call(self, request, handler):
-        if request.tool_call["name"] != "query_order":
-            result = ToolResult.failure("UNKNOWN_TOOL", "当前仅支持订单查询工具。")
+        schema = self.argument_schemas.get(request.tool_call["name"])
+        if schema is None:
+            result = ToolResult.failure("UNKNOWN_TOOL", "当前仅支持订单和商品查询工具。")
         else:
             try:
-                OrderQuery.model_validate(request.tool_call["args"])
+                schema.model_validate(request.tool_call["args"])
                 return handler(request)
             except (ValidationError, TypeError):
-                result = ToolResult.failure("INVALID_ARGUMENTS", "参数不合法，请只提供有效订单号。")
+                result = ToolResult.failure(
+                    "INVALID_ARGUMENTS", "参数不合法，请按工具格式提供查询条件。"
+                )
         return ToolMessage(
             content=result.model_dump_json(),
             artifact=result.model_dump(mode="json"),

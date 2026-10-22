@@ -19,6 +19,7 @@ class Settings(BaseModel):
     api_key: SecretStr = SecretStr("")
     model_name: str = "deepseek-chat"
     orders_path: Path = PROJECT_ROOT / "data" / "orders.json"
+    products_path: Path = PROJECT_ROOT / "data" / "products.json"
     timeout_seconds: float = Field(default=30, gt=0, le=120)
     max_model_calls: int = Field(default=6, ge=1, le=20)
     max_tool_calls: int = Field(default=8, ge=1, le=30)
@@ -55,9 +56,10 @@ class Settings(BaseModel):
                 api_key=SecretStr(value("DEEP_API_KEY")),
                 model_name=value("DEEP_MODEL") or value("DEEP-SEEK", "deepseek-chat"),
                 orders_path=Path(value("ORDER_DATA_PATH", str(cls().orders_path))).resolve(),
+                products_path=Path(value("PRODUCT_DATA_PATH", str(cls().products_path))).resolve(),
             )
         except ValueError:
-            raise ConfigurationError("配置格式不合法，请检查 API 地址和订单数据路径。") from None
+            raise ConfigurationError("配置格式不合法，请检查 API 地址和数据路径。") from None
 
     def require_api_key(self) -> None:
         if not self.api_key.get_secret_value().strip():

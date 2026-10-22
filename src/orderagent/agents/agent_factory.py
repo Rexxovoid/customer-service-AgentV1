@@ -4,28 +4,29 @@ from langchain.agents.middleware import ModelCallLimitMiddleware, ToolCallLimitM
 from langchain_core.language_models.chat_models import BaseChatModel
 from langgraph.checkpoint.memory import InMemorySaver
 
-from orderagent.middleware import OrderToolPolicyMiddleware
+from orderagent.middleware import BusinessToolPolicyMiddleware
 from orderagent.models import create_deepseek_model
 from orderagent.prompts.order_prompt import ORDER_SYSTEM_PROMPT
-from orderagent.repositories import JsonOrderRepository
+from orderagent.repositories import JsonOrderRepository, JsonProductRepository
 from orderagent.schemas.order_schema import ToolContext
 from orderagent.settings import Settings
-from orderagent.tools import OrderQueryTool
+from orderagent.tools import ProductQueryTool, create_order_query_tool
 
 
 def create_order_agent(settings: Settings, *, model: BaseChatModel | None = None):
     """Build a real Deep Agents graph; LangGraph owns the execution loop."""
-    query_tool = OrderQueryTool(JsonOrderRepository(settings.orders_path))
+    query_tool = create_order_query_tool(JsonOrderRepository(settings.orders_path))
+    product_tool = ProductQueryTool(JsonProductRepository(settings.products_path))
     return create_deep_agent(
         model=model if model is not None else create_deepseek_model(settings),
-        tools=[query_tool.as_langchain_tool()],
+        tools=[query_tool, product_tool.as_langchain_tool()],
         system_prompt=ORDER_SYSTEM_PROMPT,
         context_schema=ToolContext,
         checkpointer=InMemorySaver(),
         middleware=[
             # Framework requires read_file internally; policy hides AND blocks it.
             FilesystemMiddleware(tools=["read_file"]),
-            OrderToolPolicyMiddleware(),
+            BusinessToolPolicyMiddleware(),
             ModelCallLimitMiddleware(run_limit=settings.max_model_calls, exit_behavior="error"),
             ToolCallLimitMiddleware(run_limit=settings.max_tool_calls, exit_behavior="error"),
         ],

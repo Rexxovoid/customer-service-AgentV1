@@ -1,3 +1,3 @@
-from orderagent.middleware.tool_policy import OrderToolPolicyMiddleware
+from orderagent.middleware.tool_policy import BusinessToolPolicyMiddleware
 
-__all__ = ["OrderToolPolicyMiddleware"]
+__all__ = ["BusinessToolPolicyMiddleware"]

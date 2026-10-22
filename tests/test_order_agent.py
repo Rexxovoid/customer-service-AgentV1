@@ -27,7 +27,7 @@ def test_actual_deep_agent_graph_executes_order_tool(context, config):
     assert state["messages"][-1].text == "该订单未发货。"
     result = next(m for m in state["messages"] if isinstance(m, ToolMessage))
     assert result.artifact["data"]["order_status"] == "pending_payment"
-    assert all(names == ["query_order"] for names in model._bound_tools)
+    assert all(set(names) == {"query_order", "query_products"} for names in model._bound_tools)
 
 
 def test_runtime_identity_cannot_be_spoofed(context, config):
@@ -71,7 +71,7 @@ def test_unoffered_framework_and_unknown_tools_cannot_execute(context, config, n
     )
     result = next(m for m in state["messages"] if isinstance(m, ToolMessage))
     assert result.artifact["error"]["code"] == "UNKNOWN_TOOL"
-    assert all(names == ["query_order"] for names in model._bound_tools)
+    assert all(set(names) == {"query_order", "query_products"} for names in model._bound_tools)
 
 
 def test_official_checkpointer_retains_thread_history(context, config):
@@ -191,3 +191,75 @@ def test_cli_reset_uses_official_checkpoint_deletion(monkeypatch, capsys):
     assert [m.content for m in model._requests[-1] if isinstance(m, HumanMessage)] == ["新消息"]
     threads = {c.config["configurable"]["thread_id"] for c in graph.checkpointer.list(None)}
     assert len(threads) == 1
+
+
+def test_graph_uses_yaml_prompt_as_system_message(context, config, monkeypatch, tmp_path):
+    from importlib import reload
+
+    from orderagent.prompts import order_prompt
+
+    # Package resource loading must work without relying on the working directory.
+    monkeypatch.chdir(tmp_path)
+    prompt = reload(order_prompt).ORDER_SYSTEM_PROMPT
+    graph, model = build([AIMessage(content="请提供订单号。")])
+    graph.invoke(
+        {"messages": [{"role": "user", "content": "查询订单"}]},
+        config=config,
+        context=context,
+    )
+    assert isinstance(prompt, str)
+    assert prompt.strip()
+    assert prompt in model._requests[0][0].text
+
+
+def test_product_tool_runs_in_official_graph_without_order_identity(config):
+    graph, model = build(
+        [
+            tool_call("query_products", {"query": "罗技 M185"}),
+            AIMessage(content="M185采用光学技术，记载速度20 ips，DPI未提供。"),
+        ]
+    )
+    result = graph.invoke(
+        {"messages": [{"role": "user", "content": "M185性能如何"}]}, config=config
+    )
+    message = next(m for m in result["messages"] if isinstance(m, ToolMessage))
+    assert message.artifact["ok"]
+    assert message.artifact["data"]["products"][0]["id"] == "MS-P-0002"
+    assert set(model._bound_tools[0]) == {"query_order", "query_products"}
+
+
+def test_category_candidates_then_confirmed_model_in_same_thread(context, config):
+    graph, model = build(
+        [
+            tool_call("query_products", {"query": "鼠标"}),
+            AIMessage(content="有多款鼠标，请确认品牌和型号。"),
+            tool_call("query_products", {"query": "MS-P-0002"}, call_id="call-2"),
+            AIMessage(content="已确认M185，速度20 ips。"),
+        ]
+    )
+    state = graph.invoke(
+        {"messages": [{"role": "user", "content": "介绍鼠标"}]}, config=config, context=context
+    )
+    first = next(m for m in state["messages"] if isinstance(m, ToolMessage))
+    assert first.artifact["data"]["needs_clarification"]
+    state = graph.invoke(
+        {"messages": [{"role": "user", "content": "选择罗技M185"}]}, config=config, context=context
+    )
+    latest = [m for m in state["messages"] if isinstance(m, ToolMessage)][-1]
+    assert latest.artifact["data"]["match_type"] == "detail"
+    assert latest.artifact["data"]["products"][0]["id"] == "MS-P-0002"
+    assert len([m for m in model._requests[-1] if isinstance(m, HumanMessage)]) == 2
+
+
+def test_product_argument_spoofing_is_rejected(context, config):
+    graph, _ = build(
+        [
+            tool_call("query_products", {"query": "鼠标", "user_id": "other"}),
+            AIMessage(content="参数不合法。"),
+        ]
+    )
+    state = graph.invoke(
+        {"messages": [{"role": "user", "content": "查询鼠标"}]}, config=config, context=context
+    )
+    message = next(m for m in state["messages"] if isinstance(m, ToolMessage))
+    assert message.artifact["error"]["code"] == "INVALID_ARGUMENTS"

@@ -8,7 +8,7 @@ from orderagent.agents.agent_factory import create_order_agent
 from orderagent.repositories.order_repository import DataLoadError, JsonOrderRepository
 from orderagent.schemas.order_schema import ToolContext
 from orderagent.settings import ConfigurationError, Settings
-from orderagent.tools import OrderQueryTool
+from orderagent.tools import query_order
 
 
 def main() -> int:
@@ -30,8 +30,11 @@ def main() -> int:
         if args.order_id:
             from orderagent.schemas.order_schema import OrderQuery
 
-            tool = OrderQueryTool(JsonOrderRepository(settings.orders_path))
-            result = tool.execute(OrderQuery(order_id=args.order_id), context)
+            result = query_order(
+                JsonOrderRepository(settings.orders_path),
+                OrderQuery(order_id=args.order_id),
+                context,
+            )
             print(result.model_dump_json(indent=2))
             return 0 if result.ok else 1
         graph = create_order_agent(settings)
