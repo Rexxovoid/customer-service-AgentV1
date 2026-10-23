@@ -298,5 +298,38 @@
     "retrieval_method": "网页检索并阅读正文",
     "verification_status": "已读来源；未逐款对照厂商手册",
     "accessed_on": "2026-10-21"
+  },
+  {
+    "id": "S13",
+    "record_type": "source_reference",
+    "synthetic": false,
+    "title": "中华人民共和国消费者权益保护法",
+    "url": "https://www.samr.gov.cn/zfjcj/tzgg/art/2023/art_615af9ed6bcd4974bf853dd2e02bc663.html",
+    "accessed_on": "2026-10-23",
+    "scope_and_limitations": "中国境内网络生活消费的法规条文参考；案例解释是项目整理，不是个案裁判或店铺承诺。",
+    "retrieval_method": "本次通过浏览工具打开官方页面核对相关条款。",
+    "verification_status": "已打开核对相关条款；真实商用前需重新核对有效文本及个案适用性。"
+  },
+  {
+    "id": "S14",
+    "record_type": "source_reference",
+    "synthetic": false,
+    "title": "网络购买商品七日无理由退货暂行办法",
+    "url": "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/fgs/art/2023/art_26ca8fe29e184edd899fa0a7a060d935.html",
+    "accessed_on": "2026-10-23",
+    "scope_and_limitations": "中国境内网络生活消费的法规条文参考；案例解释是项目整理，不是个案裁判或店铺承诺。",
+    "retrieval_method": "本次通过浏览工具打开官方页面核对相关条款。",
+    "verification_status": "已打开核对相关条款；真实商用前需重新核对有效文本及个案适用性。"
+  },
+  {
+    "id": "S15",
+    "record_type": "source_reference",
+    "synthetic": false,
+    "title": "中华人民共和国消费者权益保护法实施条例",
+    "url": "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2024/art_0aea188276a44f0baf940ab95ee00e0a.html",
+    "accessed_on": "2026-10-23",
+    "scope_and_limitations": "中国境内网络生活消费的法规条文参考；案例解释是项目整理，不是个案裁判或店铺承诺。",
+    "retrieval_method": "本次通过浏览工具打开官方页面核对相关条款。",
+    "verification_status": "已打开核对相关条款；真实商用前需重新核对有效文本及个案适用性。"
   }
 ]

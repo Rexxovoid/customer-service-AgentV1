@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.2",
-  "note": "Canonical JSON collections only; aggregate, category views and derived indexes removed after equality checks. Historical Markdown provenance is audit-only.",
+  "note": "Canonical JSON collections plus Markdown RAG documents; file paths are relative to data/. The manifest excludes itself.",
   "files": [
     {
       "path": "after_sales_cases.json",
@@ -14,13 +14,13 @@
     },
     {
       "path": "metadata.json",
-      "bytes": 1363,
-      "sha256": "36744e99961cf88f6b720298194bebb2a1dfb80e291210cd305db7095ef184cd"
+      "bytes": 3220,
+      "sha256": "4e5ad08815f09adcfe8337a805317c9d40eecd51f027dd894daca535661fe319"
     },
     {
       "path": "orders.json",
-      "bytes": 139647,
-      "sha256": "0a127534de51f9a0b42843861440833065924a50049a8a8a02ee1f38b511fa83"
+      "bytes": 12758797,
+      "sha256": "7813cadec7b1de79681de687f6a8bdb3635faf598deeea05408bd2ff94ed6e8c"
     },
     {
       "path": "product_faqs.json",
@@ -33,14 +33,104 @@
       "sha256": "40962360f469368d1686d49242f1a034b06d33887b047b71e168b9a988fa09c9"
     },
     {
+      "path": "ragflow_knowledge/00_品类售后材料清单.md",
+      "bytes": 2851,
+      "sha256": "8f2f57c028413a7303d7f847a45bdbb857aa8066f73fc06e3088c94fb857d7b8"
+    },
+    {
+      "path": "ragflow_knowledge/00_售后规则依据与能力边界.md",
+      "bytes": 9860,
+      "sha256": "a4ecbc7393e52e5eb3e7fc8867a652d5582bed90454e13b3f5774c57321c697e"
+    },
+    {
+      "path": "ragflow_knowledge/HP_01_商品事实问答.md",
+      "bytes": 70038,
+      "sha256": "abf31350f9104d5526b63caf699ae429f29613a83b4435b5aa7cc4e2b752631c"
+    },
+    {
+      "path": "ragflow_knowledge/HP_02_故障条件问答.md",
+      "bytes": 17934,
+      "sha256": "9af6c8ec08d07e8e91e265d8e097741e14b3185fa87e864bb60b57569a24de7e"
+    },
+    {
+      "path": "ragflow_knowledge/HP_03_售后规则场景_01.md",
+      "bytes": 211685,
+      "sha256": "296f0784db1904dd141f652d92e1e42c1b1f56535f3cbb385e439cb790d29b7b"
+    },
+    {
+      "path": "ragflow_knowledge/HP_04_售后规则场景_02.md",
+      "bytes": 214394,
+      "sha256": "12340acce34fe95561f45f9a61db8d5f8822ca9beba1d52026272a8423b0943a"
+    },
+    {
+      "path": "ragflow_knowledge/HP_05_售后规则场景_03.md",
+      "bytes": 177809,
+      "sha256": "468a7b727185f95a34897d50052be7326e8f359e953d12a6670093fa207ad565"
+    },
+    {
+      "path": "ragflow_knowledge/KB_01_商品事实问答.md",
+      "bytes": 69167,
+      "sha256": "aacf8916789a1a6b904a4279a572bae6c7fc6ed7cdafa563c67d3149e3c4785c"
+    },
+    {
+      "path": "ragflow_knowledge/KB_02_故障条件问答.md",
+      "bytes": 18094,
+      "sha256": "4ac432bd4f9699be74b05b098c2bc51a0d78d98a2aec6ee3bb5ce1365315d963"
+    },
+    {
+      "path": "ragflow_knowledge/KB_03_售后规则场景_01.md",
+      "bytes": 211684,
+      "sha256": "7589760b6ebcd4868016533061d474547eb1a49967644db187064ffbb79a5577"
+    },
+    {
+      "path": "ragflow_knowledge/KB_04_售后规则场景_02.md",
+      "bytes": 214393,
+      "sha256": "e19b614db44feeade9d7e85ee2590fea1b6e529e14a4c83d584284e0ff231780"
+    },
+    {
+      "path": "ragflow_knowledge/KB_05_售后规则场景_03.md",
+      "bytes": 177808,
+      "sha256": "7a7058b207a9d12d09d81dbc67897a5d547ab1049e8f9d7a7c2de05af078b62c"
+    },
+    {
+      "path": "ragflow_knowledge/MS_01_商品事实问答.md",
+      "bytes": 68330,
+      "sha256": "e187c0b2f6654ba9e5a64791a958a477fcba3b7a3da768bde5922398631e7058"
+    },
+    {
+      "path": "ragflow_knowledge/MS_02_故障条件问答.md",
+      "bytes": 17792,
+      "sha256": "83d82d4c1deb43d7e798b31479d967f8afe3b092f134343c67a14f9f6380bcb8"
+    },
+    {
+      "path": "ragflow_knowledge/MS_03_售后规则场景_01.md",
+      "bytes": 211679,
+      "sha256": "abdc3c4552d19d811a836d251899dc6f7c6e88b206e8b712192a9c8fe55e9afc"
+    },
+    {
+      "path": "ragflow_knowledge/MS_04_售后规则场景_02.md",
+      "bytes": 214388,
+      "sha256": "b4740e6dd3b814e83d06ace8ad7c0d954bcf073b2c2a4f6642d1ff5598149596"
+    },
+    {
+      "path": "ragflow_knowledge/MS_05_售后规则场景_03.md",
+      "bytes": 177803,
+      "sha256": "2cb44a38f8a89bcfe00f4ded40b7b4338c1b1f092bbf80945c7b8ab27e3fa06b"
+    },
+    {
+      "path": "README.md",
+      "bytes": 4168,
+      "sha256": "2a7a759a8c5b8b3dc6017acb0ca996dc55deefe26596c72b921755dceef11dfd"
+    },
+    {
       "path": "source_license.json",
       "bytes": 6811,
       "sha256": "92f28215c3faa45c77aeb3622b1281fc4799167c6f0534c179afbdaf07e6eddc"
     },
     {
       "path": "sources.json",
-      "bytes": 13459,
-      "sha256": "162613d0d8e04d5044c3922f66d72ed5fc186336f03291dbbde185289fa77ba2"
+      "bytes": 15487,
+      "sha256": "7a4756e32fcc932fe353d6c88f0f4a750c7f39039b498e55d1cf97634ffb6eae"
     },
     {
       "path": "support_knowledge.json",
@@ -49,15 +139,16 @@
     },
     {
       "path": "tickets.json",
-      "bytes": 24839,
-      "sha256": "4cda4e59adfb041f656dac7f58aad225aec1fec11c6ce5d6b3098f896729806c"
+      "bytes": 1774965,
+      "sha256": "f313c1439a4694a26224b67168e8d2ce6bcf1ddbe7972555b70af86d0ee8145c"
     },
     {
       "path": "validation_report.json",
-      "bytes": 4004,
-      "sha256": "501a89338739398a0566abddac11f752a045a4465daa3025e0c57449fde03937"
+      "bytes": 6112,
+      "sha256": "2397631c90135b500ccfb391997b7e2fe462fb61452190575140718b54eb87e5"
     }
   ],
   "supplemental_update_on": "2026-10-22",
-  "consolidated_on": "2026-10-22"
+  "consolidated_on": "2026-10-22",
+  "updated_on": "2026-10-23"
 }

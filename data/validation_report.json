@@ -72,5 +72,75 @@
       "Collection counts agree with metadata",
       "IDs are globally unique across record collections"
     ]
+  },
+  "expansion_validation": {
+    "batch_id": "EXP-20261023-V1",
+    "date": "2026-10-23",
+    "status": "passed",
+    "counts": {
+      "products": 379,
+      "product_faqs": 1140,
+      "support_knowledge": 68,
+      "after_sales_cases": 2021,
+      "orders": 7260,
+      "tickets": 1518,
+      "sources": 15,
+      "business_rules": 5
+    },
+    "new_orders": 7200,
+    "new_tickets": 1500,
+    "new_markdown_qa": 1500,
+    "per_category": {
+      "headphones": {
+        "orders": 2400,
+        "tickets": 500,
+        "markdown_qa": 500,
+        "total": 3400
+      },
+      "mice": {
+        "orders": 2400,
+        "tickets": 500,
+        "markdown_qa": 500,
+        "total": 3400
+      },
+      "keyboards": {
+        "orders": 2400,
+        "tickets": 500,
+        "markdown_qa": 500,
+        "total": 3400
+      }
+    },
+    "unique_json_record_ids": 12406,
+    "checks": [
+      "原订单和工单全部字段保留",
+      "新增7200条订单通过StoredOrder结构校验",
+      "订单金额分项一致且时间顺序有效",
+      "新增商品ID/型号/SKU/名称与主档相符",
+      "工单订单用户与商品一致且时间顺序有效",
+      "新增条目含模拟和批次标记",
+      "JSON记录与Markdown条目ID全局唯一",
+      "1500条问答的问题文本唯一",
+      "原商品/FAQ/质量知识/模拟案例/规则JSON哈希未变"
+    ],
+    "not_executed": [
+      "未执行RAGFlow上传或解析",
+      "未执行压力测试",
+      "未评估模型回答准确率",
+      "未对全部1260个规则场景作独立人工个案复核"
+    ],
+    "runtime_smoke_checks": {
+      "owned_order_queries_by_category_and_status": "passed",
+      "wrong_user_rejected": "passed",
+      "unknown_order_rejected": "passed",
+      "ticket_after_sales_state_alignment": "passed",
+      "users_per_category": 120,
+      "orders_per_user": 20,
+      "pytest": {
+        "passed": 99,
+        "duration_seconds": 18.45
+      },
+      "ruff_check": "passed",
+      "ruff_format_check": "passed"
+    }
   }
 }
