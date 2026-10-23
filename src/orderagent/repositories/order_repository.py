@@ -24,8 +24,9 @@ class OrderRepository(Protocol):
 class JsonOrderRepository:
     """从本地JSON加载的只读订单仓储，使用订单号字典索引。"""
 
-    def __init__(self, path: Path):
+    def __init__(self, path: Path, after_sales=None):
         """加载并校验全部订单，建立索引并拒绝重复订单号。"""
+        self.after_sales = after_sales
         try:
             raw = json.loads(path.read_text(encoding="utf-8-sig"))
             if not isinstance(raw, list):
@@ -42,4 +43,8 @@ class JsonOrderRepository:
         order = self._orders.get(order_id)
         if order is None or order.user_id != user_id:
             return None
-        return order.model_copy(deep=True)
+        result = order.model_copy(deep=True)
+        result.after_sales_status = (
+            self.after_sales.get_status(user_id, order_id) if self.after_sales else "未售后"
+        )
+        return result

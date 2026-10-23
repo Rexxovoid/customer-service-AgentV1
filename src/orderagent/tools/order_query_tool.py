@@ -23,6 +23,7 @@ def query_order(
         items=order.items,
         snapshot_at=order.snapshot_at,
         synthetic=order.synthetic,
+        after_sales_status=order.after_sales_status,
     )
     return ToolResult(ok=True, data=summary.model_dump(mode="json"))
 

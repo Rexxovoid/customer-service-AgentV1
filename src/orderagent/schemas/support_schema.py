@@ -12,6 +12,7 @@ class SupportQuery(BaseModel):
     category: Literal["headphones", "mice", "keyboards"]
     issue: str = Field(min_length=1, max_length=500)
     environment: str = Field(default="", max_length=200, description="用户已提供的系统、品牌或型号")
+    order_id: str = Field(default="", max_length=100, description="用户已提供的本人订单号；可留空")
 
 
 class HandoffQuery(BaseModel):
@@ -40,7 +41,8 @@ class SupportKnowledge(BaseModel):
 class SupportAgentState(DeepAgentState):
     """扩展官方会话状态，记录一次方案及人工交接结果，由检查点按线程保存。"""
 
-    support_phase: NotRequired[Literal["advised", "transferred", "transfer_failed"]]
+    support_phase: NotRequired[Literal["advised", "transferred", "transfer_failed"] | None]
     support_issue: NotRequired[str]
     support_advice: NotRequired[dict]
     support_handoff: NotRequired[dict]
+    support_order_id: NotRequired[str]

@@ -41,6 +41,8 @@ class StoredOrder(BaseModel):
     tracking_number: str | None
     items: list[OrderItem] = Field(min_length=1)
     snapshot_at: datetime
+    delivered_at: datetime | None = None
+    after_sales_status: str = "未售后"
 
 
 class OrderSummary(BaseModel):
@@ -56,6 +58,7 @@ class OrderSummary(BaseModel):
     snapshot_at: datetime
     synthetic: bool
     data_source: Literal["local_demo_json"] = "local_demo_json"
+    after_sales_status: str = "未售后"
 
 
 class ToolError(BaseModel):

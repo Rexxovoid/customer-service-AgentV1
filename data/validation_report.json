@@ -142,5 +142,44 @@
       "ruff_check": "passed",
       "ruff_format_check": "passed"
     }
+  },
+  "return_basic_validation": {
+    "batch_id": "RETURN-BASIC-20261023-V1",
+    "date": "2026-10-23",
+    "count": 200,
+    "status": "passed",
+    "checks": [
+      "新增订单通过StoredOrder校验",
+      "订单号唯一且原记录全部字段保留",
+      "商品ID及SKU沿用主档",
+      "未添加完整资格证据"
+    ],
+    "current_counts": {
+      "products": 379,
+      "product_faqs": 1140,
+      "support_knowledge": 68,
+      "after_sales_cases": 2021,
+      "orders": 7460,
+      "tickets": 1518,
+      "sources": 15,
+      "business_rules": 5
+    },
+    "runtime_checks": {
+      "default_eligibility_all_200": "not_eligible",
+      "pytest_passed": 164,
+      "pytest_seconds": 17.81,
+      "ruff_check": "passed",
+      "ruff_format_check": "passed",
+      "live_model_unknown_and_mock_eligible": "passed_with_fixed_test_clock"
+    }
+  },
+  "after_sales_initialization_validation": {
+    "validated_on": "2026-10-23",
+    "order_count": 7460,
+    "all_orders_not_in_after_sales": true,
+    "no_live_ticket_links": true,
+    "historical_tickets": 1518,
+    "all_tickets_isolated": true,
+    "note": "Earlier validation sections describe historical fixture generation, not live state."
   }
 }

@@ -5,6 +5,7 @@ from uuid import uuid4
 from pydantic import ValidationError
 
 from orderagent.agents.agent_factory import create_order_agent
+from orderagent.repositories.after_sales_repository import AfterSalesRepository
 from orderagent.repositories.order_repository import DataLoadError, JsonOrderRepository
 from orderagent.schemas.order_schema import ToolContext
 from orderagent.settings import ConfigurationError, Settings
@@ -32,7 +33,9 @@ def main() -> int:
             from orderagent.schemas.order_schema import OrderQuery
 
             result = query_order(
-                JsonOrderRepository(settings.orders_path),
+                JsonOrderRepository(
+                    settings.orders_path, AfterSalesRepository(settings.after_sales_db_path)
+                ),
                 OrderQuery(order_id=args.order_id),
                 context,
             )
@@ -57,7 +60,7 @@ def main() -> int:
         if args.message:
             ask(args.message)
             return 0
-        print("数码售后助手已启动。输入 /exit 退出，/reset 清空会话。订单和人工交接均为模拟。")
+        print("数码售后助手已启动。/exit退出，/reset清空会话。订单、退货入口和人工交接均为模拟。")
         while True:
             try:
                 text = input("你 > ").strip()

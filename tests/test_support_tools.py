@@ -186,9 +186,9 @@ def test_not_tried_and_resolved_feedback_do_not_transfer():
 def test_explicit_handoff_needs_no_model_and_passes_issue():
     gateway = RecordingGateway()
     graph, model = build([AIMessage(content="不应调用")], gateway=gateway)
-    state = ask(graph, "我的鼠标坏了，转人工")
+    state = ask(graph, "转人工")
     assert state["support_phase"] == "transferred"
-    assert gateway.requests[0].issue == "我的鼠标坏了，转人工"
+    assert gateway.requests[0].issue == "转人工"
     assert not model._requests
 
 
@@ -246,6 +246,7 @@ def test_model_schemas_hide_identity_and_mock_controls(repository):
         "category",
         "issue",
         "environment",
+        "order_id",
     }
     assert set(tools[1].tool_call_schema.model_json_schema()["properties"]) == {"reason"}
 

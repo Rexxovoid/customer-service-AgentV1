@@ -24,7 +24,19 @@ class Settings(BaseModel):
     orders_path: Path = PROJECT_ROOT / "data" / "orders.json"
     products_path: Path = PROJECT_ROOT / "data" / "products.json"
     support_path: Path = PROJECT_ROOT / "data" / "support_knowledge.json"
+    after_sales_db_path: Path = PROJECT_ROOT / "runtime" / "after_sales.sqlite3"
+    ragflow_api_url: str = ""
+    ragflow_api_key: SecretStr = SecretStr("")
+    ragflow_timeout_seconds: float = Field(default=60, gt=0, le=120)
+    ragflow_dataset_name: str = "售后规则知识库"
+    ragflow_assistant_name: str = "售后助手"
     mock_handoff_scenario: Literal["success", "error"] = "success"
+    mock_return_scenario: Literal["unknown", "eligible", "ineligible", "error"] = "unknown"
+    return_self_service_entry: str = Field(
+        default="示例入口：我的订单 → 订单详情 → 退货/退款；实际按钮以所用平台为准。",
+        min_length=1,
+        max_length=1000,
+    )
     timeout_seconds: float = Field(default=30, gt=0, le=120)
     max_model_calls: int = Field(default=6, ge=1, le=20)
     max_tool_calls: int = Field(default=8, ge=1, le=30)
@@ -38,6 +50,24 @@ class Settings(BaseModel):
             raise ValueError("DEEP_BASE_URL 必须是不含凭据的 HTTPS 地址。")
         if parsed.query or parsed.fragment:
             raise ValueError("DEEP_BASE_URL 不应包含查询参数或片段。")
+        return value.rstrip("/")
+
+    @field_validator("ragflow_api_url")
+    @classmethod
+    def validate_ragflow_url(cls, value: str) -> str:
+        """兼容已有HTTP服务器，拒绝URL内凭据、查询串和片段。"""
+        if not value:
+            return value
+        parsed = urlsplit(value)
+        if (
+            parsed.scheme not in {"http", "https"}
+            or not parsed.hostname
+            or parsed.username
+            or parsed.password
+            or parsed.query
+            or parsed.fragment
+        ):
+            raise ValueError("RAGFlow地址不合法")
         return value.rstrip("/")
 
     @property
@@ -67,7 +97,19 @@ class Settings(BaseModel):
                 orders_path=Path(value("ORDER_DATA_PATH", str(cls().orders_path))).resolve(),
                 products_path=Path(value("PRODUCT_DATA_PATH", str(cls().products_path))).resolve(),
                 support_path=Path(value("SUPPORT_DATA_PATH", str(cls().support_path))).resolve(),
+                after_sales_db_path=Path(
+                    value("AFTER_SALES_DB_PATH", str(cls().after_sales_db_path))
+                ).resolve(),
+                ragflow_api_url=value("RAGFLOW_API_URL"),
+                ragflow_api_key=SecretStr(value("RAGFLOW_API_KEY")),
+                ragflow_timeout_seconds=value("RAGFLOW_TIMEOUT_SECONDS", "60"),
+                ragflow_dataset_name=value("RAGFLOW_DATASET_NAME", "售后规则知识库"),
+                ragflow_assistant_name=value("RAGFLOW_ASSISTANT_NAME", "售后助手"),
                 mock_handoff_scenario=value("MOCK_HANDOFF_SCENARIO", "success"),
+                mock_return_scenario=value("MOCK_RETURN_SCENARIO", "unknown"),
+                return_self_service_entry=value(
+                    "RETURN_SELF_SERVICE_ENTRY", cls().return_self_service_entry
+                ),
             )
         except ValueError:
             raise ConfigurationError(

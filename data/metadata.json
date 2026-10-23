@@ -3,7 +3,7 @@
   "exported_on": "2026-10-21",
   "encoding": "UTF-8",
   "main_record_count": 3608,
-  "business_record_count": 8778,
+  "business_record_count": 8978,
   "source_count": 15,
   "business_rule_count": 5,
   "counts": {
@@ -11,7 +11,7 @@
     "product_faqs": 1140,
     "support_knowledge": 68,
     "after_sales_cases": 2021,
-    "orders": 7260,
+    "orders": 7460,
     "tickets": 1518,
     "sources": 15,
     "business_rules": 5
@@ -91,5 +91,31 @@
       },
       "limitations": "记录含模板组合，不是真实用户规模、真实交易或独立质量评测集。"
     }
-  ]
+  ],
+  "return_basic_fixtures": {
+    "batch_id": "RETURN-BASIC-20261023-V1",
+    "count": 200,
+    "by_category": {
+      "headphones": 67,
+      "mice": 67,
+      "keyboards": 66
+    },
+    "by_scenario": {
+      "pending_payment": 42,
+      "paid_unshipped": 41,
+      "shipped": 39,
+      "recent_delivered_missing_evidence": 39,
+      "outside_window": 39
+    },
+    "complete_eligibility_evidence": false,
+    "note": "默认模拟资格接口为unknown；eligible配置仅是显式模拟成功路径，不是真实订单已审核。"
+  },
+  "after_sales_state_policy": {
+    "updated_on": "2026-10-23",
+    "initial_order_status": "未售后",
+    "runtime_store": "SQLite, configured by AFTER_SALES_DB_PATH",
+    "historical_tickets": "isolated test fixtures; not a runtime queue",
+    "removed_order_ticket_links": 1500,
+    "original_fields_note": "售后状态已按本次初始数据修订，不再保留预置处理结果。"
+  }
 }

@@ -14,13 +14,13 @@
     },
     {
       "path": "metadata.json",
-      "bytes": 3220,
-      "sha256": "4e5ad08815f09adcfe8337a805317c9d40eecd51f027dd894daca535661fe319"
+      "bytes": 4185,
+      "sha256": "36f21776686f164e0c2d3ac7c4c166f1b9356df8623ca1747bfbae329b717d11"
     },
     {
       "path": "orders.json",
-      "bytes": 12758797,
-      "sha256": "7813cadec7b1de79681de687f6a8bdb3635faf598deeea05408bd2ff94ed6e8c"
+      "bytes": 12967831,
+      "sha256": "b2d1baa168926ee13de0144f26aff7b116ab3ee7f406741221e6f56bee85e07e"
     },
     {
       "path": "product_faqs.json",
@@ -119,8 +119,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 4168,
-      "sha256": "2a7a759a8c5b8b3dc6017acb0ca996dc55deefe26596c72b921755dceef11dfd"
+      "bytes": 6817,
+      "sha256": "05df60990409f16944ab7cbaf904188adec3747ebe5a864e53b1f45bfd7847bf"
     },
     {
       "path": "source_license.json",
@@ -139,13 +139,13 @@
     },
     {
       "path": "tickets.json",
-      "bytes": 1774965,
-      "sha256": "f313c1439a4694a26224b67168e8d2ce6bcf1ddbe7972555b70af86d0ee8145c"
+      "bytes": 1872117,
+      "sha256": "ca939f659326df09e6a91a75f995b0ca30e6934cea0fc0ac805d41604a1df6a1"
     },
     {
       "path": "validation_report.json",
-      "bytes": 6112,
-      "sha256": "2397631c90135b500ccfb391997b7e2fe462fb61452190575140718b54eb87e5"
+      "bytes": 7368,
+      "sha256": "a95d99fcca0f6943ff14ef73f7f6255000bc0b5177e21ef8f23166e9f1679082"
     }
   ],
   "supplemental_update_on": "2026-10-22",
