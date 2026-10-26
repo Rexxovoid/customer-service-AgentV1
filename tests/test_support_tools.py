@@ -248,7 +248,11 @@ def test_model_schemas_hide_identity_and_mock_controls(repository):
         "environment",
         "order_id",
     }
-    assert set(tools[1].tool_call_schema.model_json_schema()["properties"]) == {"reason"}
+    assert set(tools[1].tool_call_schema.model_json_schema()["properties"]) == {
+        "reason",
+        "topic",
+        "request_human",
+    }
 
 
 def test_environment_constraints_and_specific_case_priority(repository):

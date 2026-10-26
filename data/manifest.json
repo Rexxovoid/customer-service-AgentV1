@@ -119,8 +119,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 6817,
-      "sha256": "05df60990409f16944ab7cbaf904188adec3747ebe5a864e53b1f45bfd7847bf"
+      "bytes": 7677,
+      "sha256": "9f1dc28857044da61c1c2d4dda6efaa0f60eff7567058950919f59c938e7df13"
     },
     {
       "path": "source_license.json",
@@ -150,5 +150,5 @@
   ],
   "supplemental_update_on": "2026-10-22",
   "consolidated_on": "2026-10-22",
-  "updated_on": "2026-10-23"
+  "updated_on": "2026-10-26"
 }

@@ -5,6 +5,8 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from orderagent.schemas.support_schema import SupportAgentState
 
+RETURN_HANDOFF_THRESHOLD = 4
+
 
 class ReturnQuery(BaseModel):
     """退货工具参数允许缺项，由业务流程提示补充；不接受用户自报资格或链接。"""
@@ -13,21 +15,7 @@ class ReturnQuery(BaseModel):
     order_id: str = Field(default="", max_length=100)
     reason: str = Field(default="", max_length=500)
     request_human: bool = False
-
-
-class ReturnEvidence(BaseModel):
-    """可信适配器提供的资格证据；未知保持None，禁止以缺省值替代审核结论。"""
-
-    model_config = ConfigDict(extra="forbid", strict=True)
-    order_id: str
-    user_id: str
-    checked_at: datetime
-    simulated: bool
-    goods_intact: bool | None = None
-    no_reason_supported: bool | None = None
-    excluded_by_exception: bool | None = None
-    purchase_confirmation_checked: bool | None = None
-    applicable_policy_checked: bool | None = None
+    is_return_request: bool = True
 
 
 class ReturnLinkRequest(BaseModel):
@@ -51,13 +39,30 @@ class ReturnLinkResponse(BaseModel):
     expires_at: datetime | None = None
 
 
+class ReturnOperation(BaseModel):
+    """独立于普通售后记录的幂等台账；终态只能由可信业务适配器写入。"""
+
+    model_config = ConfigDict(extra="forbid")
+    user_id: str
+    order_id: str
+    request_id: str
+    status: Literal["creating", "link_ready", "processing", "uncertain", "returned", "refunded"]
+    simulated: bool = True
+    response: ReturnLinkResponse | None = None
+
+
 class ReturnAgentState(SupportAgentState):
-    """复用官方会话状态，记录当前退货问题和一次解释结果。"""
+    """复用官方会话状态，记录退货诉求计数、当前阶段和工具结果。"""
 
     return_order_id: NotRequired[str]
     return_reason: NotRequired[str]
     return_stage: NotRequired[
-        Literal["collecting", "guided", "awaiting_confirmation", "link_ready", "handoff"] | None
+        Literal[
+            "collecting", "guided", "awaiting_confirmation", "link_ready", "handoff", "rejected"
+        ]
+        | None
     ]
     return_result: NotRequired[dict]
     return_rule_source: NotRequired[dict]
+    return_request_count: NotRequired[int]
+    return_request_history: NotRequired[dict[str, dict]]

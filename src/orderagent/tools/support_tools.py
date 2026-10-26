@@ -8,6 +8,7 @@ from langgraph.types import Command
 from orderagent.integrations.handoff import HandoffGateway, HandoffRequest, HandoffResponse
 from orderagent.repositories.support_repository import JsonSupportRepository
 from orderagent.schemas.order_schema import ToolContext, ToolResult
+from orderagent.schemas.return_schema import RETURN_HANDOFF_THRESHOLD
 from orderagent.schemas.support_schema import HandoffQuery, SupportQuery
 
 
@@ -93,12 +94,19 @@ def create_support_tools(
             }
         )
 
-    def handoff(runtime: ToolRuntime, reason: str, issue: str = "", order_id: str = "") -> Command:
+    def handoff(
+        runtime: ToolRuntime,
+        reason: str,
+        issue: str = "",
+        order_id: str = "",
+        *,
+        return_topic: bool = False,
+    ) -> Command:
         """补齐故障上下文并执行交接，将接口结果转换为工具状态更新。"""
         state = dict(runtime.state)
         if order_id:
             state["support_order_id"] = order_id
-        if state.get("return_stage"):
+        if return_topic and state.get("return_stage"):
             state["support_issue"] = (
                 f"退货订单={state.get('return_order_id') or '未提供'}；"
                 f"原因={state.get('return_reason') or '未提供'}"
@@ -116,13 +124,17 @@ def create_support_tools(
             update["support_issue"] = state["support_issue"]
         if state.get("support_order_id"):
             update["support_order_id"] = state["support_order_id"]
-        if state.get("return_stage"):
+        if return_topic and state.get("return_stage"):
             update["support_issue"] = state["support_issue"]
             update["return_stage"] = "handoff"
         combined = {**state, **update}
         result = ToolResult(
             ok=combined["support_phase"] == "transferred",
-            data={"action": "handoff", **combined["support_handoff"]},
+            data={
+                "action": "handoff",
+                "topic": "return" if return_topic else "quality",
+                **combined["support_handoff"],
+            },
         )
         return command(runtime, update, result)
 
@@ -142,7 +154,7 @@ def create_support_tools(
         environment只填用户已明确提供的系统、品牌或型号，例如Windows 11、AirPods iPhone；
         未提供时留空，禁止猜测环境以套用特定方案。无需先提供订单号。
         order_id只填用户已提供的本人订单号，提供后核验归属并绑定售后状态；无订单只作咨询。
-        品类须与订单商品一致；订单快照未签收时交人工核实，不编造到货事实。
+        品类须与订单商品一致；订单快照不作为质量问题证据，不由物流状态推断故障是否真实。
         返回匹配知识的答案、适用条件、来源和会话阶段；无适用知识自动调用人工接口。
         同一会话最多给一次自动方案，再次查询不会给新方案，而是转人工。
         已给方案后用户反馈未解决、已经自行排查无效或明确要求人工，
@@ -182,13 +194,6 @@ def create_support_tools(
                         "ORDER_PRODUCT_MISMATCH", "订单中的商品与所述品类不符，请确认订单或商品。"
                     ),
                 )
-            if owned.order_status != "delivered":
-                return handoff(
-                    runtime,
-                    "订单快照未签收，与到货故障场景不一致，请人工核实",
-                    issue=query.issue,
-                    order_id=binding,
-                )
             if getattr(order_repository, "after_sales", None) is not None:
                 store = order_repository.after_sales
                 started = store.start_issue(
@@ -204,7 +209,7 @@ def create_support_tools(
                         issue=query.issue,
                         order_id=binding,
                     )
-        if runtime.state.get("support_phase") or runtime.state.get("return_stage"):
+        if runtime.state.get("support_phase"):
             return handoff(runtime, "当前问题已解释或给出一次方案，停止自动排查", order_id=binding)
         try:
             knowledge = repository.find(query)
@@ -226,11 +231,20 @@ def create_support_tools(
         return command(runtime, update, ToolResult(ok=True, data={"action": "advice", **advice}))
 
     @tool("handoff_to_human")
-    def handoff_to_human(reason: str, runtime: ToolRuntime[ToolContext]) -> Command:
+    def handoff_to_human(
+        reason: str,
+        runtime: ToolRuntime[ToolContext],
+        topic: str = "auto",
+        request_human: bool = False,
+    ) -> Command:
         """用户要求人工、反馈一次方案后仍未解决，或缺少适用知识时立即请求人工交接。
 
         适用示例：用户说没有解决、试过仍无效、故障依旧、请找人工客服。
         reason填写简短交接原因，可概括故障和已尝试方案，但不编造未发生的处理记录。
+        topic为quality（质量问题）、return（退货）或auto（按当前退货阶段判断）。
+        用户明确要求人工才将request_human设为true；仅坚持退货或要求代办不能设true。
+        退货问题未累计4次且未明确要求人工时，本工具拒绝提前交接，应调用handle_return继续处理。
+        质量已给一次方案后再次追问同一故障时使用topic=quality，无需等待退货次数。
         用户身份、会话标识和已有方案由程序提供；不要传user_id、工号、成功状态或runtime。
         一旦需要交接就停止自动排查，不再调用质量查询或商品工具寻找另一套维修方案。
         返回接口状态、请求ID及客服工号（成功时）；成功和失败均以接口结果为准，
@@ -238,7 +252,42 @@ def create_support_tools(
         同一会话重复交接会复用已记录的成功或失败结果，不自动重试。
         必须单独调用，不与其他工具并行，不发起退款或批准退换货。
         """
-        arguments = HandoffQuery(reason=reason)
-        return handoff(runtime, arguments.reason)
+        arguments = HandoffQuery(reason=reason, topic=topic, request_human=request_human)
+        latest_user = next(
+            (
+                message.text.strip().rstrip("。！？.!?")
+                for message in reversed(runtime.state["messages"])
+                if isinstance(message, HumanMessage)
+            ),
+            "",
+        )
+        simple_return_request = latest_user in {
+            "我要退货",
+            "我想退货",
+            "申请退货",
+            "我还是要退货",
+            "我坚持退货",
+            "退货",
+            "退货退款",
+        }
+        is_return = arguments.topic == "return" or (
+            arguments.topic == "auto"
+            and (bool(runtime.state.get("return_stage")) or simple_return_request)
+        )
+        if (
+            is_return
+            and not arguments.request_human
+            and runtime.state.get("return_request_count", 0) < RETURN_HANDOFF_THRESHOLD
+            and runtime.state.get("return_stage") != "handoff"
+        ):
+            return command(
+                runtime,
+                {},
+                ToolResult.failure(
+                    "RETURN_HANDOFF_NOT_READY",
+                    "退货未达4次且未明确请求人工，请调用handle_return；不要将坚持退货当作请求人工。",
+                ),
+            )
+        return handoff(runtime, arguments.reason, return_topic=is_return)
 
     return [query_quality_support, handoff_to_human]

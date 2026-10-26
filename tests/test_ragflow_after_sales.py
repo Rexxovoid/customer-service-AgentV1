@@ -118,7 +118,9 @@ def test_concurrent_issue_claim_only_allows_one_first_attempt(tmp_path):
         (ORDER, "mice"),
     ],
 )
-def test_order_status_or_category_mismatch_never_provides_auto_advice(tmp_path, order_id, category):
+def test_order_snapshot_is_not_quality_evidence_but_category_still_checked(
+    tmp_path, order_id, category
+):
     settings = Settings(after_sales_db_path=tmp_path / "state.sqlite3")
     context = ToolContext(user_id="DEMO-U-001" if order_id.endswith("0001") else CONTEXT.user_id)
     graph = create_order_agent(
@@ -142,7 +144,7 @@ def test_order_status_or_category_mismatch_never_provides_auto_advice(tmp_path, 
         config={"configurable": {"thread_id": "mismatch"}},
         context=context,
     )
-    assert "support_advice" not in state
+    assert ("support_advice" in state) is (category == "headphones")
 
 
 @pytest.mark.parametrize("raises", [False, True])

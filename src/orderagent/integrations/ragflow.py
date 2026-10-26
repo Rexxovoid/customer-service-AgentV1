@@ -45,7 +45,7 @@ class RuleSelection(BaseModel):
     chunk_id: str = Field(description="所选分块ID；不适用时为空")
     excerpt: str = Field(description="逐字摘录该分块中完整且带条件的答案；不改写")
     handling: Literal["basic_troubleshooting", "return_eligible", "human"] = Field(
-        description="适用的处理方式；不确定或缺证据必须human"
+        description="按用户描述匹配的处理方式；return_eligible只表示支持模拟入口，不是已核验资格"
     )
 
 

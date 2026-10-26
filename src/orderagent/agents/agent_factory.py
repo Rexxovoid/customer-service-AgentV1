@@ -62,7 +62,7 @@ def create_order_agent(
         gateway,
         settings.return_self_service_entry,
         clock=return_clock,
-        rule_repository=support_repository if settings.ragflow_api_url else None,
+        rule_repository=support_repository,
     )
     return create_deep_agent(
         model=agent_model,

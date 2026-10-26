@@ -17,7 +17,11 @@ class ScriptedChatModel(FakeMessagesListChatModel):
         if self._fail_next:
             self._fail_next = False
             raise RuntimeError("private-provider-detail")
-        return super()._generate(messages, stop, run_manager, **kwargs)
+        result = super()._generate(messages, stop, run_manager, **kwargs)
+        # 官方假模型循环复用同一消息对象；复制后交框架分配新ID，避免覆盖历史AI消息。
+        for generation in result.generations:
+            generation.message = generation.message.model_copy(deep=True, update={"id": None})
+        return result
 
 
 def tool_call(name="query_order", arguments=None, call_id="call-1"):

@@ -2,15 +2,17 @@ import json
 from datetime import datetime, timedelta
 
 import pytest
-from langchain_core.messages import AIMessage, ToolMessage
+from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 from pydantic import ValidationError
 
 from orderagent.agents.agent_factory import create_order_agent
 from orderagent.integrations.returns import MockReturnGateway
-from orderagent.schemas.order_schema import StoredOrder, ToolContext
+from orderagent.repositories.after_sales_repository import AfterSalesRepository
+from orderagent.repositories.support_repository import JsonSupportRepository
+from orderagent.schemas.order_schema import ToolContext
 from orderagent.schemas.return_schema import ReturnQuery
+from orderagent.schemas.support_schema import SupportKnowledge
 from orderagent.settings import ConfigurationError, Settings
-from orderagent.tools.return_tools import check_return_eligibility
 from tests.fake_chat_model import ScriptedChatModel, tool_call
 from tests.test_support_tools import RecordingGateway
 
@@ -50,12 +52,38 @@ def order_rows():
     ]
 
 
+class TestReturnRules:
+    """仅供工具路径测试的显式假规则，不代表真实售后政策。"""
+
+    __test__ = False
+
+    def find(self, query):
+        if query.issue.startswith("退货规则与适用条件"):
+            return SupportKnowledge(
+                id="TEST-RETURN-RULE",
+                category=query.category,
+                question=query.issue,
+                answer="测试规则：用户描述的问题支持提供模拟申请入口。",
+                applicability="自动化测试夹具，不用于真实业务",
+                source={"handling": "return_eligible", "reference_text": "测试规则"},
+                data_origin="synthetic_test_fixture",
+            )
+        return JsonSupportRepository([Settings().support_path]).find(query)
+
+
 @pytest.fixture
 def graph_builder(tmp_path, order_rows):
     """用已有官方图、假模型、临时订单及固定时钟验证真实工具路径。"""
 
     def build(
-        responses, *, scenario="unknown", gateway=None, handoff=None, knowledge=None, **settings
+        responses,
+        *,
+        scenario="unknown",
+        gateway=None,
+        handoff=None,
+        knowledge=None,
+        clock=None,
+        **settings,
     ):
         path = tmp_path / "orders.json"
         path.write_text(json.dumps(order_rows), encoding="utf-8")
@@ -70,8 +98,8 @@ def graph_builder(tmp_path, order_rows):
             model=model,
             return_gateway=gateway,
             handoff_gateway=handoff,
-            return_clock=lambda: NOW,
-            support_repository=knowledge,
+            return_clock=clock if clock is not None else lambda: NOW,
+            support_repository=knowledge if knowledge is not None else TestReturnRules(),
         )
         return graph, model
 
@@ -124,7 +152,7 @@ def test_multi_turn_information_completion_is_not_mistaken_for_insistence(graph_
     ask(graph, "我要退货")
     ask(graph, f"订单号是{ORDER}")
     state = ask(graph, "原因是不喜欢")
-    assert state["return_stage"] == "guided"
+    assert state["return_stage"] == "awaiting_confirmation"
     assert state["return_order_id"] == ORDER and state["return_reason"] == "不喜欢"
     assert "support_handoff" not in state
     assert len(model._requests) == 3
@@ -145,52 +173,68 @@ def test_eligibility_not_quality_keyword_controls_link(graph_builder, reason):
     assert len(model._requests) == 2
 
 
-@pytest.mark.parametrize("scenario", ["unknown", "ineligible", "error"])
-def test_missing_or_failed_evidence_never_produces_link(graph_builder, scenario):
-    graph, _ = graph_builder([call()], scenario=scenario)
-    state = ask(graph, "我要退货")
-    assert state["return_stage"] == "guided"
-    assert not state["return_result"].get("url")
-    assert "我的订单" in state["messages"][-1].text
-    assert "通过本次资格校验" not in state["messages"][-1].text
+@pytest.mark.parametrize("scenario", ["unknown", "eligible"])
+def test_mock_evidence_scenario_does_not_gate_rag_supported_return(graph_builder, scenario):
+    graph, _ = graph_builder([call(), call()], scenario=scenario)
+    pending = ask(graph, "我要退货")
+    assert pending["return_stage"] == "awaiting_confirmation"
+    state = ask(graph, f"确认退货 {ORDER}")
+    assert state["return_stage"] == "link_ready"
 
 
 @pytest.mark.parametrize("text", ["我还是要退货", "不想去后台，你来办", "我坚持售后", "请转人工"])
-def test_one_explanation_then_service_request_transfers_without_model(graph_builder, text):
+def test_return_repetition_waits_until_fourth_request_or_explicit_human(graph_builder, text):
     handoff = RecordingGateway()
     graph, model = graph_builder([call()], handoff=handoff)
     ask(graph, "我要退货")
-    state = ask(graph, text)
+    if text == "请转人工":
+        state = ask(graph, text)
+        assert len(model._requests) == 1
+    else:
+        for count in (2, 3):
+            state = ask(graph, text)
+            assert state["return_request_count"] == count
+            assert state["return_stage"] == "awaiting_confirmation"
+            assert not handoff.requests
+        state = ask(graph, text)
+        assert state["return_request_count"] == 4
     assert state["return_stage"] == "handoff"
     assert state["support_phase"] == "transferred"
     assert "工号001" in state["messages"][-1].text
     assert ORDER in handoff.requests[0].issue
     assert "不喜欢佩戴感受" in handoff.requests[0].issue
-    assert len(model._requests) == 1
     again = ask(graph, "还是要退货")
     assert again["support_handoff"] == state["support_handoff"]
     assert len(handoff.requests) == 1
 
 
-def test_repeated_tool_call_or_changed_reason_cannot_reset_explanation(graph_builder):
+def test_changed_reason_does_not_reset_request_count(graph_builder):
     graph, _ = graph_builder([call(), call(reason="换一个理由")])
     ask(graph, "我要退货")
     state = ask(graph, "请再处理一次")
+    assert state["return_stage"] == "awaiting_confirmation"
+    assert state["return_request_count"] == 2
+    ask(graph, "我仍要退货")
+    state = ask(graph, "我仍要退货")
     assert state["return_stage"] == "handoff"
-    assert state["support_phase"] == "transferred"
+    assert state["return_request_count"] == 4
 
 
 def test_unusual_insistence_is_routed_by_model_flag(graph_builder):
     graph, _ = graph_builder([call(), call(request_human=True)])
     ask(graph, "我要退货")
-    state = ask(graph, "这件事非得由你操作")
+    state = ask(graph, "这件事请让人工客服处理")
     assert state["return_stage"] == "handoff"
 
 
-def test_missing_information_repeated_without_new_fields_hands_off(graph_builder):
+def test_missing_information_repeated_waits_for_four_requests(graph_builder):
     graph, _ = graph_builder([call(order_id="", reason=""), call(order_id="", reason="")])
     ask(graph, "我要退货")
     state = ask(graph, "订单号我找不到了，你帮忙处理")
+    assert state["return_stage"] == "collecting"
+    assert state["return_request_count"] == 2
+    ask(graph, "我仍要求退货")
+    state = ask(graph, "我仍要求退货")
     assert state["return_stage"] == "handoff"
 
 
@@ -231,22 +275,27 @@ def test_missing_trusted_context_is_rejected(graph_builder):
 def test_handoff_failure_not_success(graph_builder):
     graph, _ = graph_builder([call()], handoff=RecordingGateway(fail=True))
     ask(graph, "我要退货")
-    state = ask(graph, "我还是要售后")
+    state = ask(graph, "请转人工")
     assert state["support_phase"] == "transfer_failed"
     assert "转人工错误" in state["messages"][-1].text
 
 
-def test_quality_advice_followed_by_return_goes_to_human(graph_builder):
+def test_quality_advice_followed_by_explicit_return_starts_return_counter(graph_builder):
     graph, model = graph_builder(
-        [tool_call("query_quality_support", {"category": "headphones", "issue": "左耳没有声音"})]
+        [
+            tool_call("query_quality_support", {"category": "headphones", "issue": "左耳没有声音"}),
+            call(),
+        ]
     )
     ask(graph, "耳机左耳没有声音")
     state = ask(graph, "我仍要求售后退货")
-    assert state["support_phase"] == "transferred"
-    assert len(model._requests) == 1
+    assert state["support_phase"] == "advised"
+    assert state["return_stage"] == "awaiting_confirmation"
+    assert state["return_request_count"] == 1
+    assert len(model._requests) == 2
 
 
-def test_return_explanation_cannot_be_bypassed_with_quality_tool(graph_builder):
+def test_first_quality_question_after_return_guidance_still_gets_one_advice(graph_builder):
     graph, _ = graph_builder(
         [
             call(),
@@ -255,8 +304,9 @@ def test_return_explanation_cannot_be_bypassed_with_quality_tool(graph_builder):
     )
     ask(graph, "我要退货")
     state = ask(graph, "再给个解决办法")
-    assert state["return_stage"] == "handoff"
-    assert "support_advice" not in state
+    assert state["return_stage"] == "awaiting_confirmation"
+    assert state["support_phase"] == "advised"
+    assert state["support_advice"]
 
 
 @pytest.mark.parametrize(
@@ -296,52 +346,6 @@ def test_link_exception_is_sanitized(graph_builder):
     state = ask(graph, f"确认退货 {ORDER}")
     assert "private-return-platform-secret" not in str(state)
     assert state["return_stage"] == "guided"
-
-
-@pytest.mark.parametrize(
-    "field,value",
-    [
-        ("goods_intact", None),
-        ("no_reason_supported", False),
-        ("excluded_by_exception", True),
-        ("purchase_confirmation_checked", None),
-        ("applicable_policy_checked", None),
-        ("checked_at", NOW - timedelta(minutes=16)),
-        ("checked_at", NOW + timedelta(seconds=1)),
-        ("checked_at", NOW.replace(tzinfo=None)),
-        ("order_id", "OTHER"),
-        ("user_id", "OTHER"),
-    ],
-)
-def test_incomplete_or_stale_evidence_never_qualifies(order_rows, field, value):
-    order = StoredOrder.model_validate(order_rows[0])
-    evidence = (
-        MockReturnGateway("eligible").get_evidence(order, NOW).model_copy(update={field: value})
-    )
-    assert check_return_eligibility(order, evidence, NOW)[0] is False
-
-
-@pytest.mark.parametrize(
-    "delivered_at,eligible",
-    [
-        ("2026-10-16T09:00:00+08:00", True),
-        ("2026-10-15T09:00:00+08:00", False),
-        ("2026-10-24T09:00:00+08:00", False),
-        (None, False),
-        ("2026-10-22T09:00:00", False),
-    ],
-)
-def test_signing_period_uses_actual_time_and_next_day_start(order_rows, delivered_at, eligible):
-    order = StoredOrder.model_validate({**order_rows[0], "delivered_at": delivered_at})
-    evidence = MockReturnGateway("eligible").get_evidence(order, NOW)
-    assert check_return_eligibility(order, evidence, NOW)[0] is eligible
-
-
-@pytest.mark.parametrize("status", ["pending_payment", "paid_unshipped", "shipped", "cancelled"])
-def test_non_received_states_cannot_get_link(order_rows, status):
-    order = StoredOrder.model_validate({**order_rows[0], "order_status": status})
-    evidence = MockReturnGateway("eligible").get_evidence(order, NOW)
-    assert not check_return_eligibility(order, evidence, NOW)[0]
 
 
 @pytest.mark.parametrize(
@@ -398,17 +402,6 @@ def test_parallel_return_calls_are_rejected(graph_builder):
     )
 
 
-def test_exact_seven_day_cutoff(order_rows):
-    order = StoredOrder.model_validate(
-        {**order_rows[0], "delivered_at": "2026-10-16T09:00:00+08:00"}
-    )
-    cutoff = datetime.fromisoformat("2026-10-24T00:00:00+08:00")
-    before = cutoff - timedelta(seconds=1)
-    gateway = MockReturnGateway("eligible")
-    assert check_return_eligibility(order, gateway.get_evidence(order, before), before)[0]
-    assert not check_return_eligibility(order, gateway.get_evidence(order, cutoff), cutoff)[0]
-
-
 def test_link_is_not_created_twice_after_one_explanation(graph_builder):
     class RecordingReturns(MockReturnGateway):
         def __init__(self):
@@ -424,20 +417,24 @@ def test_link_is_not_created_twice_after_one_explanation(graph_builder):
     ask(graph, "我要退货")
     ask(graph, f"确认退货 {ORDER}")
     state = ask(graph, "我仍然要求售后")
+    assert state["return_stage"] == "link_ready"
+    assert state["return_request_count"] == 2
+    ask(graph, "我仍然要求售后")
+    state = ask(graph, "我仍然要求售后")
     assert state["return_stage"] == "handoff"
     assert len(gateway.links) == 1
-    assert len(model._requests) == 2
+    assert len(model._requests) == 5
 
 
 def test_return_state_isolated_and_reset_uses_official_checkpoint(graph_builder):
     graph, _ = graph_builder([call()])
     ask(graph, "我要退货", thread="first")
     other = ask(graph, "我要退货", thread="second")
-    assert other["return_stage"] == "guided"
+    assert other["return_stage"] == "awaiting_confirmation"
     assert "support_handoff" not in other
     graph.checkpointer.delete_thread("first")
     reset = ask(graph, "我要退货", thread="first")
-    assert reset["return_stage"] == "guided"
+    assert reset["return_stage"] == "awaiting_confirmation"
     assert len([m for m in reset["messages"] if isinstance(m, ToolMessage)]) == 1
 
 
@@ -447,7 +444,7 @@ def test_model_return_schema_has_no_injected_or_eligibility_arguments(graph_buil
     # 检查实际官方工具节点注册的schema，而不是另造工具或解析层。
     tools = graph.get_graph().nodes["tools"].data.tools_by_name
     schema = tools["handle_return"].tool_call_schema.model_json_schema()
-    assert set(schema["properties"]) == {"order_id", "reason", "request_human"}
+    assert set(schema["properties"]) == {"order_id", "reason", "request_human", "is_return_request"}
 
 
 @pytest.mark.parametrize(
@@ -489,13 +486,16 @@ def test_confirmation_does_not_authorize_changed_reason(graph_builder):
 
 
 @pytest.mark.parametrize("scenario", ["unknown", "eligible"])
-def test_rag_missing_policy_transfers_even_if_mock_evidence_passes(graph_builder, scenario):
+@pytest.mark.parametrize("raises", [False, True])
+def test_rag_missing_policy_or_failure_transfers_immediately(graph_builder, scenario, raises):
     class MissingPolicy:
         def __init__(self):
             self.queries = []
 
         def find(self, query):
             self.queries.append(query)
+            if raises:
+                raise RuntimeError("private-rag-error")
             return None
 
     repository = MissingPolicy()
@@ -511,8 +511,10 @@ def test_rag_missing_policy_transfers_even_if_mock_evidence_passes(graph_builder
     state = ask(graph, f"订单{ORDER}我要退货，原因是不喜欢")
     assert repository.queries
     assert state["return_stage"] == "handoff"
-    assert state["support_phase"] == "transferred"
+    assert state["return_request_count"] == 1
     assert not state["return_result"].get("url")
+    assert len(gateway.requests) == 1
+    assert "private-rag-error" not in str(state)
 
 
 def test_cancellation_invalidates_pending_confirmation(graph_builder):
@@ -525,15 +527,150 @@ def test_cancellation_invalidates_pending_confirmation(graph_builder):
     assert "url" not in state["return_result"]
 
 
+def test_supplement_and_confirmation_do_not_increment_request_counter(graph_builder):
+    graph, _ = graph_builder(
+        [
+            call(order_id="", reason=""),
+            call(reason="", is_return_request=False),
+            call(is_return_request=False),
+            call(is_return_request=False),
+        ],
+        scenario="eligible",
+    )
+    first = ask(graph, "我要退货")
+    assert first["return_request_count"] == 1
+    bound = ask(graph, f"订单号{ORDER}")
+    assert bound["return_request_count"] == 1
+    pending = ask(graph, "原因是不喜欢佩戴感受")
+    assert pending["return_request_count"] == 1
+    assert pending["return_stage"] == "awaiting_confirmation"
+    linked = ask(graph, f"确认退货 {ORDER}")
+    assert linked["return_request_count"] == 1
+    assert linked["return_stage"] == "link_ready"
+
+
+def test_same_human_message_is_counted_only_once(graph_builder):
+    graph, _ = graph_builder([call()])
+    for _ in range(4):
+        state = graph.invoke(
+            {"messages": [HumanMessage(content="我要退货", id="one-user-message")]},
+            config={"configurable": {"thread_id": "dedup"}},
+            context=USER,
+        )
+        assert state["return_request_count"] == 1
+        assert state["return_stage"] == "awaiting_confirmation"
+
+
+def test_switching_orders_keeps_separate_counts_and_restores_previous_count(graph_builder):
+    second = "RETURN-HP-O-0002"
+    gateway = RecordingGateway()
+    orders = [ORDER, second, ORDER, second, ORDER, ORDER]
+    graph, _ = graph_builder([call(order_id=value) for value in orders], handoff=gateway)
+    for value, expected in zip(orders, [1, 1, 2, 2, 3, 4], strict=True):
+        state = ask(graph, f"我要退货，订单{value}")
+        assert state["return_request_count"] == expected
+        assert state["return_stage"] == ("handoff" if expected == 4 else "awaiting_confirmation")
+    assert len(gateway.requests) == 1
+
+
+def test_cancelling_does_not_erase_same_order_request_history(graph_builder):
+    graph, _ = graph_builder([call()])
+    ask(graph, "我要退货")
+    ask(graph, "取消退货")
+    state = ask(graph, f"我又要退货，订单{ORDER}")
+    assert state["return_request_count"] == 2
+    assert state["return_stage"] == "awaiting_confirmation"
+
+
+def test_model_cannot_use_return_handoff_tool_to_skip_counter(graph_builder):
+    gateway = RecordingGateway()
+    graph, model = graph_builder(
+        [
+            call(),
+            tool_call("handoff_to_human", {"reason": "用户坚持退货", "topic": "return"}),
+            call(),
+        ],
+        handoff=gateway,
+    )
+    ask(graph, "我要退货")
+    state = ask(graph, "我还是要退货")
+    assert state["return_request_count"] == 2
+    assert state["return_stage"] == "awaiting_confirmation"
+    assert not gateway.requests
+    errors = [
+        message
+        for message in state["messages"]
+        if isinstance(message, ToolMessage) and message.status == "error"
+    ]
+    assert any(
+        message.artifact.get("error", {}).get("code") == "RETURN_HANDOFF_NOT_READY"
+        for message in errors
+    )
+    assert len(model._requests) == 3
+
+
+def test_first_simple_return_request_cannot_skip_counter_with_auto_handoff(graph_builder):
+    gateway = RecordingGateway()
+    graph, _ = graph_builder(
+        [
+            tool_call("handoff_to_human", {"reason": "用户要退货"}),
+            call(),
+        ],
+        handoff=gateway,
+    )
+    state = ask(graph, "我要退货")
+    assert state["return_request_count"] == 1
+    assert state["return_stage"] == "awaiting_confirmation"
+    assert not gateway.requests
+
+
+def test_complex_explicit_human_request_uses_model_classification(graph_builder):
+    gateway = RecordingGateway()
+    graph, _ = graph_builder(
+        [
+            call(),
+            tool_call(
+                "handoff_to_human",
+                {
+                    "reason": "用户明确要求人工客服介入",
+                    "topic": "return",
+                    "request_human": True,
+                },
+            ),
+        ],
+        handoff=gateway,
+    )
+    ask(graph, "我要退货")
+    state = ask(graph, "这个退货能否安排一位人工客服来处理？")
+    assert state["return_stage"] == "handoff"
+    assert state["return_request_count"] == 1
+    assert len(gateway.requests) == 1
+
+
+@pytest.mark.parametrize("status", ["已提供一次排查", "已转人工（模拟）"])
+def test_persisted_status_alone_does_not_trigger_immediate_return_handoff(
+    graph_builder, tmp_path, status
+):
+    gateway = RecordingGateway()
+    graph, _ = graph_builder([call()], scenario="eligible", handoff=gateway)
+    AfterSalesRepository(tmp_path / "state.sqlite3").record(
+        USER.user_id, ORDER, status, "old-event"
+    )
+    state = ask(graph, f"我要退货，订单{ORDER}")
+    assert state["return_request_count"] == 1
+    assert state["return_stage"] == ("awaiting_confirmation")
+    assert not gateway.requests
+
+
 def test_different_order_after_handoff_does_not_reuse_previous_issue(graph_builder):
     gateway = RecordingGateway()
     graph, _ = graph_builder([call(), call(order_id="RETURN-HP-O-0002")], handoff=gateway)
     ask(graph, "我要退货")
-    ask(graph, "我坚持退货")
+    ask(graph, "请转人工")
     state = ask(graph, "换一单RETURN-HP-O-0002退货，原因是不喜欢")
-    assert state["return_stage"] == "guided"
+    assert state["return_stage"] == "awaiting_confirmation"
     assert not state["support_handoff"]
-    ask(graph, "我仍要求售后")
+    ask(graph, "请转人工")
     assert len(gateway.requests) == 2
     assert gateway.requests[0].request_id != gateway.requests[1].request_id
     assert "RETURN-HP-O-0002" in gateway.requests[1].issue

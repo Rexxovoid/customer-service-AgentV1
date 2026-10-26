@@ -29,9 +29,13 @@ class BusinessToolPolicyMiddleware(AgentMiddleware):
         self.order_repository = order_repository
         self.after_sales = after_sales
 
-    def _record(self, state, context, event_id):
+    def _record(self, state, context, event_id, *, quality=False):
         """只为已核验归属的订单记录实际处理结果，匿名咨询不修改订单。"""
-        order_id = state.get("return_order_id") or state.get("support_order_id")
+        order_id = (
+            state.get("support_order_id")
+            if quality
+            else (state.get("return_order_id") or state.get("support_order_id"))
+        )
         if not order_id or not context or not self.after_sales or not self.order_repository:
             return
         if self.order_repository.find_owned(order_id, context.user_id) is None:
@@ -41,7 +45,7 @@ class BusinessToolPolicyMiddleware(AgentMiddleware):
             "transferred": "已转人工（模拟）",
             "transfer_failed": "转人工失败",
         }.get(state.get("support_phase"))
-        if state.get("return_stage") == "link_ready":
+        if not quality and state.get("return_stage") == "link_ready":
             status = "已提供退货测试入口"
         if status:
             self.after_sales.record(context.user_id, order_id, status, event_id)
@@ -55,7 +59,17 @@ class BusinessToolPolicyMiddleware(AgentMiddleware):
             "handoff_to_human",
             "handle_return",
         }:
-            self._record(state, runtime.context, str(last.id))
+            if last.name != "handle_return" or state.get("return_stage") in {
+                "handoff",
+                "link_ready",
+            }:
+                data = (last.artifact or {}).get("data") or {}
+                self._record(
+                    state,
+                    runtime.context,
+                    str(last.id),
+                    quality=last.name == "query_quality_support" or data.get("topic") == "quality",
+                )
         if (
             isinstance(last, ToolMessage)
             and last.name == "handle_return"
@@ -96,7 +110,7 @@ class BusinessToolPolicyMiddleware(AgentMiddleware):
                 "jump_to": "end",
             }
         explicit = text in ("转人工", "人工客服", "找客服", "请转人工")
-        unsuccessful = bool(state.get("support_phase")) and text in (
+        unsuccessful = state.get("support_phase") == "advised" and text in (
             "未解决",
             "没有解决",
             "没解决",
@@ -111,24 +125,9 @@ class BusinessToolPolicyMiddleware(AgentMiddleware):
             "试了没用",
             "方案无效",
         )
-        insistence = text in {
-            "我还是要退货",
-            "还是要退货",
-            "我坚持退货",
-            "我坚持售后",
-            "不想去后台，你来办",
-            "我还是要售后",
-            "我仍然要办售后",
-            "那我要办售后退货",
-            "我仍要求售后退货",
-            "我仍要求售后",
-            "我仍然要求售后",
-        }
-        if insistence and (state.get("return_stage") or state.get("support_phase") == "advised"):
-            unsuccessful = True
         if not (explicit or unsuccessful):
             return None
-        if state.get("return_stage"):
+        if state.get("return_stage") and explicit:
             update = return_handoff(
                 state,
                 runtime.context,
@@ -151,7 +150,7 @@ class BusinessToolPolicyMiddleware(AgentMiddleware):
         )
         if not state.get("support_issue"):
             update["support_issue"] = last.text
-        self._record({**state, **update}, runtime.context, str(last.id))
+        self._record({**state, **update}, runtime.context, str(last.id), quality=True)
         return {
             **update,
             "messages": [AIMessage(content=support_reply({**state, **update}))],
