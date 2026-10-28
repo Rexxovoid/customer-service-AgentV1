@@ -3,9 +3,7 @@ from typing import Literal, NotRequired
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from orderagent.schemas.support_schema import SupportAgentState
-
-RETURN_HANDOFF_THRESHOLD = 4
+from orderagent.schemas.support_schema import ReportedFact, SupportAgentState
 
 
 class ReturnQuery(BaseModel):
@@ -16,6 +14,12 @@ class ReturnQuery(BaseModel):
     reason: str = Field(default="", max_length=500)
     request_human: bool = False
     is_return_request: bool = True
+    new_issue: bool = False
+    target_product_id: str = Field(default="", max_length=100)
+    turn_kind: Literal[
+        "request", "provide_information", "confirm", "progress", "policy_question"
+    ] = "request"
+    reported_facts: list[ReportedFact] = Field(default_factory=list, max_length=20)
 
 
 class ReturnLinkRequest(BaseModel):
@@ -46,7 +50,9 @@ class ReturnOperation(BaseModel):
     user_id: str
     order_id: str
     request_id: str
-    status: Literal["creating", "link_ready", "processing", "uncertain", "returned", "refunded"]
+    status: Literal[
+        "creating", "link_ready", "processing", "uncertain", "failed", "returned", "refunded"
+    ]
     simulated: bool = True
     response: ReturnLinkResponse | None = None
 
@@ -66,3 +72,11 @@ class ReturnAgentState(SupportAgentState):
     return_rule_source: NotRequired[dict]
     return_request_count: NotRequired[int]
     return_request_history: NotRequired[dict[str, dict]]
+    return_question_scope: NotRequired[str]
+    return_problem_key: NotRequired[str]
+    return_error_code: NotRequired[str]
+    return_target_product_id: NotRequired[str]
+    return_reported_facts: NotRequired[dict]
+    return_original_statements: NotRequired[list[str]]
+    return_confirmation_payload: NotRequired[dict]
+    return_has_request: NotRequired[bool]

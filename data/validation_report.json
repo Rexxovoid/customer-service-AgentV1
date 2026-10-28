@@ -181,5 +181,23 @@
     "historical_tickets": 1518,
     "all_tickets_isolated": true,
     "note": "Earlier validation sections describe historical fixture generation, not live state."
+  },
+  "current_knowledge_revision": {
+    "checked_on": "2026-10-27",
+    "support_records": 72,
+    "support_unique_ids": 72,
+    "markdown_files": 17,
+    "markdown_unique_document_hashes": 17,
+    "markdown_unique_qa_ids": 1504,
+    "scoped_fault_qa": 64,
+    "evaluation_cases": 22,
+    "checks": [
+      "Pydantic support schema loaded",
+      "Unique support IDs",
+      "Unique canonical Markdown hashes",
+      "Unique Markdown QA IDs",
+      "Strict evaluation cases loaded"
+    ],
+    "scope": "Structural checks only; historical batch results above retained; remote new knowledge not uploaded."
   }
 }

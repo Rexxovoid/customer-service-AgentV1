@@ -53,7 +53,7 @@ def main() -> int:
                 {"messages": [{"role": "user", "content": text.strip()}]},
                 config=config,
                 context=context,
-                print_mode="updates" if args.trace else (),
+                print_mode=("updates", "custom") if args.trace else (),
             )
             print(result["messages"][-1].text)
 

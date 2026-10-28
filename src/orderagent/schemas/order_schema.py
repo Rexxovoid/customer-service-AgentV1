@@ -43,6 +43,7 @@ class StoredOrder(BaseModel):
     snapshot_at: datetime
     delivered_at: datetime | None = None
     after_sales_status: str = "未售后"
+    after_sales_progress: str = "未售后"
 
 
 class OrderSummary(BaseModel):
@@ -59,6 +60,7 @@ class OrderSummary(BaseModel):
     synthetic: bool
     data_source: Literal["local_demo_json"] = "local_demo_json"
     after_sales_status: str = "未售后"
+    after_sales_progress: str = "未售后"
 
 
 class ToolError(BaseModel):

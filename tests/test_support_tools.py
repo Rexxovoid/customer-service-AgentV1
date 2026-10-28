@@ -70,19 +70,16 @@ def test_quality_advice_is_source_based_and_program_rendered():
 
 
 @pytest.mark.parametrize("feedback", ["没有解决", "还是没声音", "试了没用", "方案无效"])
-def test_unsuccessful_attempt_hands_off_without_another_model_call(feedback):
+def test_unsuccessful_feedback_continues_quality_and_counts(feedback):
     gateway = RecordingGateway()
     graph, model = build([quality_call()], gateway=gateway)
     ask(graph, "我的耳机左耳没有声音了")
     state = ask(graph, feedback)
-    assert state["support_phase"] == "transferred"
-    assert state["messages"][-1].text == "【模拟客服】对接人工客服成功，由工号001为你服务。"
-    assert len(model._requests) == 1
-    assert len(gateway.requests) == 1
-    request = gateway.requests[0]
-    assert request.user_id == "DEMO-U-001"
-    assert request.issue == "左耳没有声音"
-    assert request.attempted_solution["id"] == "DEMO-HP-K-0001"
+    assert state["support_phase"] == "awaiting_information"
+    assert state["support_question_count"] == 2
+    assert state["support_advice"]["answer"] not in state["messages"][-1].text
+    assert len(model._requests) == 2
+    assert not gateway.requests
 
 
 def test_unrecognized_feedback_can_be_routed_by_model_to_handoff():
@@ -90,7 +87,9 @@ def test_unrecognized_feedback_can_be_routed_by_model_to_handoff():
     graph, model = build(
         [
             quality_call(),
-            tool_call("handoff_to_human", {"reason": "用户反馈照做后依然无法正常收听"}, "h-2"),
+            tool_call(
+                "handoff_to_human", {"reason": "用户明确需要人工", "request_human": True}, "h-2"
+            ),
         ],
         gateway=gateway,
     )
@@ -114,7 +113,7 @@ def test_no_knowledge_uses_configured_mock(scenario, phase, expected):
     assert state["support_phase"] == phase
     assert expected in state["messages"][-1].text
     assert "模拟客服" in state["messages"][-1].text
-    assert "support_advice" not in state
+    assert not state.get("support_advice")
     assert len(model._requests) == 1
 
 
@@ -123,7 +122,7 @@ def test_failure_never_claims_success_or_retries(fail, raises):
     gateway = RecordingGateway(fail=fail, raises=raises)
     graph, model = build([quality_call()], gateway=gateway)
     ask(graph, "耳机左耳没有声音")
-    state = ask(graph, "没有解决")
+    state = ask(graph, "转人工")
     assert state["support_phase"] == "transfer_failed"
     assert "转人工错误" in state["messages"][-1].text
     assert "成功" not in state["messages"][-1].text
@@ -138,20 +137,20 @@ def test_successful_handoff_is_idempotent():
     gateway = RecordingGateway()
     graph, _ = build([quality_call()], gateway=gateway)
     ask(graph, "耳机左耳没有声音")
-    first = ask(graph, "没有解决")
-    second = ask(graph, "再转人工客服")
+    first = ask(graph, "转人工")
+    second = ask(graph, "转人工")
     assert first["support_handoff"] == second["support_handoff"]
     assert len(gateway.requests) == 1
 
 
-def test_second_quality_lookup_cannot_provide_second_solution():
+def test_repeated_quality_lookup_does_not_repeat_failed_solution():
     gateway = RecordingGateway()
-    graph, model = build([quality_call(), quality_call("换个方法解决")], gateway=gateway)
+    graph, model = build([quality_call()], gateway=gateway)
     ask(graph, "耳机左耳没有声音")
     state = ask(graph, "还有别的方法吗")
-    assert state["support_phase"] == "transferred"
-    assert len(gateway.requests) == 1
-    assert "可先进行" not in state["messages"][-1].text
+    assert state["support_phase"] == "awaiting_information"
+    assert not gateway.requests
+    assert state["support_advice"]["answer"] not in state["messages"][-1].text
     assert len(model._requests) == 2
 
 
@@ -161,7 +160,7 @@ def test_after_handoff_quality_tool_stays_closed():
     ask(graph, "耳机有陌生问题")
     state = ask(graph, "再检查左耳没有声音")
     assert state["support_phase"] == "transferred"
-    assert "support_advice" not in state
+    assert not state.get("support_advice")
     assert len(gateway.requests) == 1
 
 
@@ -234,7 +233,7 @@ def test_parallel_quality_calls_are_rejected():
     first.tool_calls.extend(second.tool_calls)
     graph, _ = build([first, AIMessage(content="请逐个处理。")])
     state = ask(graph, "耳机左耳没有声音")
-    assert "support_advice" not in state
+    assert not state.get("support_advice")
     results = [m for m in state["messages"] if isinstance(m, ToolMessage)]
     assert len(results) == 2
     assert all(m.artifact["error"]["code"] == "INVALID_ARGUMENTS" for m in results)
@@ -247,6 +246,8 @@ def test_model_schemas_hide_identity_and_mock_controls(repository):
         "issue",
         "environment",
         "order_id",
+        "is_question",
+        "new_issue",
     }
     assert set(tools[1].tool_call_schema.model_json_schema()["properties"]) == {
         "reason",

@@ -19,7 +19,7 @@ class ProductQueryTool:
         "根据description和evidence_groups解释性能，未记载的DPI、回报率或续航必须说明未知；"
         "空证据分组不表示不支持。资料为2016年历史目录，当前售价和库存未知。"
         "查已购订单用query_order；实际故障排查用query_quality_support，"
-        "用户反馈已给方案未解决时用handoff_to_human，不用本工具继续找维修方案。"
+        "用户反馈故障未解决时继续使用质量工具；明确要人工才使用交接工具，不用本工具找维修方案。"
     )
 
     def __init__(self, repository: JsonProductRepository):

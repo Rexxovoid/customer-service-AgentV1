@@ -35,6 +35,7 @@ def test_actual_deep_agent_graph_executes_order_tool(context, config):
             "query_quality_support",
             "handoff_to_human",
             "handle_return",
+            "end_support_session",
         }
         for names in model._bound_tools
     )
@@ -89,6 +90,7 @@ def test_unoffered_framework_and_unknown_tools_cannot_execute(context, config, n
             "query_quality_support",
             "handoff_to_human",
             "handle_return",
+            "end_support_session",
         }
         for names in model._bound_tools
     )
@@ -251,6 +253,7 @@ def test_product_tool_runs_in_official_graph_without_order_identity(config):
         "query_quality_support",
         "handoff_to_human",
         "handle_return",
+        "end_support_session",
     }
 
 

@@ -8,8 +8,14 @@ _PROMPTS = yaml.safe_load(
 )
 
 
-def load_prompt(name: str) -> str:
+def load_prompt(name: str, *, evaluation: bool = False) -> str:
     """读取包内YAML的指定提示词，不接受外部路径。"""
+    if evaluation:
+        return yaml.safe_load(
+            files("orderagent.prompts")
+            .joinpath("evaluation_prompt.yaml")
+            .read_text(encoding="utf-8")
+        )[name]
     return _PROMPTS[name]
 
 

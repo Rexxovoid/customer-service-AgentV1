@@ -4,6 +4,18 @@ from deepagents.graph import DeepAgentState
 from pydantic import BaseModel, ConfigDict, Field
 
 
+class ReportedFact(BaseModel):
+    """用户陈述的字段及原文引用；不是可信平台证据，来源由程序补充。"""
+
+    model_config = ConfigDict(extra="forbid", strict=True, str_strip_whitespace=True)
+    field: Literal[
+        "symptom", "purchase_date", "receipt_date", "notice_date", "condition", "exception", "other"
+    ]
+    value: str = Field(max_length=300)
+    status: Literal["explicit", "missing", "ambiguous", "conflict"]
+    quote: str = Field(default="", max_length=500)
+
+
 class SupportQuery(BaseModel):
     """质量知识查询参数，包含品类、具体症状及用户明确提供的环境。"""
 
@@ -13,6 +25,12 @@ class SupportQuery(BaseModel):
     issue: str = Field(min_length=1, max_length=500)
     environment: str = Field(default="", max_length=200, description="用户已提供的系统、品牌或型号")
     order_id: str = Field(default="", max_length=100, description="用户已提供的本人订单号；可留空")
+    is_question: bool = True
+    new_issue: bool = False
+    attempted_solutions: list[str] = Field(default_factory=list)
+    task: Literal["quality", "return", "return_policy"] = "quality"
+    reported_facts: list[dict] = Field(default_factory=list)
+    original_statements: list[str] = Field(default_factory=list)
 
 
 class HandoffQuery(BaseModel):
@@ -38,13 +56,30 @@ class SupportKnowledge(BaseModel):
     aliases: list[str] = Field(default_factory=list)
     # 每组至少一个关键词须命中用户提供的环境，全部条件组都满足才适用。
     required_context: list[list[str]] = Field(default_factory=list)
+    missing_information: list[str] = Field(default_factory=list)
+    clarify_on_partial_context: bool = False
+    incompatible_context: list[str] = Field(default_factory=list)
 
 
 class SupportAgentState(DeepAgentState):
-    """扩展官方会话状态，记录一次方案及人工交接结果，由检查点按线程保存。"""
+    """质量与退货各自维护问题计数；咨询状态仅保存在官方线程检查点。"""
 
-    support_phase: NotRequired[Literal["advised", "transferred", "transfer_failed"] | None]
+    support_phase: NotRequired[
+        Literal["advised", "awaiting_information", "transferred", "transfer_failed"] | None
+    ]
     support_issue: NotRequired[str]
     support_advice: NotRequired[dict]
     support_handoff: NotRequired[dict]
     support_order_id: NotRequired[str]
+    support_question_count: NotRequired[int]
+    support_question_history: NotRequired[dict]
+    support_question_scope: NotRequired[str]
+    support_problem_key: NotRequired[str]
+    support_advice_history: NotRequired[dict]
+    support_result: NotRequired[dict]
+    support_handoff_history: NotRequired[dict]
+    support_handoff_topic: NotRequired[str]
+    question_processed_messages: NotRequired[dict]
+    active_support_topic: NotRequired[str]
+    consultation_id: NotRequired[str]
+    support_error_code: NotRequired[str]

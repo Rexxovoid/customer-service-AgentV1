@@ -1,4 +1,3 @@
-from concurrent.futures import ThreadPoolExecutor
 from types import SimpleNamespace
 
 import pytest
@@ -7,11 +6,9 @@ from langchain_core.messages import AIMessage
 from orderagent.agents.agent_factory import create_order_agent
 from orderagent.integrations.ragflow import RagflowKnowledge, RuleSelection, TimeoutRAGFlow
 from orderagent.repositories.after_sales_repository import AfterSalesRepository
-from orderagent.repositories.order_repository import JsonOrderRepository
-from orderagent.schemas.order_schema import OrderQuery, ToolContext
+from orderagent.schemas.order_schema import ToolContext
 from orderagent.schemas.support_schema import SupportQuery
 from orderagent.settings import Settings
-from orderagent.tools.order_query_tool import query_order
 from tests.fake_chat_model import ScriptedChatModel, tool_call
 from tests.test_support_tools import RecordingGateway
 
@@ -27,14 +24,9 @@ def invoke(graph, text, thread="persist"):
     )
 
 
-def test_after_sales_starts_empty_and_follows_actual_processing(tmp_path):
+def test_quality_queries_do_not_register_order_after_sales(tmp_path):
     settings = Settings(after_sales_db_path=tmp_path / "state.sqlite3")
     store = AfterSalesRepository(settings.after_sales_db_path)
-    orders = JsonOrderRepository(settings.orders_path, store)
-    assert (
-        query_order(orders, OrderQuery(order_id=ORDER), CONTEXT).data["after_sales_status"]
-        == "未售后"
-    )
     gateway = RecordingGateway()
     graph = create_order_agent(
         settings,
@@ -42,28 +34,20 @@ def test_after_sales_starts_empty_and_follows_actual_processing(tmp_path):
             responses=[
                 tool_call(
                     "query_quality_support",
-                    {
-                        "category": "headphones",
-                        "issue": "左耳没有声音",
-                        "order_id": ORDER,
-                    },
+                    {"category": "headphones", "issue": "左耳没有声音", "order_id": ORDER},
                 )
             ]
         ),
         handoff_gateway=gateway,
     )
     invoke(graph, f"订单{ORDER}，我的耳机左耳没有声音")
-    assert store.get_status(CONTEXT.user_id, ORDER) == "已提供一次排查"
+    assert store.get_status(CONTEXT.user_id, ORDER) == "未售后"
     state = invoke(graph, "没有解决")
-    assert state["support_phase"] == "transferred"
-    assert store.get_status(CONTEXT.user_id, ORDER) == "已转人工（模拟）"
-    assert (
-        AfterSalesRepository(settings.after_sales_db_path).get_status(CONTEXT.user_id, ORDER)
-        == "已转人工（模拟）"
-    )
-    # 删除官方会话检查点不会删除订单的实际处理记录。
+    assert state["support_phase"] == "awaiting_information"
+    invoke(graph, "转人工")
+    assert store.get_status(CONTEXT.user_id, ORDER) == "未售后"
     graph.checkpointer.delete_thread("persist")
-    assert store.get_status(CONTEXT.user_id, ORDER) == "已转人工（模拟）"
+    assert store.get_status(CONTEXT.user_id, ORDER) == "未售后"
 
 
 @pytest.mark.parametrize("order_id", ["DEMO-HP-O-0002", "DEMO-HP-O-NOT-FOUND"])
@@ -97,18 +81,19 @@ def test_store_deduplicates_events_and_isolates_users(tmp_path):
     store.record("A", "O", "问题已反馈", "event-1")
     store.record("A", "O", "已提供一次排查", "event-2")
     store.record("A", "O", "问题已反馈", "event-1")
-    assert store.get_status("A", "O") == "已提供一次排查"
+    assert store.get_status("A", "O") == "未售后"
     assert store.get_status("B", "O") == "未售后"
     store.record("A", "O", "已转人工（模拟）", "event-3")
     store.record("A", "O", "已提供一次排查", "late-event")
-    assert store.get_status("A", "O") == "已转人工（模拟）"
+    assert store.get_status("A", "O") == "未售后"
 
 
-def test_concurrent_issue_claim_only_allows_one_first_attempt(tmp_path):
+def test_consultation_claim_api_is_removed(tmp_path):
     store = AfterSalesRepository(tmp_path / "state.sqlite3")
-    with ThreadPoolExecutor(max_workers=2) as executor:
-        results = list(executor.map(lambda n: store.start_issue("A", "O", str(n)), [1, 2]))
-    assert sorted(results) == [False, True]
+    assert not hasattr(store, "start_issue")
+    store.record("A", "O", "已退款", "trusted-completion")
+    store.record("A", "O", "退货申请待确认", "late-request")
+    assert store.get_status("A", "O") == "已退款"
 
 
 @pytest.mark.parametrize(
@@ -171,7 +156,7 @@ def test_rag_empty_or_unavailable_transfers_without_local_fallback(tmp_path, rai
     )
     state = invoke(graph, "我的耳机左耳没有声音")
     assert state["support_phase"] == "transferred"
-    assert "support_advice" not in state
+    assert not state.get("support_advice")
     assert "private-rag-api-key" not in str(state)
     assert len(gateway.requests) == 1
 
@@ -252,8 +237,13 @@ def test_rag_answer_must_be_exact_retrieved_evidence(excerpt, expected):
             handling="basic_troubleshooting",
         )
     )
-    answer = repository.find(SupportQuery(category="headphones", issue="左耳没有声音"))
-    assert (answer is not None) is expected
+    if expected:
+        assert (
+            repository.find(SupportQuery(category="headphones", issue="左耳没有声音")) is not None
+        )
+    else:
+        with pytest.raises(ValueError, match="RAG_EVIDENCE_INVALID"):
+            repository.find(SupportQuery(category="headphones", issue="左耳没有声音"))
     repository.client = FakeRagClient(bound=False)
     with pytest.raises(ValueError):
         repository.find(SupportQuery(category="headphones", issue="左耳没有声音"))
@@ -264,7 +254,7 @@ def test_sdk_timeout_is_forwarded_without_retry(monkeypatch):
 
     def request(*args, **kwargs):
         calls.append(kwargs)
-        return object()
+        return SimpleNamespace(raise_for_status=lambda: None)
 
     monkeypatch.setattr("orderagent.integrations.ragflow.requests.get", request)
     monkeypatch.setattr("orderagent.integrations.ragflow.requests.post", request)
@@ -275,7 +265,7 @@ def test_sdk_timeout_is_forwarded_without_retry(monkeypatch):
     assert all(call["timeout"] == 60 for call in calls)
 
 
-def test_existing_order_record_cannot_get_second_advice_after_restart(tmp_path):
+def test_legacy_consultation_does_not_block_quality_after_restart(tmp_path):
     settings = Settings(after_sales_db_path=tmp_path / "state.sqlite3")
     store = AfterSalesRepository(settings.after_sales_db_path)
     store.record(CONTEXT.user_id, ORDER, "已提供一次排查", "old-advice")
@@ -286,17 +276,14 @@ def test_existing_order_record_cannot_get_second_advice_after_restart(tmp_path):
             responses=[
                 tool_call(
                     "query_quality_support",
-                    {
-                        "category": "headphones",
-                        "issue": "左耳没有声音",
-                        "order_id": ORDER,
-                    },
+                    {"category": "headphones", "issue": "左耳没有声音", "order_id": ORDER},
                 )
             ]
         ),
         handoff_gateway=gateway,
     )
     state = invoke(graph, f"订单{ORDER}耳机仍然没声音")
-    assert state["support_phase"] == "transferred"
-    assert "support_advice" not in state
-    assert len(gateway.requests) == 1
+    assert state["support_phase"] == "advised"
+    assert state["support_question_count"] == 1
+    assert not gateway.requests
+    assert store.get_status(CONTEXT.user_id, ORDER) == "未售后"

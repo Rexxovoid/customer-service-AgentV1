@@ -44,7 +44,14 @@ class JsonOrderRepository:
         if order is None or order.user_id != user_id:
             return None
         result = order.model_copy(deep=True)
-        result.after_sales_status = (
+        result.after_sales_progress = (
             self.after_sales.get_status(user_id, order_id) if self.after_sales else "未售后"
+        )
+        completed = {"returned", "refunded", "已退货", "已退款", "退货完成", "退款完成"}
+        result.after_sales_status = (
+            "已售后"
+            if result.after_sales_progress.casefold() in completed
+            or result.order_status.casefold() in completed
+            else "未售后"
         )
         return result

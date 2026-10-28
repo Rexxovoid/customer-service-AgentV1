@@ -76,6 +76,7 @@ uv run orderagent --user-id DEMO-U-001 --order-id DEMO-HP-O-0001
 
 ```powershell
 uv run orderagent --user-id DEMO-U-001
+$env:RAGFLOW_EVIDENCE_DEBUG = "true" 当前powershell进行测试
 ```
 
 单轮查询：
@@ -326,7 +327,7 @@ SDK固定为0.25.4。官方SDK没有超时参数，适配器仅补齐GET/POST超
 
 每次find最多三个RAGFlow请求（知识库、助手、检索），有结果时额外调用一次证据选择模型。该调用发生在工具内部，不计入Agent模型节点的6次限制，但受工具调用次数间接约束，继承模型SDK的超时与重试；60秒不是整轮总耗时。
 
-7460条订单全部初始化“未售后”，1518条工单仅为隔离的历史测试样本。质量咨询可不提供订单；需要更新订单时，须提供本人订单号并核验商品品类。未签收的到货故障交人工核实。SQLite记录“问题已反馈”“已提供一次排查”“已转人工（模拟）”等实际阶段，订单查询合并显示after_sales_status。
+7460条订单全部初始化“未售后”，1518条工单仅为隔离的历史测试样本。质量咨询可不提供订单；需要更新订单时，须提供本人订单号并核验商品品类。质量排查不以模拟签收状态作为门槛。SQLite记录“问题已反馈”“已提供一次排查”“已转人工（模拟）”等实际阶段，订单查询合并显示after_sales_status。
 
 /reset只清空聊天，不删除SQLite记录。质量一次方案约束继续保留；退货不受一般咨询记录阻止，独立台账拒绝已退货/已退款，处理中阻止，有效入口跨会话复用；目前按订单记录，不能自动区分同一订单多个独立问题，也没有自动结案功能。SQLite记录不等于真实平台售后单，聊天历史仍使用内存检查点。
 
@@ -352,3 +353,44 @@ SDK固定为0.25.4。官方SDK没有超时参数，适配器仅补齐GET/POST超
 新增退货台账在原SQLite文件中自动建表，不清空旧数据。已提供入口的旧版记录若缺少可核验响应，会提示人工核查，不能凭空恢复或重复生成。creating/uncertain不会自动超时释放；人工核实、重新开启和真实平台状态同步需后续对接。
 
 详见[本次更新日志](docs/2026-10-26+用户问题驱动退货与幂等校验.md)及[当前规则](docs/rules.md)。
+
+## 独立自动测评
+
+```powershell
+uv sync
+uv run orderagent-eval validate
+uv run orderagent-eval run --ids E01 --judge
+uv run orderagent-eval run --judge
+uv run orderagent-eval compare --result "evals/results/实际实验目录名"
+```
+
+## 独立人工测评
+
+退货确认允许首尾空白及末尾一个句号/感叹号（`。 . ！ !`），不支持重复标点、否定引用或夹杂其他指令。已待确认、内容未变的格式错误会直接提示，不调用RAG；有效确认仍复核规则。确认纠正补充集：`data/evaluation/confirmation_cases.jsonl`，可通过 `--cases` 单独运行，人工审批独立。
+
+开启本地现场记录后，`raw_content`保存规则选择模型可见正文，`parsing_error`保存实际解析错误类型、说明、类别及可用输入；`structured_result=null`不等于没有原始返回。只在本地调试文件保存这些正文，不增加到客服回复。正文可能含业务数据，按需开启，不上传Git；未记录的历史输出无法补回。
+
+规则选择默认保持思考开启，推理强度设为low；可用 `RAGFLOW_SELECTION_REASONING_EFFORT=high` 切回对照，预算仍为4096。仅规则选择改变，主Agent保持原配置。官方服务以外的地址暂不接受未验证的低推理配置。
+
+新增优化案例在 `data/evaluation/optimization_cases.jsonl`（8条待人工审批，与原22条分开）。先人工核对案例，再运行：
+
+```powershell
+uv run orderagent-eval validate --cases data/evaluation/optimization_cases.jsonl
+uv run orderagent-eval run --cases data/evaluation/optimization_cases.jsonl --repeat 3 --concurrency 1
+```
+
+比较配置时一次只改推理强度，初始状态保持隔离；再测试结构化参数和路由。summary.json增加规则选择P50/P95、用量覆盖和截断数，不能以提速替代错误放行/误转人工的人工金标核对。低推理不保证加速，当前小样本冻结候选实验未显示稳定速度收益。
+
+规则选择现场调试（默认关闭）：在 PowerShell 执行 `$env:RAGFLOW_EVIDENCE_DEBUG="true"` 后启动带 `--trace` 的 Agent。每次规则选择（包含成功、截断及证据不匹配）会在 `evals/debug/rag_evidence/` 保存一份JSON，终端 `debug_record` 指向文件名。同一文件按阶段更新：`before_call`、`returned`、`exception`、`evidence_rejected`。
+
+查看 `messages` / `candidates` / `effective_max_tokens` 判断输入；`raw_content`是可见原始正文，`structured_result`是解析结果，`parsing_error`是实际解析错误详情。结合 `finish_reasons` / `token_usage` / `response_availability` 判断是否截断或解析失败，未暴露的字段为null，不代表零用量。摘录不匹配仍保存diff。最多20份，满后需手动清理，已有文件仍会更新。
+
+记录可能含用户问题、订单和知识正文，仅受控本地排查使用，不提交Git；不会额外保存模型推理。排查完成执行 `$env:RAGFLOW_EVIDENCE_DEBUG="false"` 并重启。该功能不放宽证据校验、不自动重试，不代表退货已成功。自动测评结果中的 `selection_records` 保存阶段摘要与文件引用。
+
+```
+uv run orderagent --user-id DEMO-U-004 --trace
+```
+
+20条初始案例放在[data/evaluation](data/evaluation/README.md)，结果放在已忽略的evals/results。使用官方LangSmith evaluate组织实验，默认仅本地，显式--upload才上传；裁判通过现有QIWEN_API_KEY、QIWEN_BASE_URL、QIANWEN配置调用，输出五维分数。业务Agent仍用DeepSeek。
+
+人工先审批案例规格，再填写实验human_review.csv；compare生成comparison.json，比较硬规则结论与人工结论及五维分差。审批以各案例文件为准，原集已有3条approved，其余及补充集待人工确认；真实RAG观察题尚需人工金标。机器通过只代表显式断言，不代表所有自然语言要求已验证。完整命令、评分口径、隔离与限制见[测评和人工审核指南](evals/README.md)。

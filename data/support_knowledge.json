@@ -2515,5 +2515,164 @@
     "handoff_boundary": "基础排查无效、安全风险、用户明确要求人工或具体型号资料不足时转人工；属于项目处理规则。",
     "verification_status": "已阅读来源；仅提炼低风险排查，不保证特定型号必然适用",
     "collected_on": "2026-10-21"
+  },
+  {
+    "id": "MS-K-LEFT-001",
+    "category": "mice",
+    "question": "鼠标左键没有反应",
+    "aliases": [
+      "鼠标左键没反应",
+      "左键没反应",
+      "左键没有反应",
+      "左键不响应",
+      "左键失灵",
+      "左键点不动",
+      "左键不能点击",
+      "left mouse button not working"
+    ],
+    "answer": "Windows USB鼠标：拔下后稍等再插回，换电脑USB端口；经过集线器时改为直连电脑。",
+    "applicability": "Windows 10/11电脑的USB有线鼠标或USB接收器；不是蓝牙专用说明，不保证能解决单个按钮的硬件故障。",
+    "required_context": [
+      [
+        "windows",
+        "win10",
+        "win11"
+      ],
+      [
+        "usb",
+        "有线",
+        "接收器"
+      ]
+    ],
+    "source": {
+      "url": "https://support.microsoft.com/en-au/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows",
+      "reference_text": "Microsoft Support：Windows鼠标/键盘硬件连接基础排查；不作为具体型号维修承诺",
+      "handling": "basic_troubleshooting",
+      "checked_on": "2026-10-27"
+    },
+    "data_origin": "source_grounded_summary",
+    "clarify_on_partial_context": true,
+    "incompatible_context": [
+      "macos",
+      "mac os",
+      "linux",
+      "android",
+      "ios",
+      "bluetooth",
+      "蓝牙"
+    ]
+  },
+  {
+    "id": "MS-K-LEFT-002",
+    "category": "mice",
+    "question": "罗技鼠标左键在某个程序不响应",
+    "aliases": [
+      "鼠标左键没反应",
+      "左键没有反应",
+      "左键失灵",
+      "鼠标左键不响应",
+      "left click not working"
+    ],
+    "answer": "罗技鼠标：在其他程序中测试该按键；若仅某个程序异常，先核对该程序设置，不能仅凭此断言硬件损坏。",
+    "applicability": "用户已确认是Logitech/罗技鼠标，且可在其他程序中安全测试。不能把罗技专用软件操作推广到ROCCAT等品牌。",
+    "required_context": [
+      [
+        "logitech",
+        "罗技"
+      ]
+    ],
+    "source": {
+      "url": "https://support.logi.com/hc/en-au/articles/360023371053-Keyboard-Mice-Buttons-or-keys-do-not-work-correctly",
+      "reference_text": "Logitech Support：Buttons or keys do not work correctly；仅摘录跨程序对照建议，不推荐停用软件",
+      "handling": "basic_troubleshooting",
+      "checked_on": "2026-10-27"
+    },
+    "data_origin": "source_grounded_summary",
+    "clarify_on_partial_context": true,
+    "incompatible_context": [
+      "roccat",
+      "razer",
+      "corsair"
+    ]
+  },
+  {
+    "id": "KB-K-SPACE-001",
+    "category": "keyboards",
+    "question": "键盘空格键没有反应",
+    "aliases": [
+      "空格键没有反应",
+      "空格没有反应",
+      "空格没反应",
+      "空格键没反应",
+      "空格键失灵",
+      "空格键不响应",
+      "空格键按不出来",
+      "spacebar not working"
+    ],
+    "answer": "Windows USB键盘：检查按键周围是否有异物遮挡；可换USB端口或绕过集线器直连电脑。不要强行拔键帽。",
+    "applicability": "Windows 10/11电脑的USB有线键盘或USB接收器；仅外部观察及连接对照，不包含轴体、卫星轴维修或拆机。",
+    "required_context": [
+      [
+        "windows",
+        "win10",
+        "win11"
+      ],
+      [
+        "usb",
+        "有线",
+        "接收器"
+      ]
+    ],
+    "source": {
+      "url": "https://support.microsoft.com/en-au/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows",
+      "reference_text": "Microsoft Support：按键遮挡及USB连接排查；不拆键帽为项目安全约束",
+      "handling": "basic_troubleshooting",
+      "checked_on": "2026-10-27"
+    },
+    "data_origin": "source_grounded_summary",
+    "clarify_on_partial_context": true,
+    "incompatible_context": [
+      "macos",
+      "mac os",
+      "linux",
+      "android",
+      "ios",
+      "bluetooth",
+      "蓝牙"
+    ]
+  },
+  {
+    "id": "KB-K-SPACE-002",
+    "category": "keyboards",
+    "question": "罗技键盘空格键或单键在某程序失效",
+    "aliases": [
+      "空格键没反应",
+      "空格键没有反应",
+      "空格键失灵",
+      "空格不响应",
+      "键盘单键失灵",
+      "space key not responding"
+    ],
+    "answer": "罗技键盘：在其他程序中测试该按键；若仅某个程序异常，先核对该程序设置，不能仅凭此断言硬件损坏。",
+    "applicability": "用户已确认Logitech/罗技键盘，可在其他程序中安全测试；不指导拔空格键帽、换轴或刷固件。",
+    "required_context": [
+      [
+        "logitech",
+        "罗技"
+      ]
+    ],
+    "source": {
+      "url": "https://support.logi.com/hc/en-au/articles/360023371053-Keyboard-Mice-Buttons-or-keys-do-not-work-correctly",
+      "reference_text": "Logitech Support：Buttons or keys do not work correctly；仅摘录跨程序对照建议",
+      "handling": "basic_troubleshooting",
+      "checked_on": "2026-10-27"
+    },
+    "data_origin": "source_grounded_summary",
+    "clarify_on_partial_context": true,
+    "incompatible_context": [
+      "roccat",
+      "razer",
+      "corsair"
+    ]
   }
 ]

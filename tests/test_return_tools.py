@@ -120,6 +120,214 @@ def ask(graph, text, thread="return", context=USER):
     )
 
 
+def test_multiline_information_does_not_count_and_preserves_core_reason(graph_builder):
+    fact = {
+        "field": "receipt_date",
+        "value": "2026-10-22",
+        "status": "explicit",
+        "quote": "2026-10-22签收",
+    }
+    graph, _ = graph_builder(
+        [
+            call(reason="质量问题"),
+            call(reason="质量问题以及日期", turn_kind="provide_information", reported_facts=[fact]),
+        ]
+    )
+    ask(graph, "质量问题我要退货")
+    result = ask(graph, "2026-10-22签收")
+    assert result["return_request_count"] == 1
+    assert result["return_reason"] == "质量问题"
+    assert result["return_reported_facts"]["receipt_date"]["verified"] is False
+    assert result["return_stage"] == "awaiting_confirmation"
+
+
+@pytest.mark.parametrize("status", ["ambiguous", "conflict"])
+def test_uncertain_user_fact_clarifies_not_handoff(graph_builder, status):
+    graph, _ = graph_builder(
+        [
+            call(
+                reported_facts=[
+                    {
+                        "field": "receipt_date",
+                        "value": "前几天",
+                        "status": status,
+                        "quote": "前几天收到",
+                    }
+                ]
+            )
+        ]
+    )
+    result = ask(graph, "前几天收到，想退货")
+    assert result["return_stage"] == "collecting"
+    assert not result.get("support_handoff")
+
+
+def test_explicit_fact_cannot_invent_receipt_from_purchase(graph_builder):
+    graph, _ = graph_builder(
+        [
+            call(
+                reported_facts=[
+                    {
+                        "field": "receipt_date",
+                        "value": "2026-10-22",
+                        "status": "explicit",
+                        "quote": "购买不到七天",
+                    }
+                ]
+            )
+        ]
+    )
+    result = ask(graph, "购买不到七天，我想退货")
+    assert result["return_result"]["code"] == "UNSUPPORTED_USER_FACT"
+    assert result["return_stage"] == "collecting"
+
+
+def test_multi_product_selection_binds_confirmation(graph_builder, order_rows):
+    order_rows[0]["items"].append(
+        {**order_rows[0]["items"][0], "product_id": "HP-P-0002", "name": "另一款耳机"}
+    )
+    graph, _ = graph_builder(
+        [
+            call(),
+            call(target_product_id="HP-P-0001", turn_kind="provide_information"),
+            call(target_product_id="HP-P-0002", turn_kind="confirm"),
+        ]
+    )
+    first = ask(graph, "我要退货")
+    assert first["return_result"]["missing_fields"] == ["目标商品"]
+    ask(graph, "退第一款HP-P-0001")
+    switched = ask(graph, f"确认退货 {ORDER}")
+    assert switched["return_stage"] == "awaiting_confirmation"
+    assert switched["return_target_product_id"] == "HP-P-0002"
+
+
+def test_policy_consultation_does_not_create_or_count_request(graph_builder):
+    graph, _ = graph_builder(
+        [
+            call(reason="退货期限如何计算", turn_kind="policy_question"),
+            call(reason="退货期限如何计算", turn_kind="confirm", is_return_request=False),
+        ]
+    )
+    result = ask(graph, "退货期限怎么计算")
+    assert result["return_request_count"] == 0
+    assert result["return_has_request"] is False
+    assert "未申请退货" in result["messages"][-1].text
+    result = ask(graph, f"确认退货 {ORDER}")
+    assert "尚未收到明确退货申请" in result["messages"][-1].text
+
+
+def test_future_iso_date_cannot_be_used_for_return(graph_builder):
+    graph, _ = graph_builder(
+        [
+            call(
+                reported_facts=[
+                    {
+                        "field": "receipt_date",
+                        "value": "2026-10-29",
+                        "status": "explicit",
+                        "quote": "2026-10-29签收",
+                    }
+                ]
+            )
+        ]
+    )
+    result = ask(graph, "2026-10-29签收，我要退货")
+    assert result["return_result"]["code"] == "DATE_CONFLICT"
+    assert result["return_stage"] == "collecting"
+
+
+@pytest.mark.parametrize("ending", ["", "。", ".", "！", "!", "。 "])
+def test_confirmation_allows_one_terminal_mark_and_rechecks_rule(graph_builder, ending):
+    rules = TestReturnRules()
+    original = rules.find
+    queries = []
+    rules.find = lambda query: (queries.append(query), original(query))[1]
+    graph, _ = graph_builder(
+        [call(), call(turn_kind="confirm", is_return_request=False)], knowledge=rules
+    )
+    first = ask(graph, "我要退货")
+    assert f"确认退货 {ORDER}。" not in first["messages"][-1].text
+    result = ask(graph, f"  确认退货 {ORDER}{ending}  ")
+    assert result["return_stage"] == "link_ready"
+    assert result["return_request_count"] == 1
+    assert len(queries) == 2
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        f"确认退货 {ORDER}。。",
+        f"确认退货 {ORDER}!!",
+        f"不要确认退货 {ORDER}",
+        f"‘确认退货 {ORDER}’是什么意思",
+        f"确认退货 {ORDER}，修改金额",
+        "好的",
+        "帮我退吧",
+        "确认退货 RETURN-HP-O-0002",
+    ],
+)
+def test_invalid_confirmation_does_not_query_rule_or_increment(graph_builder, text):
+    rules = TestReturnRules()
+    original = rules.find
+    queries = []
+    rules.find = lambda query: (queries.append(query), original(query))[1]
+    graph, _ = graph_builder(
+        [call(), call(turn_kind="confirm", is_return_request=False)], knowledge=rules
+    )
+    ask(graph, "我要退货")
+    result = ask(graph, text)
+    assert result["return_stage"] == "awaiting_confirmation"
+    assert result["return_request_count"] == 1
+    assert result["return_result"]["code"] == "RETURN_CONFIRMATION_INVALID"
+    assert len(queries) == 1
+    assert not result.get("support_handoff")
+
+
+def test_confirmation_with_changed_reason_needs_new_binding(graph_builder):
+    graph, _ = graph_builder(
+        [call(), call(reason="改为另一原因", turn_kind="confirm", is_return_request=False)]
+    )
+    ask(graph, "我要退货")
+    result = ask(graph, f"确认退货 {ORDER}")
+    assert result["return_stage"] == "awaiting_confirmation"
+    assert result["return_reason"] == "改为另一原因"
+
+
+def test_confirmation_without_pending_application_cannot_create(graph_builder):
+    graph, _ = graph_builder([call(turn_kind="confirm", is_return_request=False)])
+    result = ask(graph, f"确认退货 {ORDER}。")
+    assert result["return_has_request"] is False
+    assert result["return_stage"] == "guided"
+
+
+def test_conflicting_fact_values_require_confirmation(graph_builder):
+    facts = [
+        {
+            "field": "receipt_date",
+            "value": "2026-10-21",
+            "status": "explicit",
+            "quote": "2026-10-21签收",
+        },
+        {
+            "field": "receipt_date",
+            "value": "2026-10-22",
+            "status": "explicit",
+            "quote": "2026-10-22签收",
+        },
+    ]
+    graph, _ = graph_builder(
+        [
+            call(reported_facts=[facts[0]]),
+            call(turn_kind="provide_information", reported_facts=[facts[1]]),
+        ]
+    )
+    ask(graph, "2026-10-21签收，要退货")
+    result = ask(graph, "2026-10-22签收")
+    assert result["return_reported_facts"]["receipt_date"]["status"] == "conflict"
+    assert result["return_stage"] == "collecting"
+    assert result["return_request_count"] == 1
+
+
 @pytest.mark.parametrize(
     "arguments,missing",
     [
@@ -145,8 +353,8 @@ def test_multi_turn_information_completion_is_not_mistaken_for_insistence(graph_
     graph, model = graph_builder(
         [
             tool_call("handle_return", {}),
-            tool_call("handle_return", {"order_id": ORDER}),
-            tool_call("handle_return", {"reason": "不喜欢"}),
+            tool_call("handle_return", {"order_id": ORDER, "is_return_request": False}),
+            tool_call("handle_return", {"reason": "不喜欢", "is_return_request": False}),
         ]
     )
     ask(graph, "我要退货")
@@ -154,7 +362,7 @@ def test_multi_turn_information_completion_is_not_mistaken_for_insistence(graph_
     state = ask(graph, "原因是不喜欢")
     assert state["return_stage"] == "awaiting_confirmation"
     assert state["return_order_id"] == ORDER and state["return_reason"] == "不喜欢"
-    assert "support_handoff" not in state
+    assert not state.get("support_handoff")
     assert len(model._requests) == 3
 
 
@@ -191,13 +399,13 @@ def test_return_repetition_waits_until_fourth_request_or_explicit_human(graph_bu
         state = ask(graph, text)
         assert len(model._requests) == 1
     else:
-        for count in (2, 3):
+        for count in (2, 3, 4, 5):
             state = ask(graph, text)
             assert state["return_request_count"] == count
             assert state["return_stage"] == "awaiting_confirmation"
             assert not handoff.requests
         state = ask(graph, text)
-        assert state["return_request_count"] == 4
+        assert state["return_request_count"] == 6
     assert state["return_stage"] == "handoff"
     assert state["support_phase"] == "transferred"
     assert "工号001" in state["messages"][-1].text
@@ -211,13 +419,12 @@ def test_return_repetition_waits_until_fourth_request_or_explicit_human(graph_bu
 def test_changed_reason_does_not_reset_request_count(graph_builder):
     graph, _ = graph_builder([call(), call(reason="换一个理由")])
     ask(graph, "我要退货")
-    state = ask(graph, "请再处理一次")
-    assert state["return_stage"] == "awaiting_confirmation"
-    assert state["return_request_count"] == 2
-    ask(graph, "我仍要退货")
-    state = ask(graph, "我仍要退货")
-    assert state["return_stage"] == "handoff"
-    assert state["return_request_count"] == 4
+    for count in range(2, 7):
+        state = ask(graph, "还是这个退货问题，继续帮我处理")
+        assert state["return_request_count"] == count
+        assert state["return_stage"] == ("handoff" if count == 6 else "awaiting_confirmation")
+        if count in (4, 5):
+            assert "建议转人工" in state["messages"][-1].text
 
 
 def test_unusual_insistence_is_routed_by_model_flag(graph_builder):
@@ -227,15 +434,12 @@ def test_unusual_insistence_is_routed_by_model_flag(graph_builder):
     assert state["return_stage"] == "handoff"
 
 
-def test_missing_information_repeated_waits_for_four_requests(graph_builder):
-    graph, _ = graph_builder([call(order_id="", reason=""), call(order_id="", reason="")])
-    ask(graph, "我要退货")
-    state = ask(graph, "订单号我找不到了，你帮忙处理")
-    assert state["return_stage"] == "collecting"
-    assert state["return_request_count"] == 2
-    ask(graph, "我仍要求退货")
-    state = ask(graph, "我仍要求退货")
-    assert state["return_stage"] == "handoff"
+def test_missing_information_repeated_request_hands_off_at_six(graph_builder):
+    graph, _ = graph_builder([call(order_id="", reason="")])
+    for count in range(1, 7):
+        state = ask(graph, "我仍然要求退货，请继续帮我处理")
+        assert state["return_request_count"] == count
+        assert state["return_stage"] == ("handoff" if count == 6 else "collecting")
 
 
 def test_cancelled_request_does_not_trigger_handoff(graph_builder):
@@ -243,7 +447,7 @@ def test_cancelled_request_does_not_trigger_handoff(graph_builder):
     ask(graph, "我要退货")
     state = ask(graph, "不用退货了")
     assert state["return_stage"] is None
-    assert "support_handoff" not in state
+    assert not state.get("support_handoff")
     assert len(model._requests) == 1
 
 
@@ -402,7 +606,7 @@ def test_parallel_return_calls_are_rejected(graph_builder):
     )
 
 
-def test_link_is_not_created_twice_after_one_explanation(graph_builder):
+def test_link_is_not_created_twice_after_repeated_questions(graph_builder):
     class RecordingReturns(MockReturnGateway):
         def __init__(self):
             super().__init__("eligible")
@@ -413,17 +617,15 @@ def test_link_is_not_created_twice_after_one_explanation(graph_builder):
             return super().create_link(request, now)
 
     gateway = RecordingReturns()
-    graph, model = graph_builder([call(), call()], gateway=gateway)
+    graph, model = graph_builder([call()], gateway=gateway)
     ask(graph, "我要退货")
     ask(graph, f"确认退货 {ORDER}")
-    state = ask(graph, "我仍然要求售后")
-    assert state["return_stage"] == "link_ready"
-    assert state["return_request_count"] == 2
-    ask(graph, "我仍然要求售后")
-    state = ask(graph, "我仍然要求售后")
-    assert state["return_stage"] == "handoff"
+    for count in range(2, 7):
+        state = ask(graph, "我仍然要求售后")
+        assert state["return_request_count"] == count
+        assert state["return_stage"] == ("handoff" if count == 6 else "link_ready")
     assert len(gateway.links) == 1
-    assert len(model._requests) == 5
+    assert len(model._requests) == 7
 
 
 def test_return_state_isolated_and_reset_uses_official_checkpoint(graph_builder):
@@ -431,7 +633,7 @@ def test_return_state_isolated_and_reset_uses_official_checkpoint(graph_builder)
     ask(graph, "我要退货", thread="first")
     other = ask(graph, "我要退货", thread="second")
     assert other["return_stage"] == "awaiting_confirmation"
-    assert "support_handoff" not in other
+    assert not other.get("support_handoff")
     graph.checkpointer.delete_thread("first")
     reset = ask(graph, "我要退货", thread="first")
     assert reset["return_stage"] == "awaiting_confirmation"
@@ -444,7 +646,17 @@ def test_model_return_schema_has_no_injected_or_eligibility_arguments(graph_buil
     # 检查实际官方工具节点注册的schema，而不是另造工具或解析层。
     tools = graph.get_graph().nodes["tools"].data.tools_by_name
     schema = tools["handle_return"].tool_call_schema.model_json_schema()
-    assert set(schema["properties"]) == {"order_id", "reason", "request_human", "is_return_request"}
+    assert set(schema["properties"]) == {
+        "order_id",
+        "reason",
+        "request_human",
+        "is_return_request",
+        "new_issue",
+        "target_product_id",
+        "turn_kind",
+        "reported_facts",
+        "category",
+    }
 
 
 @pytest.mark.parametrize(
@@ -569,16 +781,17 @@ def test_switching_orders_keeps_separate_counts_and_restores_previous_count(grap
     for value, expected in zip(orders, [1, 1, 2, 2, 3, 4], strict=True):
         state = ask(graph, f"我要退货，订单{value}")
         assert state["return_request_count"] == expected
-        assert state["return_stage"] == ("handoff" if expected == 4 else "awaiting_confirmation")
-    assert len(gateway.requests) == 1
+        assert state["return_stage"] == "awaiting_confirmation"
+    assert not gateway.requests
 
 
-def test_cancelling_does_not_erase_same_order_request_history(graph_builder):
+def test_cancelling_clears_session_question_history(graph_builder):
     graph, _ = graph_builder([call()])
     ask(graph, "我要退货")
-    ask(graph, "取消退货")
+    ended = ask(graph, "取消退货")
+    assert ended["return_request_count"] == 0
     state = ask(graph, f"我又要退货，订单{ORDER}")
-    assert state["return_request_count"] == 2
+    assert state["return_request_count"] == 1
     assert state["return_stage"] == "awaiting_confirmation"
 
 
@@ -603,8 +816,7 @@ def test_model_cannot_use_return_handoff_tool_to_skip_counter(graph_builder):
         if isinstance(message, ToolMessage) and message.status == "error"
     ]
     assert any(
-        message.artifact.get("error", {}).get("code") == "RETURN_HANDOFF_NOT_READY"
-        for message in errors
+        message.artifact.get("error", {}).get("code") == "HANDOFF_NOT_READY" for message in errors
     )
     assert len(model._requests) == 3
 

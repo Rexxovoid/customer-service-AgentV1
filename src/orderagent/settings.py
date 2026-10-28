@@ -28,6 +28,9 @@ class Settings(BaseModel):
     ragflow_api_url: str = ""
     ragflow_api_key: SecretStr = SecretStr("")
     ragflow_timeout_seconds: float = Field(default=60, gt=0, le=120)
+    ragflow_selection_max_tokens: int = Field(default=4096, ge=1024, le=16384)
+    ragflow_selection_reasoning_effort: Literal["low", "high", "max"] = "low"
+    ragflow_evidence_debug: bool = False
     ragflow_dataset_name: str = "售后规则知识库"
     ragflow_assistant_name: str = "售后助手"
     mock_handoff_scenario: Literal["success", "error"] = "success"
@@ -40,6 +43,9 @@ class Settings(BaseModel):
     timeout_seconds: float = Field(default=30, gt=0, le=120)
     max_model_calls: int = Field(default=6, ge=1, le=20)
     max_tool_calls: int = Field(default=8, ge=1, le=30)
+    qiwen_api_key: SecretStr = SecretStr("")
+    qiwen_base_url: str = "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    qianwen: str = "qwen3.8-flash"
 
     @field_validator("base_url")
     @classmethod
@@ -103,6 +109,11 @@ class Settings(BaseModel):
                 ragflow_api_url=value("RAGFLOW_API_URL"),
                 ragflow_api_key=SecretStr(value("RAGFLOW_API_KEY")),
                 ragflow_timeout_seconds=value("RAGFLOW_TIMEOUT_SECONDS", "60"),
+                ragflow_selection_max_tokens=value("RAGFLOW_SELECTION_MAX_TOKENS", "4096"),
+                ragflow_selection_reasoning_effort=value(
+                    "RAGFLOW_SELECTION_REASONING_EFFORT", "low"
+                ),
+                ragflow_evidence_debug=value("RAGFLOW_EVIDENCE_DEBUG", "false"),
                 ragflow_dataset_name=value("RAGFLOW_DATASET_NAME", "售后规则知识库"),
                 ragflow_assistant_name=value("RAGFLOW_ASSISTANT_NAME", "售后助手"),
                 mock_handoff_scenario=value("MOCK_HANDOFF_SCENARIO", "success"),
@@ -110,10 +121,15 @@ class Settings(BaseModel):
                 return_self_service_entry=value(
                     "RETURN_SELF_SERVICE_ENTRY", cls().return_self_service_entry
                 ),
+                qiwen_api_key=SecretStr(value("QIWEN_API_KEY")),
+                qiwen_base_url=value(
+                    "QIWEN_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1"
+                ),
+                qianwen=value("QIANWEN", "qwen3.8-flash"),
             )
         except ValueError:
             raise ConfigurationError(
-                "配置格式不合法，请检查API地址、数据路径和模拟交接场景。"
+                "配置格式不合法，请检查API地址、数据路径、输出预算和模拟交接场景。"
             ) from None
 
     def require_api_key(self) -> None:

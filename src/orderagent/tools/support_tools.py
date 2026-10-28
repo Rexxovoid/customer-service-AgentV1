@@ -6,75 +6,101 @@ from langchain_core.tools import BaseTool
 from langgraph.types import Command
 
 from orderagent.integrations.handoff import HandoffGateway, HandoffRequest, HandoffResponse
-from orderagent.repositories.support_repository import JsonSupportRepository
+from orderagent.integrations.ragflow import RAG_ERROR_MESSAGES
 from orderagent.schemas.order_schema import ToolContext, ToolResult
-from orderagent.schemas.return_schema import RETURN_HANDOFF_THRESHOLD
 from orderagent.schemas.support_schema import HandoffQuery, SupportQuery
+from orderagent.tools.session_policy import (
+    AUTO_HANDOFF_FROM,
+    HANDOFF_SUGGESTION,
+    SUGGEST_HANDOFF_FROM,
+    advance_question,
+    reset_consultation,
+)
 
 
-def transfer_support(
-    state: dict, context: ToolContext | None, thread_id: str, reason: str, gateway: HandoffGateway
-) -> dict:
-    """复用会话交接结果或请求客服接口，返回状态增量供官方检查点保存。"""
-    if state.get("support_handoff"):
-        return {}  # 成功与失败结果都复用，不在同一会话中静默重试。
-    user_id = context.user_id if isinstance(context, ToolContext) else ""
-    scope = state.get("return_order_id", "")
-    request_id = "HANDOFF-" + uuid5(NAMESPACE_URL, f"{thread_id}:{user_id}:{scope}").hex[:16]
-    if not isinstance(context, ToolContext) or not thread_id:
-        response = HandoffResponse(request_id=request_id, status="error", simulated=True)
-        message = "【模拟客服】转人工错误：缺少可信用户身份或会话标识。"
-    else:
-        request = HandoffRequest(
-            request_id=request_id,
-            user_id=context.user_id,
-            issue=state.get("support_issue", reason),
-            reason=reason,
-            attempted_solution=state.get("support_advice", {}),
+def transfer_support(state, context, thread_id, reason, gateway, *, topic="quality") -> dict:
+    """按主题和问题复用交接结果，不写订单状态，不静默重试失败交接。"""
+    prefix = "return" if topic == "return" else "support"
+    scope = state.get(f"{prefix}_problem_key") or state.get(f"{prefix}_order_id", "")
+    key = f"{topic}:{scope}"
+    history = dict(state.get("support_handoff_history", {}))
+    result = history.get(key)
+    if result is None:
+        user_id = context.user_id if isinstance(context, ToolContext) else ""
+        epoch = state.get("consultation_id", "initial")
+        request_id = (
+            "HANDOFF-" + uuid5(NAMESPACE_URL, f"{thread_id}:{user_id}:{epoch}:{key}").hex[:16]
         )
-        try:
-            response = HandoffResponse.model_validate(gateway.transfer(request))
-            if response.request_id != request_id:
-                raise ValueError("Unexpected handoff request identity")
-        except Exception:
-            # 平台异常统一转为失败，不暴露凭据、请求内容或异常细节。
-            response = HandoffResponse(request_id=request_id, status="error", simulated=False)
-        prefix = "【模拟客服】" if response.simulated else ""
-        if response.status == "connected" and response.agent_id:
-            message = f"{prefix}对接人工客服成功，由工号{response.agent_id}为你服务。"
-        else:
+        response = HandoffResponse(request_id=request_id, status="error", simulated=True)
+        if isinstance(context, ToolContext) and thread_id:
+            try:
+                response = HandoffResponse.model_validate(
+                    gateway.transfer(
+                        HandoffRequest(
+                            request_id=request_id,
+                            user_id=user_id,
+                            issue=state.get("support_issue") or reason,
+                            reason=reason,
+                            attempted_solution=state.get("support_advice", {})
+                            if topic == "quality"
+                            else {},
+                        )
+                    )
+                )
+                if response.request_id != request_id:
+                    raise ValueError("交接身份不匹配")
+            except Exception:
+                response = HandoffResponse(request_id=request_id, status="error", simulated=False)
+        connected = response.status == "connected" and bool(response.agent_id)
+        if not connected:
             response = response.model_copy(update={"status": "error", "agent_id": None})
-            message = f"{prefix}转人工错误，请稍后重试或联系平台客服。"
-    result = response.model_dump(mode="json")
-    result.update({"message": message, "reason": reason})
+        label = "【模拟客服】" if response.simulated else ""
+        message = (
+            f"{label}对接人工客服成功，由工号{response.agent_id}为你服务。"
+            if connected
+            else f"{label}转人工错误，请稍后重试或联系平台客服。"
+        )
+        result = {**response.model_dump(mode="json"), "message": message, "reason": reason}
+        result["code"] = (
+            state.get("return_error_code" if topic == "return" else "support_error_code") or None
+        )
+        if not isinstance(context, ToolContext) or not thread_id:
+            result["message"] = "【模拟客服】转人工错误：缺少可信用户身份或会话标识。"
+        history[key] = result
     return {
-        "support_phase": "transferred" if response.status == "connected" else "transfer_failed",
+        "support_phase": "transferred" if result["status"] == "connected" else "transfer_failed",
         "support_handoff": result,
+        "support_handoff_topic": topic,
+        "support_handoff_history": history,
     }
 
 
-def support_reply(state: dict) -> str:
-    """优先展示交接结果，否则展示一次知识方案、适用条件和来源。"""
+def support_reply(state) -> str:
+    """展示当前主题的确定性回复，不混用其他问题的旧结果。"""
     if state.get("support_handoff"):
         return state["support_handoff"]["message"]
+    if state.get("support_result"):
+        return state["support_result"]["message"]
     advice = state["support_advice"]
     source = advice["source"]
-    reference = source.get("url") or source.get("reference_text", "项目模拟案例")
     return (
-        f"可先进行这一次基础排查：{advice['answer']}\n"
-        f"适用条件：{advice['applicability']}\n"
-        f"知识依据：{advice['id']}，{reference}\n"
-        "如果仍未解决，请直接告诉我，我将转人工，不再继续提供其他排查方案。"
+        f"可进行以下有依据的排查：{advice['answer']}\n适用条件：{advice['applicability']}\n"
+        f"知识依据：{advice['id']}，{source.get('url') or source.get('reference_text', '')}"
     )
 
 
 def create_support_tools(
-    repository: JsonSupportRepository, gateway: HandoffGateway, *, order_repository=None
+    repository, gateway: HandoffGateway, *, order_repository=None
 ) -> list[BaseTool]:
-    """绑定统一知识仓储与客服接口，创建质量查询和人工交接两个官方工具。"""
+    """通过官方工具和Command实现咨询、交接与结束，不持久化质量登记。"""
 
-    def command(runtime: ToolRuntime, update: dict, result: ToolResult) -> Command:
-        """把状态增量与对应ToolMessage交给官方Command统一更新。"""
+    def command(runtime, update, result):
+        """提交官方状态增量和对应的工具消息。"""
+        name = next(
+            c["name"]
+            for c in runtime.state["messages"][-1].tool_calls
+            if c["id"] == runtime.tool_call_id
+        )
         return Command(
             update={
                 **update,
@@ -83,60 +109,41 @@ def create_support_tools(
                         content=result.model_dump_json(),
                         artifact=result.model_dump(mode="json"),
                         tool_call_id=runtime.tool_call_id,
-                        name=next(
-                            call["name"]
-                            for call in runtime.state["messages"][-1].tool_calls
-                            if call["id"] == runtime.tool_call_id
-                        ),
+                        name=name,
                         status="success" if result.ok else "error",
                     )
                 ],
             }
         )
 
-    def handoff(
-        runtime: ToolRuntime,
-        reason: str,
-        issue: str = "",
-        order_id: str = "",
-        *,
-        return_topic: bool = False,
-    ) -> Command:
-        """补齐故障上下文并执行交接，将接口结果转换为工具状态更新。"""
-        state = dict(runtime.state)
-        if order_id:
-            state["support_order_id"] = order_id
-        if return_topic and state.get("return_stage"):
-            state["support_issue"] = (
-                f"退货订单={state.get('return_order_id') or '未提供'}；"
-                f"原因={state.get('return_reason') or '未提供'}"
-            )
-        if issue and not state.get("support_issue"):
-            state["support_issue"] = issue
+    def handoff(runtime, state, reason, *, topic="quality"):
+        """业务已确定交接条件后请求客服，保留原因供测评核查。"""
         update = transfer_support(
             state,
             runtime.context,
             runtime.config.get("configurable", {}).get("thread_id", ""),
             reason,
             gateway,
+            topic=topic,
         )
-        if issue:
-            update["support_issue"] = state["support_issue"]
-        if state.get("support_order_id"):
-            update["support_order_id"] = state["support_order_id"]
-        if return_topic and state.get("return_stage"):
-            update["support_issue"] = state["support_issue"]
+        if topic == "return":
             update["return_stage"] = "handoff"
-        combined = {**state, **update}
-        result = ToolResult(
-            ok=combined["support_phase"] == "transferred",
-            data={
-                "action": "handoff",
-                "topic": "return" if return_topic else "quality",
-                **combined["support_handoff"],
-            },
+        return command(
+            runtime,
+            {**state, **update},
+            ToolResult(
+                ok=update["support_phase"] == "transferred",
+                data={
+                    "action": "handoff",
+                    "topic": topic,
+                    "code": state.get(
+                        "return_error_code" if topic == "return" else "support_error_code"
+                    )
+                    or None,
+                    **update["support_handoff"],
+                },
+            ),
         )
-        return command(runtime, update, result)
 
     @tool("query_quality_support")
     def query_quality_support(
@@ -145,31 +152,42 @@ def create_support_tools(
         runtime: ToolRuntime[ToolContext],
         environment: str = "",
         order_id: str = "",
+        is_question: bool = True,
+        new_issue: bool = False,
     ) -> Command:
-        """用户首次描述耳机、鼠标或键盘的实际使用故障时，查询有依据的一次基础方案。
+        """查询耳机、鼠标、键盘故障规则，允许多次有依据排查，不登记订单售后。
 
-        适用示例：耳机左耳没有声音、无线鼠标没反应、USB键盘无响应。
-        category必须为headphones（耳机）、mice（鼠标）或keyboards（键盘）；
-        品类不明确时先询问。issue填写具体症状，不要只填商品名或泛称质量问题。
-        environment只填用户已明确提供的系统、品牌或型号，例如Windows 11、AirPods iPhone；
-        未提供时留空，禁止猜测环境以套用特定方案。无需先提供订单号。
-        order_id只填用户已提供的本人订单号，提供后核验归属并绑定售后状态；无订单只作咨询。
-        品类须与订单商品一致；订单快照不作为质量问题证据，不由物流状态推断故障是否真实。
-        返回匹配知识的答案、适用条件、来源和会话阶段；无适用知识自动调用人工接口。
-        同一会话最多给一次自动方案，再次查询不会给新方案，而是转人工。
-        已给方案后用户反馈未解决、已经自行排查无效或明确要求人工，
-        应直接调用handoff_to_human，不能继续尝试本工具或凭常识补充排查步骤。
-        查询商品性能参数请用query_products，查订单物流请用query_order。
-        本工具必须单独调用，不与其他工具并行；最终方案和交接回复由程序输出。
+        category只能headphones/mice/keyboards；issue写具体症状；environment只填用户明确提供
+        的型号、系统、连接方式，禁止猜测。订单号可选，提供时必须是用户已说过的本人订单。
+        同一故障未解决时继续用本工具，不能仅因已给方案就人工；不能用商品工具找维修方案。
+        首次问题及同问题继续求解is_question=true；只补信息或查询进度为false。
+        明确换成新的独立故障才令new_issue=true，不清楚先询问，禁止为规避次数伪造新问题。
+        程序计数：第4、5次建议人工，第6次自动人工；补信息不增加次数。
+        相关规则缺必要信息时只问缺项；无适用规则、冲突或异常立即人工，不凭常识编方案。
+        明确要人工用handoff_to_human(request_human=true)；明确退货用handle_return。
+        已解决或结束咨询用end_support_session。本工具单独调用；已无效的方案不重复推荐。
         """
         query = SupportQuery(
-            category=category, issue=issue, environment=environment, order_id=order_id
+            category=category,
+            issue=issue,
+            environment=environment,
+            order_id=order_id,
+            is_question=is_question,
+            new_issue=new_issue,
         )
-        binding = order_id or runtime.state.get("support_order_id", "")
+        state = dict(runtime.state)
+        # 保留最近原始表述供规则选择核对，不另起问题分析模型。
+        query = query.model_copy(
+            update={
+                "original_statements": [
+                    m.text for m in state["messages"] if isinstance(m, HumanMessage)
+                ][-2:]
+            }
+        )
+        binding = order_id or ("" if new_issue else state.get("support_order_id", ""))
         if binding and order_repository is not None:
             supplied = any(
-                isinstance(message, HumanMessage) and binding in message.text
-                for message in runtime.state["messages"]
+                isinstance(m, HumanMessage) and binding in m.text for m in state["messages"]
             )
             owned = (
                 order_repository.find_owned(binding, runtime.context.user_id)
@@ -180,55 +198,93 @@ def create_support_tools(
                 return command(
                     runtime,
                     {},
-                    ToolResult.failure(
-                        "ORDER_NOT_FOUND",
-                        "订单不存在、不属于当前用户或并非用户提供，请核对订单号。",
-                    ),
+                    ToolResult.failure("ORDER_NOT_FOUND", "订单不存在或不属于当前用户。"),
                 )
             prefix = {"headphones": "HP-P-", "mice": "MS-P-", "keyboards": "KB-P-"}[category]
             if not any(item.product_id.startswith(prefix) for item in owned.items):
                 return command(
                     runtime,
                     {},
-                    ToolResult.failure(
-                        "ORDER_PRODUCT_MISMATCH", "订单中的商品与所述品类不符，请确认订单或商品。"
-                    ),
+                    ToolResult.failure("ORDER_PRODUCT_MISMATCH", "订单与商品品类不符。"),
                 )
-            if getattr(order_repository, "after_sales", None) is not None:
-                store = order_repository.after_sales
-                started = store.start_issue(
-                    runtime.context.user_id,
-                    binding,
-                    f"{runtime.config.get('configurable', {}).get('thread_id')}:"
-                    f"{runtime.tool_call_id}:reported",
-                )
-                if not started:
-                    return handoff(
-                        runtime,
-                        "该订单已有售后处理记录，交人工核实，避免重复排查",
-                        issue=query.issue,
-                        order_id=binding,
-                    )
-        if runtime.state.get("support_phase"):
-            return handoff(runtime, "当前问题已解释或给出一次方案，停止自动排查", order_id=binding)
+        state.update(
+            advance_question(
+                state,
+                "quality",
+                f"{category}:{binding or '__unbound__'}",
+                new_issue=new_issue,
+                countable=is_question,
+            )
+        )
+        state.update(
+            support_order_id=binding,
+            support_issue=issue,
+            support_handoff={},
+            support_result={},
+        )
+        key = state["support_problem_key"]
+        if key != runtime.state.get("support_problem_key"):
+            state["support_advice"] = {}
+        if state.get("support_handoff_history", {}).get(f"quality:{key}"):
+            return handoff(runtime, state, "当前问题已转人工，复用交接结果")
+        if state["support_question_count"] >= AUTO_HANDOFF_FROM:
+            return handoff(runtime, state, "同一质量问题第6次有效求解仍未解决，自动转人工")
+        history = {k: list(v) for k, v in state.get("support_advice_history", {}).items()}
+        attempts = history.get(key, [])
+        query = query.model_copy(update={"attempted_solutions": attempts})
+        state["support_error_code"] = ""
         try:
             knowledge = repository.find(query)
-        except Exception:
-            return handoff(
-                runtime, "知识库服务异常，无法核实适用规则", issue=query.issue, order_id=binding
+        except Exception as exc:
+            code = (
+                str(exc)
+                if isinstance(exc, ValueError) and str(exc) in RAG_ERROR_MESSAGES
+                else "KNOWLEDGE_SERVICE_ERROR"
             )
-        if knowledge is None or knowledge.source.get("handling", "basic_troubleshooting") != (
-            "basic_troubleshooting"
-        ):
-            return handoff(runtime, "未查询到适用的故障知识", issue=query.issue, order_id=binding)
+            state["support_error_code"] = code
+            reason = RAG_ERROR_MESSAGES.get(code, "知识服务异常，无法核实适用规则")
+            return handoff(runtime, state, f"{code}：{reason}")
+        if knowledge is None:
+            state["support_error_code"] = "KNOWLEDGE_NO_RULE"
+            return handoff(runtime, state, "未查询到适用的故障知识")
+        handling = knowledge.source.get("handling", "basic_troubleshooting")
+        if handling not in {"basic_troubleshooting", "clarify"}:
+            return handoff(runtime, state, "规则冲突或知识不支持自动排查")
         advice = knowledge.model_dump(mode="json")
-        update = {
-            "support_phase": "advised",
-            "support_issue": query.issue,
-            "support_advice": advice,
-            "support_order_id": binding,
+        if handling == "clarify":
+            if not knowledge.missing_information:
+                return handoff(runtime, state, "相关规则缺少可核实的澄清条件")
+            message = "已找到相关规则，还需补充：" + "、".join(knowledge.missing_information) + "。"
+            phase = "awaiting_information"
+        elif knowledge.answer in attempts:
+            message = (
+                "当前规则仍是已提供过的方案，不重复推荐。"
+                "请补充已尝试步骤、型号或连接环境，以便继续核查；也可选择人工。"
+            )
+            phase = "awaiting_information"
+        else:
+            reference = knowledge.source.get("reference_text") or knowledge.source.get("url", "")
+            message = (
+                f"可进行以下有依据的排查：{knowledge.answer}\n适用条件：{knowledge.applicability}\n"
+                f"知识依据：{knowledge.id}，{reference}"
+            )
+            history[key] = [*attempts, knowledge.answer]
+            phase = "advised"
+        if SUGGEST_HANDOFF_FROM <= state["support_question_count"] < AUTO_HANDOFF_FROM:
+            message += HANDOFF_SUGGESTION
+        result = {
+            "action": "advice" if phase == "advised" else "clarification",
+            "message": message,
+            "request_count": state["support_question_count"],
+            **advice,
         }
-        return command(runtime, update, ToolResult(ok=True, data={"action": "advice", **advice}))
+        state.update(
+            support_advice=advice,
+            support_advice_history=history,
+            support_phase=phase,
+            support_result=result,
+        )
+        return command(runtime, state, ToolResult(ok=True, data=result))
 
     @tool("handoff_to_human")
     def handoff_to_human(
@@ -237,57 +293,64 @@ def create_support_tools(
         topic: str = "auto",
         request_human: bool = False,
     ) -> Command:
-        """用户要求人工、反馈一次方案后仍未解决，或缺少适用知识时立即请求人工交接。
+        """用户明确要求人工时立即交接，或复用当前问题已触发的交接。
 
-        适用示例：用户说没有解决、试过仍无效、故障依旧、请找人工客服。
-        reason填写简短交接原因，可概括故障和已尝试方案，但不编造未发生的处理记录。
-        topic为quality（质量问题）、return（退货）或auto（按当前退货阶段判断）。
-        用户明确要求人工才将request_human设为true；仅坚持退货或要求代办不能设true。
-        退货问题未累计4次且未明确要求人工时，本工具拒绝提前交接，应调用handle_return继续处理。
-        质量已给一次方案后再次追问同一故障时使用topic=quality，无需等待退货次数。
-        用户身份、会话标识和已有方案由程序提供；不要传user_id、工号、成功状态或runtime。
-        一旦需要交接就停止自动排查，不再调用质量查询或商品工具寻找另一套维修方案。
-        返回接口状态、请求ID及客服工号（成功时）；成功和失败均以接口结果为准，
-        失败不能说成功。当前默认接口为模拟客服，不表示已连接真人。
-        同一会话重复交接会复用已记录的成功或失败结果，不自动重试。
-        必须单独调用，不与其他工具并行，不发起退款或批准退换货。
+        reason概括真实交接原因；topic为quality/return/auto，auto优先当前活动主题。
+        明确要求人工或同意先前建议才request_human=true；未解决、坚持退货不等于同意。
+        第6次阈值与无规则交接由质量/退货工具核实，不能仅填原因绕过业务工具。
+        交接仅复用相同主题/问题；接口失败不说成功，不自动业务重试；单独调用、不执行退款。
         """
-        arguments = HandoffQuery(reason=reason, topic=topic, request_human=request_human)
-        latest_user = next(
-            (
-                message.text.strip().rstrip("。！？.!?")
-                for message in reversed(runtime.state["messages"])
-                if isinstance(message, HumanMessage)
-            ),
-            "",
+        args = HandoffQuery(reason=reason, topic=topic, request_human=request_human)
+        state = dict(runtime.state)
+        selected = (
+            args.topic
+            if args.topic != "auto"
+            else state.get("active_support_topic")
+            or ("return" if state.get("return_stage") else "quality")
         )
-        simple_return_request = latest_user in {
-            "我要退货",
-            "我想退货",
-            "申请退货",
-            "我还是要退货",
-            "我坚持退货",
-            "退货",
-            "退货退款",
-        }
-        is_return = arguments.topic == "return" or (
-            arguments.topic == "auto"
-            and (bool(runtime.state.get("return_stage")) or simple_return_request)
+        count = state.get(
+            "return_request_count" if selected == "return" else "support_question_count", 0
         )
+        prefix = "return" if selected == "return" else "support"
+        scope = state.get(f"{prefix}_problem_key") or state.get(f"{prefix}_order_id", "")
+        key = f"{selected}:{scope}"
         if (
-            is_return
-            and not arguments.request_human
-            and runtime.state.get("return_request_count", 0) < RETURN_HANDOFF_THRESHOLD
-            and runtime.state.get("return_stage") != "handoff"
+            not args.request_human
+            and count < AUTO_HANDOFF_FROM
+            and not state.get("support_handoff_history", {}).get(key)
         ):
             return command(
                 runtime,
                 {},
                 ToolResult.failure(
-                    "RETURN_HANDOFF_NOT_READY",
-                    "退货未达4次且未明确请求人工，请调用handle_return；不要将坚持退货当作请求人工。",
+                    "HANDOFF_NOT_READY",
+                    "尚未满足人工条件，请调用质量/退货工具核实规则；未解决不等于请求人工。",
                 ),
             )
-        return handoff(runtime, arguments.reason, return_topic=is_return)
+        if selected == "return":
+            state["support_issue"] = (
+                f"退货订单={state.get('return_order_id', '')}；"
+                f"原因={state.get('return_reason', '')}"
+            )
+        return handoff(runtime, state, args.reason, topic=selected)
 
-    return [query_quality_support, handoff_to_human]
+    @tool("end_support_session")
+    def end_support_session(runtime: ToolRuntime[ToolContext]) -> Command:
+        """仅在用户明确表示已解决、结束咨询或不再需要帮助时结束当前咨询。
+
+        引用、假设、否定的结束话术不能触发；单纯沉默、断网不能调用。
+        清空问题计数、咨询上下文和待确认引导，绝不删除退货台账、不标记退款完成、不撤销平台申请。
+        """
+        return command(
+            runtime,
+            reset_consultation(),
+            ToolResult(
+                ok=True,
+                data={
+                    "action": "session_ended",
+                    "message": "本次咨询已结束，提问次数已清零；已有退货记录保持不变。",
+                },
+            ),
+        )
+
+    return [query_quality_support, handoff_to_human, end_support_session]

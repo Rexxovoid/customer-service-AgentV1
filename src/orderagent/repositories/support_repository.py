@@ -32,8 +32,11 @@ class JsonSupportRepository:
         """优先匹配上下文条件更具体的知识，无适用记录时返回None以触发交接。"""
         issue = normalize_issue(query.issue)
         environment = query.environment.casefold()
+        related = None
         for row in sorted(self._records, key=lambda row: len(row.required_context), reverse=True):
             if row.category != query.category:
+                continue
+            if any(term.casefold() in environment for term in row.incompatible_context):
                 continue
             if not any(
                 normalize_issue(alias) in issue for alias in [row.question, *row.aliases] if alias
@@ -48,8 +51,29 @@ class JsonSupportRepository:
                 # 旧摘要没有显式条件组，按适用范围保守判断，不能视为通用方案。
                 applicable = self._legacy_applicable(row.applicability, environment)
             if applicable:
-                return row.model_copy(deep=True)
-        return None
+                if row.answer not in query.attempted_solutions:
+                    return row.model_copy(deep=True)
+                related = related or row.model_copy(deep=True)
+            elif (not environment or row.clarify_on_partial_context) and row.source.get(
+                "handling", "basic_troubleshooting"
+            ) in {
+                "basic_troubleshooting",
+                "return_eligible",
+            }:
+                # 已命中症状但环境未知，不假装适用，也不把已知不匹配当成缺项。
+                related = related or row.model_copy(
+                    deep=True,
+                    update={
+                        "source": {**row.source, "handling": "clarify"},
+                        "missing_information": [
+                            "需核对的条件：" + " / ".join(group)
+                            for group in row.required_context
+                            if not any(term.casefold() in environment for term in group)
+                        ]
+                        or ["设备型号、系统或连接环境；相关规则条件：" + row.applicability],
+                    },
+                )
+        return related
 
     @staticmethod
     def _legacy_applicable(applicability: str, environment: str) -> bool:

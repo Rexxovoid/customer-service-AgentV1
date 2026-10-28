@@ -69,10 +69,13 @@ class AfterSalesRepository:
                 "link_ready": "已提供退货测试入口" if record.simulated else "已提供退货入口",
                 "processing": "退货处理中",
                 "uncertain": "退货操作待核查",
+                "failed": "退货入口生成失败",
                 "returned": "已退货",
                 "refunded": "已退款",
             }[record.status]
-        return row[0] if row else "未售后"
+        if row and row[0] not in {"问题已反馈", "已提供一次排查", "已转人工（模拟）", "转人工失败"}:
+            return row[0]
+        return "未售后"
 
     def record(self, user_id: str, order_id: str, status: str, event_id: str) -> None:
         """以工具调用/消息ID去重，原子写入事件和当前状态；仅由已核验归属的调用方使用。"""
@@ -95,27 +98,9 @@ class AfterSalesRepository:
                     "'退货处理中','退款处理中','退货申请处理中') OR lower(excluded.status) IN "
                     "('returned','refunded','已退货','已退款','退货完成','退款完成',"
                     "'returning','return_processing','refund_processing','退货中','退款中',"
-                    "'退货处理中','退款处理中','退货申请处理中')) AND "
-                    "(excluded.status NOT IN ('问题已反馈', '已提供一次排查') "
-                    "OR after_sales.status IN ('问题已反馈', '已提供一次排查'))",
+                    "'退货处理中','退款处理中','退货申请处理中'))",
                     (user_id, order_id, status, timestamp),
                 )
-
-    def start_issue(self, user_id: str, order_id: str, event_id: str) -> bool:
-        """原子占用首次排查，避免不同线程同时为同一订单给出多次方案。"""
-        timestamp = datetime.now(timezone.utc).isoformat()
-        event_id = json.dumps([user_id, order_id, event_id])
-        with self._connect() as connection:
-            inserted = connection.execute(
-                "INSERT OR IGNORE INTO after_sales VALUES (?, ?, ?, ?)",
-                (user_id, order_id, "问题已反馈", timestamp),
-            ).rowcount
-            if inserted:
-                connection.execute(
-                    "INSERT INTO after_sales_events VALUES (?, ?, ?, ?, ?)",
-                    (event_id, user_id, order_id, "问题已反馈", timestamp),
-                )
-        return bool(inserted)
 
     def get_return_operation(self, user_id: str, order_id: str) -> ReturnOperation | None:
         """仅按用户和订单读取操作台账，缺少记录保持未知，不从普通咨询推断已退货。"""
