@@ -1,4 +1,6 @@
-from langchain.agents.middleware import AgentMiddleware, hook_config
+from uuid import uuid4
+
+from langchain.agents.middleware import AgentMiddleware, ModelResponse, hook_config
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 from langgraph.config import get_config
 from pydantic import BaseModel, ConfigDict, ValidationError
@@ -184,7 +186,65 @@ class BusinessToolPolicyMiddleware(AgentMiddleware):
         return None
 
     def wrap_model_call(self, request, handler):
-        """仅向模型提供白名单工具，执行仍交官方模型节点。"""
+        """严格待确认指令用官方ModelResponse短路；其余调用白名单模型，工具仍经原节点。"""
+        state = request.state
+        last = state["messages"][-1]
+        if isinstance(last, HumanMessage):
+            # 仅确定性确认省去主模型；执行仍经官方tools节点和现有业务工具。
+            confirmation = last.text.strip()
+            if confirmation.endswith(("。", ".", "！", "!")):
+                confirmation = confirmation[:-1]
+            order_id = state.get("return_order_id", "")
+            product_id = state.get("return_target_product_id", "")
+            reason = state.get("return_reason", "")
+            facts = state.get("return_reported_facts", {})
+            valid_facts = isinstance(facts, dict) and all(
+                isinstance(fact, dict)
+                and isinstance(fact.get("value"), str)
+                and fact.get("status") in {"explicit", "missing", "ambiguous", "conflict"}
+                for fact in facts.values()
+            )
+            binding = {
+                "order_id": order_id,
+                "product_id": product_id,
+                "reason": reason,
+                "facts": {
+                    key: {"value": fact["value"], "status": fact["status"]}
+                    for key, fact in (facts.items() if valid_facts else [])
+                },
+            }
+            if (
+                state.get("return_stage") == "awaiting_confirmation"
+                and state.get("return_has_request")
+                and order_id
+                and product_id
+                and reason
+                and valid_facts
+                and state.get("return_confirmation_payload") == binding
+                and confirmation == f"确认退货 {order_id}"
+            ):
+                return ModelResponse(
+                    result=[
+                        AIMessage(
+                            content="",
+                            name="deterministic_return_confirmation",
+                            tool_calls=[
+                                {
+                                    "name": "handle_return",
+                                    "args": {
+                                        "order_id": order_id,
+                                        "reason": reason,
+                                        "target_product_id": product_id,
+                                        "turn_kind": "confirm",
+                                        "is_return_request": False,
+                                    },
+                                    "id": f"confirm-{uuid4().hex}",
+                                    "type": "tool_call",
+                                }
+                            ],
+                        )
+                    ]
+                )
         tools = [t for t in request.tools if getattr(t, "name", None) in self.argument_schemas]
         return handler(request.override(tools=tools))
 

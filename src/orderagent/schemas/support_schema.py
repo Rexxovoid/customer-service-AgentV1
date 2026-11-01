@@ -14,6 +14,9 @@ class ReportedFact(BaseModel):
     value: str = Field(max_length=300)
     status: Literal["explicit", "missing", "ambiguous", "conflict"]
     quote: str = Field(default="", max_length=500)
+    normalized_description: str = Field(
+        default="", max_length=300, description="仅症状检索用同义描述，不是新增事实或资格条件"
+    )
 
 
 class SupportQuery(BaseModel):
@@ -31,6 +34,7 @@ class SupportQuery(BaseModel):
     task: Literal["quality", "return", "return_policy"] = "quality"
     reported_facts: list[dict] = Field(default_factory=list)
     original_statements: list[str] = Field(default_factory=list)
+    search_description: str = Field(default="", max_length=500)
 
 
 class HandoffQuery(BaseModel):

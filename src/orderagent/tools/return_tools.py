@@ -156,33 +156,21 @@ def create_return_tool(
         reported_facts: list[ReportedFact] | None = None,
         category: Literal["headphones", "mice", "keyboards"] | None = None,
     ) -> Command:
-        """用户提出退货、退货退款或申请入口诉求时调用，不要先强制进行质量排查。
+        """处理明确退货、退货信息补充及规则咨询；无需先查订单或强制质量排查。
 
-        order_id为用户明确提供或本会话已确认的订单号；reason保留用户退货原因，不要求必须是质量问题。
-        缺少订单号或原因时允许留空，工具会列出缺失项并提供自助退货入口；不得编造订单号或原因。
-        可按轮次补齐信息，换订单时重新提供原因。无需先调用query_order，本工具自行校验归属。
-        处理方案只依据用户描述和适用RAG规则，不查询或编造模拟质量资格证据。
-        订单只用于身份、商品定位和幂等检查；一般咨询记录不代表已经退货。
-        已退货/已退款拒绝重复办理，处理中或结果待核查不重复调用，有有效入口则复用。
-        不接受用户或模型传入已退货状态、任意URL、user_id或runtime。
-        同一问题第4—5次建议人工，第6次自动人工；明确要求人工时request_human=true。
-        例外：RAG无适用方案、规则冲突或异常立即人工；有相关规则但缺信息先询问缺项。
-        坚持退货、要求代办、质量排查给过方案都不能单独作为提前转人工的理由。
-        is_return_request仅在本轮明确申请或重申退货时为true；只补订单号/原因、确认入口、
-        查询进度、引用或否定退货时设false，不增加次数。请求次数由程序保存，不能传入计数。
-        同一订单改理由、换单后再切回都保留次数；一次用户消息重复调用本工具只计一次。
-        明确新的独立退货问题才new_issue=true，不确定先问；新问题也不能绕过订单幂等。
-        当前平台为模拟，测试链接不能提交真实申请；返回链接不表示批准退货、退款或实际申请成功。
-        适用规则支持后先展示订单与原因，用户单独回复“确认退货 订单号”才生成入口。
-        确认允许首尾空白及末尾单个。 . ！ !；其余正文必须一致。不要把标点混入订单号。
-        待确认且仅格式不合格时turn_kind=confirm，保留订单/商品/原因，不重写条件；程序直接纠正，不查询RAG也不计次。
-        故障描述、引用退货字样、否定退货、规则咨询和夹杂的指令都不等于确认。
-        本工具单独调用，不与其他工具并行。明确要求人工可使用handoff_to_human。
-        turn_kind区分request明确申请/重申、provide_information补充信息、confirm确认、progress查进度、policy_question仅咨询条件。
-        非request不增加未解决次数；policy_question不创建申请、不生成入口。
-        reported_facts填写字段、value、explicit/missing/ambiguous/conflict状态和用户逐字quote；日期分purchase_date/receipt_date/notice_date，不能相互代替。
-        reason只保留核心退货原因，不拼入型号与日期。目标商品用订单中target_product_id；多商品订单必须先选商品。
-        category仅在无订单的退货规则咨询时使用，不能推测品类。事实原文必须来自用户消息，程序保留来源但不视为已核验。
+        order_id仅用用户已提供/确认的订单；reason仅核心原因，缺失可留空，由工具补问。
+        target_product_id选择订单内目标商品，多商品先确认；不把多个型号、日期拼入reason。
+        turn_kind：request明确申请/重申，provide_information补信息，confirm确认，progress查进度，policy_question问规则。
+        仅request令is_return_request=true；其余false，不计次数。仅明确新独立问题才new_issue=true，不确定先问。
+        reported_facts含field/value/status/逐字quote，status为explicit/missing/ambiguous/conflict；value来自用户原文。
+        同单同问题仅重申退货时不必重传事实；历史症状须引用含该症状的真实历史原文，不能用退货意图充当症状证据。
+        purchase_date/receipt_date/notice_date不可替代；仅symptom可填normalized_description用于检索，不补造资格。
+        category仅用于无订单的规则咨询；咨询不创建申请。request_human仅明确人工请求为true。
+        工具校验可信身份、归属、确认绑定及幂等；无规则/冲突/异常人工，缺必要信息先补问。
+        规则支持后须确认“确认退货 订单号”，允许首尾空白及单个句末。 . ！ !。
+        引用、否定或混杂指令不执行。
+        格式错误仍填confirm且不重写原消息/原因；有效确认有待确认记录时可能由框架直接路由本工具。
+        不传user_id、runtime、状态、URL或计数；不与其他工具并行。当前只生成模拟入口，不批准退货或执行退款。
         """
         args = ReturnQuery(
             order_id=order_id,
@@ -226,12 +214,35 @@ def create_return_tool(
             if source is None:
                 invalid_fact = True
                 continue
-            if fact.status == "explicit" and (not fact.value or fact.value not in fact.quote):
+            previous_fact = facts.get(fact.field)
+            if (
+                fact.field == "symptom"
+                and fact.status == "explicit"
+                and previous_fact
+                and previous_fact.get("status") == "explicit"
+                and fact.value == previous_fact.get("value")
+                and fact.value not in fact.quote
+                and current_reason == state.get("return_reason")
+                and previous_fact.get("quote")
+                and fact.value in previous_fact["quote"]
+                and any(previous_fact["quote"] in m.text for m in user_messages)
+            ):
+                # 同一申请重申时沿用已有可核对症状，不将退货意图改写成新症状。
+                # 换单/新问题已清空facts；新的资格事实不适用此分支。
+                continue
+            raw_value = fact.value
+            search_description = fact.normalized_description if fact.field == "symptom" else ""
+            if fact.field == "symptom" and fact.value and fact.value not in fact.quote:
+                # 兼容旧症状参数：原文仍用quote，概括只作为检索提示，不用于条件绑定。
+                raw_value = fact.quote
+                search_description = search_description or fact.value
+            if fact.status == "explicit" and (not raw_value or raw_value not in fact.quote):
                 invalid_fact = True
                 continue
-            previous_fact = facts.get(fact.field)
             facts[fact.field] = {
                 **fact.model_dump(),
+                "value": raw_value,
+                "normalized_description": search_description,
                 "source": "user_statement",
                 "message_id": source.id,
                 "verified": False,
@@ -240,7 +251,7 @@ def create_return_tool(
                 previous_fact
                 and previous_fact["status"] == "explicit"
                 and fact.status == "explicit"
-                and previous_fact["value"] != fact.value
+                and previous_fact["value"] != raw_value
             ):
                 facts[fact.field]["status"] = "conflict"
                 facts[fact.field]["previous_value"] = previous_fact["value"]
@@ -540,11 +551,14 @@ def create_return_tool(
                 ok=False,
                 code="RETURN_IN_PROGRESS" if action == "pending" else "RETURN_LINK_EXPIRED",
             )
+        business_facts = {
+            key: {"value": fact["value"], "status": fact["status"]} for key, fact in facts.items()
+        }
         binding_unchanged = state.get("return_confirmation_payload") == {
             "order_id": current_order,
             "product_id": target,
             "reason": current_reason,
-            "facts": facts,
+            "facts": business_facts,
         }
         if (
             prior_stage == "awaiting_confirmation"
@@ -593,7 +607,19 @@ def create_return_tool(
                         issue=f"退货规则与适用条件：用户报告：{current_reason[:470]}",
                         environment=selected_items[0].name[:200],
                         task="return",
-                        reported_facts=list(facts.values()),
+                        reported_facts=[
+                            {
+                                key: value
+                                for key, value in fact.items()
+                                if key != "normalized_description"
+                            }
+                            for fact in facts.values()
+                        ],
+                        search_description="；".join(
+                            fact.get("normalized_description", "")
+                            for fact in facts.values()
+                            if fact["field"] == "symptom"
+                        )[:500],
                         original_statements=list(
                             dict.fromkeys(
                                 [fact["quote"] for fact in facts.values()] + statements[-2:]
@@ -624,7 +650,7 @@ def create_return_tool(
                 "order_id": current_order,
                 "product_id": target,
                 "reason": current_reason,
-                "facts": facts,
+                "facts": business_facts,
             }
             return finish(
                 f"请确认是否为订单 {current_order} 的商品 {target} 申请退货，"

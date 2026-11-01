@@ -471,6 +471,80 @@ def test_inconsistent_return_decision_is_rejected():
         repo.find(SupportQuery(category="headphones", issue="退货"))
 
 
+@pytest.mark.parametrize("source_break", ["\r\n", "\r", "\n"])
+def test_evidence_matching_normalizes_line_endings_only(source_break):
+    client = FakeRagClient()
+    client.retrieve = lambda **kwargs: [
+        SimpleNamespace(
+            id="chunk", document_name="test", content=f"条件A{source_break}{source_break}步骤B"
+        )
+    ]
+    repo = repository(
+        client=client,
+        selector=Selector(
+            {
+                "applicable": True,
+                "chunk_id": "chunk",
+                "excerpt": "条件A\n\n步骤B",
+                "handling": "basic_troubleshooting",
+            }
+        ),
+    )
+    collector = Collector()
+    answer = RunnableLambda(repo.find).invoke(
+        SupportQuery(category="headphones", issue="左耳无声"), config={"callbacks": [collector]}
+    )
+    assert answer.answer == "条件A\n\n步骤B"
+    diagnostic = next(
+        e["data"] for e in collector.events if e["data"]["stage"] == "evidence_checked"
+    )
+    assert diagnostic["normalized_excerpt_match"] is True
+
+
+def test_search_description_is_not_presented_as_user_fact_to_selector():
+    import json
+
+    repo = repository()
+    original = repo.client.retrieve
+    requests = []
+    repo.client.retrieve = lambda **kwargs: (requests.append(kwargs), original(**kwargs))[1]
+    selected = repo.selector.selection
+
+    def invoke(messages):
+        data = json.loads(messages[1][1])
+        assert "search_description" not in data["query"]
+        return selected
+
+    repo.selector = SimpleNamespace(invoke=invoke)
+    repo.find(
+        SupportQuery(category="headphones", issue="左耳无声", search_description="耳机单侧声音异常")
+    )
+    assert "耳机单侧声音异常" in requests[0]["question"]
+
+
+@pytest.mark.parametrize(
+    "excerpt", ["条件A\n步骤B", "条件A。\n\n步骤B", "条件 A\n\n步骤B", "条件A\n\n不同步骤"]
+)
+def test_evidence_still_rejects_punctuation_space_paragraph_or_content_changes(excerpt):
+    client = FakeRagClient()
+    client.retrieve = lambda **kwargs: [
+        SimpleNamespace(id="chunk", document_name="test", content="条件A\r\n\r\n步骤B")
+    ]
+    repo = repository(
+        client=client,
+        selector=Selector(
+            {
+                "applicable": True,
+                "chunk_id": "chunk",
+                "excerpt": excerpt,
+                "handling": "basic_troubleshooting",
+            }
+        ),
+    )
+    with pytest.raises(ValueError, match="RAG_EVIDENCE_INVALID"):
+        repo.find(SupportQuery(category="headphones", issue="左耳无声"))
+
+
 @pytest.mark.parametrize("value", [0, 1023, 16385])
 def test_selection_budget_is_bounded(value):
     with pytest.raises(ValidationError):

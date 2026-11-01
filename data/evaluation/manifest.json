@@ -1,24 +1,24 @@
 {
   "schema_version": "1.0",
-  "dataset_version": "0.5-draft",
-  "cases": 22,
+  "dataset_version": "0.6-draft",
+  "cases": 20,
   "review_status": "mixed",
   "note": "Independent evaluation data, excluded from RAG ingestion and root business manifest. Update hashes after human edits.",
   "files": [
     {
       "path": "cases.jsonl",
-      "bytes": 18674,
-      "sha256": "12244113d0ac1ac2e6826ac55e78fa51ba3833fa726864eaa578ed8a70857c79"
+      "bytes": 16011,
+      "sha256": "3b1725832d187511fd7756fa401f9480f7e6401292a042e93695c8402e6adea3"
     },
     {
       "path": "README.md",
-      "bytes": 3119,
-      "sha256": "1d67d62a3aa00535571b1936a818e3998f225445cfe3f17816bdbf77720d92f6"
+      "bytes": 3120,
+      "sha256": "8059ac1feb0970893f12434c0d851e7b468ec68fd58e215b97c0f709172899e1"
     },
     {
       "path": "optimization_cases.jsonl",
-      "bytes": 4720,
-      "sha256": "2f5415adec2b18eb1a8071a74bde0fce01d71da8f5ecde32ec9882494d67e45e"
+      "bytes": 4728,
+      "sha256": "0e4a36265c7ba83de064d0f02244adfbaa5ce6ce9ed464be724dd95ac2703116"
     },
     {
       "path": "confirmation_cases.jsonl",
@@ -26,14 +26,28 @@
       "sha256": "82d6323d578abe1b7ceaa62319a25f75c109701060cb98b20f5ed178f202a224"
     }
   ],
-  "updated_on": "2026-10-28",
+  "updated_on": "2026-10-30",
   "approved_case_ids": [
     "E01",
     "E02",
-    "E03"
+    "E03",
+    "E04",
+    "E07",
+    "E08",
+    "E09",
+    "E10",
+    "E11",
+    "E12",
+    "E14",
+    "E15",
+    "E16",
+    "E17",
+    "E18",
+    "E19",
+    "E20"
   ],
-  "pending_cases": 19,
+  "pending_cases": 3,
   "supplemental_cases": 10,
-  "total_cases": 32,
-  "supplemental_pending_cases": 10
+  "total_cases": 30,
+  "supplemental_pending_cases": 2
 }

@@ -173,7 +173,7 @@ class RagflowKnowledge:
                 dataset_ids=[datasets[0].id],
                 question=(
                     f"{dict(headphones='耳机', mice='鼠标', keyboards='键盘')[query.category]} "
-                    f"{query.issue} {query.environment}"
+                    f"{query.issue} {query.environment} {query.search_description}"
                 ),
                 page_size=5,
                 top_k=64,
@@ -216,7 +216,13 @@ class RagflowKnowledge:
             ("system", load_prompt("rag_selection_prompt")),
             (
                 "human",
-                json.dumps({"query": query.model_dump(), "evidence": evidence}, ensure_ascii=False),
+                json.dumps(
+                    {
+                        "query": query.model_dump(exclude={"search_description"}),
+                        "evidence": evidence,
+                    },
+                    ensure_ascii=False,
+                ),
             ),
         ]
         capture = {
@@ -225,6 +231,7 @@ class RagflowKnowledge:
             "phase": "before_call",
             "messages": messages,
             "candidates": evidence,
+            "retrieval_search_description": query.search_description,
             "effective_max_tokens": getattr(self, "selection_budget", None),
             "reasoning_effort": getattr(self, "selection_effort", None),
             "thinking": "enabled",
@@ -384,11 +391,35 @@ class RagflowKnowledge:
             self._diagnostic({"stage": "no_applicable_rule"})
             raise ValueError("RAG_NO_APPLICABLE_RULE")
         failure_reasons = []
+        normalized_excerpt = selection.excerpt.replace("\r\n", "\n").replace("\r", "\n")
+        normalized_source = (
+            chosen["content"].replace("\r\n", "\n").replace("\r", "\n") if chosen else ""
+        )
+        raw_match = bool(
+            chosen and selection.excerpt.strip() and selection.excerpt in chosen["content"]
+        )
+        normalized_match = bool(
+            chosen and selection.excerpt.strip() and normalized_excerpt in normalized_source
+        )
+        capture.update(
+            raw_excerpt_match=raw_match,
+            normalized_excerpt_match=normalized_match,
+            evidence_normalization="CRLF/CR_to_LF_only",
+        )
+        self._diagnostic(
+            {
+                "stage": "evidence_checked",
+                "raw_excerpt_match": raw_match,
+                "normalized_excerpt_match": normalized_match,
+                "normalization": "CRLF/CR_to_LF_only",
+                "_local_capture": capture,
+            }
+        )
         if chosen is None:
             failure_reasons.append("UNKNOWN_CHUNK")
         if not selection.excerpt.strip():
             failure_reasons.append("EMPTY_EXCERPT")
-        elif chosen is not None and selection.excerpt not in chosen["content"]:
+        elif chosen is not None and not normalized_match:
             failure_reasons.append("EXCERPT_NOT_IN_SOURCE")
         if len(selection.excerpt) > 2500:
             failure_reasons.append("EXCERPT_TOO_LONG")
@@ -432,7 +463,7 @@ class RagflowKnowledge:
                     "excerpt_valid": bool(
                         chosen
                         and selection.excerpt.strip()
-                        and selection.excerpt in chosen["content"]
+                        and normalized_match
                         and len(selection.excerpt) <= 2500
                     ),
                 }

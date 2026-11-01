@@ -8,6 +8,7 @@ from uuid import uuid4
 from langchain_core.callbacks.manager import dispatch_custom_event
 from langchain_core.tracers.run_collector import RunCollectorCallbackHandler
 from langsmith import tracing_context
+from pydantic import ValidationError
 
 from orderagent.agents.agent_factory import create_order_agent
 from orderagent.evaluation.evaluators import check_turn, grade_quality
@@ -198,6 +199,7 @@ def fingerprint(dataset, settings):
             "temperature": model.temperature,
         },
         "judge_parameters": {
+            "stream": True,
             "max_tokens": 2000,
             "temperature": 0,
             "timeout_seconds": 30,
@@ -396,20 +398,96 @@ def run_case(case, settings, root, *, judge=False):
     ]
     record = sanitize(record, secrets)
     if judge and record["turns"]:
+        # 只发送逐轮回答及工具执行证据；完整消息和业务状态仍保存在原记录。
+        judge_input = {
+            "reference": case.reference,
+            "knowledge_source": record.get("knowledge_source"),
+            "turns": [],
+        }
+        for turn_record in record["turns"]:
+            tool_results = []
+            for message in turn_record["messages"]:
+                if message.get("type") != "tool":
+                    continue
+                # artifact通常与content重复；优先保留结构化artifact，否则保留正文。
+                tool_results.append(
+                    {
+                        "name": message.get("name"),
+                        "result": message.get("artifact")
+                        if message.get("artifact") is not None
+                        else message.get("content"),
+                    }
+                )
+            judge_input["turns"].append(
+                {
+                    "turn": turn_record["turn"],
+                    "user": turn_record["user"],
+                    "answer": turn_record["answer"],
+                    "tool_results": tool_results,
+                    "expect": turn_record["expect"],
+                    "forbid": turn_record["forbid"],
+                }
+            )
+        # 实际裁判输入单独存档，便于核对删减范围，不覆盖完整执行记录。
+        record["judge_input"] = judge_input
+        record["judge_diagnostics"] = {
+            "stream": True,
+            "input_version": "compact-v1",
+            "input_characters": len(json.dumps(judge_input, ensure_ascii=False)),
+            "timeout_seconds": 30,
+            "max_retries": 1,
+            "error_type": None,
+            "error_detail": None,
+            "cause_type": None,
+            "cause_detail": None,
+            "status_code": None,
+            "model": None,
+            "response_id": None,
+            "request_id": None,
+            "finish_reason": None,
+            "usage": None,
+            "attempt_count": None,
+        }
         judge_start = time.perf_counter()
         try:
             record["quality"] = grade_quality(
                 settings,
-                {
-                    "reference": case.reference,
-                    "turns": record["turns"],
-                },
+                judge_input,
+                diagnostics=record["judge_diagnostics"],
             )
             record["judge_status"] = "completed"
         except Exception as exc:
             record["judge_status"] = "error"
             record["judge_error_type"] = type(exc).__name__
+            cause = exc.__cause__ or exc.__context__
+            # 不写请求头、异常body或模型正文；仅保留脱敏、限长的错误摘要。
+            detail = (
+                json.dumps(
+                    [
+                        {"type": error["type"], "loc": error["loc"]}
+                        for error in exc.errors(include_input=False, include_context=False)
+                    ]
+                )
+                if isinstance(exc, ValidationError)
+                else str(exc)
+            )
+            cause_detail = str(cause) if cause is not None else None
+            for secret in secrets:
+                if secret:
+                    detail = detail.replace(secret, "[REDACTED]")
+                    if cause_detail is not None:
+                        cause_detail = cause_detail.replace(secret, "[REDACTED]")
+            record["judge_diagnostics"].update(
+                error_type=type(exc).__name__,
+                error_detail=detail[:1000],
+                cause_type=type(cause).__name__ if cause is not None else None,
+                cause_detail=cause_detail[:1000] if cause_detail is not None else None,
+                status_code=getattr(exc, "status_code", None),
+                request_id=getattr(exc, "request_id", None)
+                or record["judge_diagnostics"]["request_id"],
+            )
         record["judge_seconds"] = time.perf_counter() - judge_start
+        record["judge_diagnostics"]["total_seconds"] = record["judge_seconds"]
     record = sanitize(record, secrets)
     (work / "result.json").write_text(
         json.dumps(record, ensure_ascii=False, indent=2), encoding="utf-8"
