@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light">
+  <title>OrderAgent · 数码服务助手</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/static/chat.css">
+  <script src="/static/chat.js" defer></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="/" aria-label="OrderAgent首页"><span class="brand-icon">o<span>•</span></span><span>OrderAgent<small>数码服务助手</small></span></a>
+    <button id="new-chat" class="new-chat" type="button"><span>＋</span> 新建对话 <span class="shortcut">↗</span></button>
+    <div class="nav-label">服务中心</div>
+    <div class="nav-item active"><span>◌</span> 智能咨询 <span class="live-dot"></span></div>
+    <div class="nav-label secondary-label">在这里，你可以</div>
+    <div class="capability"><span>01</span><div>查询订单<small>查看商品与物流状态</small></div></div>
+    <div class="capability"><span>02</span><div>了解商品<small>耳机、鼠标与键盘参数</small></div></div>
+    <div class="capability"><span>03</span><div>排查问题<small>根据知识提供处理建议</small></div></div>
+    <div class="sidebar-bottom">
+      <div class="demo-card"><span class="demo-label">本地演示</span><p>人工交接与退货入口为模拟，<br>不执行真实平台退款。</p></div>
+      <div class="profile"><span class="avatar">U</span><div><strong>演示用户</strong><small id="user-id">正在连接…</small></div><span class="profile-dot"></span></div>
+    </div>
+  </aside>
+  <main>
+    <header class="topbar"><div><span class="breadcrumb">服务中心</span><span class="slash">/</span><strong>智能咨询</strong></div><span class="environment"><i></i> 本地演示环境</span></header>
+    <div class="conversation-area" id="scroll-area">
+      <section id="welcome" class="welcome">
+        <div class="eyebrow"><span></span> YOUR DIGITAL SUPPORT</div>
+        <div class="hero-mark" aria-hidden="true"><span>✳</span></div>
+        <h1>数码小问题，<br><span>我们一起解决。</span></h1>
+        <p class="intro">从了解商品到订单查询，再到使用中的小困扰。<br>告诉我你的问题，我会帮你找到下一步。</p>
+        <div class="topic-chips"><span>耳机</span><span>鼠标</span><span>键盘</span></div>
+        <div class="suggestion-grid">
+          <button class="suggestion" type="button" data-prompt="我想查询订单，请告诉我需要提供什么信息。"><span class="card-icon">▤</span><strong>我的订单到哪了？</strong><small>查询订单与发货状态</small><span class="card-arrow">↗</span></button>
+          <button class="suggestion" type="button" data-prompt="请介绍罗技 M185 鼠标的已有参数。"><span class="card-icon">⌘</span><strong>了解一款数码产品</strong><small>查看已有参数与功能信息</small><span class="card-arrow">↗</span></button>
+          <button class="suggestion" type="button" data-prompt="我的耳机左耳没有声音，应该怎么排查？"><span class="card-icon">♧</span><strong>使用中遇到了问题</strong><small>获取有依据的故障排查建议</small><span class="card-arrow">↗</span></button>
+        </div>
+      </section>
+      <section id="messages" class="messages" aria-label="聊天记录" aria-live="polite" aria-relevant="additions"></section>
+    </div>
+    <div class="composer-wrap">
+      <div id="notice" class="notice" role="status" hidden></div>
+      <form id="chat-form" class="composer">
+        <label class="sr-only" for="message-input">向数码服务助手提问</label>
+        <textarea id="message-input" rows="1" maxlength="4000" placeholder="描述你的问题，或提供订单号开始查询…" disabled></textarea>
+        <div class="composer-footer"><span id="input-hint"><span class="tiny-spark">✳</span> 支持连续对话，补充信息无需重新开始</span><button id="send-button" type="submit" disabled aria-label="发送消息"><span>↑</span></button></div>
+      </form>
+      <p class="footnote">回答基于现有商品资料与知识库，请核对重要信息。<span>Enter 发送 · Shift + Enter 换行</span></p>
+    </div>
+  </main>
+</body>
+</html>

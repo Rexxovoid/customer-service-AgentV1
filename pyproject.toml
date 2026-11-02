@@ -16,11 +16,14 @@ dependencies = [
     "ragflow-sdk==0.25.4",
     "langsmith==0.14.11",
     "openai==3.35.1",
+    "fastapi==0.162.0",
+    "uvicorn==0.54.0",
 ]
 
 [project.scripts]
 orderagent = "orderagent.cli:main"
 orderagent-eval = "orderagent.evaluation.cli:main"
+orderagent-web = "orderagent.web:main"
 
 [dependency-groups]
 dev = ["pytest>=8,<10", "ruff>=0.9,<1"]

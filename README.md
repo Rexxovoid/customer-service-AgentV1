@@ -1,8 +1,8 @@
 # OrderAgent · 数码电商售后助手
 
-基于 LangChain 官方 **Deep Agents / LangGraph**，使用 DeepSeek、RAGFlow 和 uv，面向耳机、鼠标、键盘的命令行售后项目。
+基于 LangChain 官方 **Deep Agents / LangGraph**，使用 DeepSeek、RAGFlow 和 uv，面向耳机、鼠标、键盘，支持本地网页聊天和命令行对话。
 
-当前支持订单查询、商品参数查询、质量排查、退货规则咨询、模拟申请入口和模拟人工交接。**尚未接入真实购物平台、真实退款或真人坐席；网页与生产认证属于后续规划。**
+当前支持订单查询、商品参数查询、质量排查、退货规则咨询、模拟申请入口和模拟人工交接。**尚未接入真实购物平台、真实退款、真人坐席或生产登录认证。**
 
 ## 快速开始
 
@@ -19,6 +19,18 @@ uv run orderagent --user-id DEMO-U-004
 ```
 
 `--user-id`是本地演示身份，不是真实登录认证。请使用与订单归属一致的用户；订单号来自[data/orders.json](data/orders.json)。
+
+### 浏览器聊天
+
+```powershell
+uv run orderagent-web --user-id DEMO-U-004
+```
+
+打开 **http://127.0.0.1:8000**，输入问题后点击发送，或按Enter发送、Shift+Enter换行。端口被占用可加`--port 8001`。停止服务在终端按Ctrl+C。
+
+页面支持连续问答、快捷问题、等待与错误提示及新建对话；刷新可读取当前进程中的聊天历史。新建对话清空当前聊天和咨询计数，保留售后台账。服务重启后聊天历史不保留。演示身份由启动命令固定，页面不能切换用户；不同浏览器会话独立，同一浏览器的多个标签页共享会话。
+
+首期完整回答返回后展示，不是主Agent逐字流式输出。人工与退货继续使用模拟接口；无需安装Node或单独启动前端。默认仅本机访问，无生产认证与公网部署。Web接口及限制见[WEB规则](docs/rules.md#本地网页聊天)。
 
 ```powershell
 uv run orderagent --user-id DEMO-U-004 --message "订单 DEMO-HP-O-0004 的发货状态是什么？"
@@ -81,6 +93,8 @@ src/orderagent/
   repositories/    JSON资料与SQLite台账
   prompts/         YAML提示词及加载
   evaluation/      独立测评入口、检查与报告
+  web.py           本地Web入口与浏览器会话接入
+  static/          原生聊天页面、样式与交互
 data/              业务JSON、RAG导入材料、独立测评集
 evals/             测评指南，results/与debug/为本地产物
 docs/              当前规范、规划、维护说明和日期日志
@@ -88,7 +102,7 @@ docs/              当前规范、规划、维护说明和日期日志
 runtime/           日常持久数据，不与测评数据库混用
 ```
 
-执行链路：CLI → 官方Deep Agent → 工具 → 仓储/知识库/模拟接口。会话检查点在进程内，退货幂等信息在SQLite；没有另建执行框架。入口见[agent_factory.py](src/orderagent/agents/agent_factory.py)。
+执行链路：CLI或本地网页 → 官方Deep Agent → 工具 → 仓储/知识库/模拟接口。会话检查点在进程内，退货幂等信息在SQLite；没有另建执行框架。入口见[agent_factory.py](src/orderagent/agents/agent_factory.py)。
 
 ## 测试与测评
 
