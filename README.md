@@ -32,6 +32,14 @@ uv run orderagent-web --user-id DEMO-U-004
 
 首期完整回答返回后展示，不是主Agent逐字流式输出。人工与退货继续使用模拟接口；无需安装Node或单独启动前端。默认仅本机访问，无生产认证与公网部署。Web接口及限制见[WEB规则](docs/rules.md#本地网页聊天)。
 
+网页错误会显示“问题编号”。在`runtime/logs/requests.jsonl`查HTTP状态、耗时与异常分类，在`runtime/logs/agent.jsonl`用相同`request_id`查模型/工具阶段、工具结果码及RAG诊断。两类文件均自动轮转，默认不保存聊天和证据正文。HTTP 200不等于回答正确；网络断开且未收到响应时，页面可能拿不到编号。
+
+质量咨询只展示整理后的步骤和必要提醒，不向用户附加知识库原文、文档名和分块ID。来源标识可在Agent日志中定位；需完整原文比对时使用现有`RAGFLOW_EVIDENCE_DEBUG`受控调试（默认关闭）。
+
+```powershell
+rg --no-ignore --fixed-strings "页面显示的问题编号" runtime/logs
+```
+
 ```powershell
 uv run orderagent --user-id DEMO-U-004 --message "订单 DEMO-HP-O-0004 的发货状态是什么？"
 uv run orderagent --user-id DEMO-U-004 --message "介绍罗技 M185 鼠标的已有参数"

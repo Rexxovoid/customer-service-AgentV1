@@ -241,6 +241,7 @@ def repository(client=None, selector=None):
                 "chunk_id": "chunk",
                 "excerpt": "如果支持声道平衡，请恢复居中。",
                 "handling": "basic_troubleshooting",
+                "customer_reply": "如果支持声道平衡，请恢复居中。",
             }
         )
     )
@@ -352,6 +353,7 @@ def test_native_raw_response_metrics_are_recorded_without_private_reasoning():
         "chunk_id": "chunk",
         "excerpt": "如果支持声道平衡，请恢复居中。",
         "handling": "basic_troubleshooting",
+        "customer_reply": "如果支持声道平衡，请恢复居中。",
     }
     repo = repository()
     repo.selector = SimpleNamespace(
@@ -398,6 +400,7 @@ def test_native_parser_body_and_error_are_saved_locally(tmp_path, monkeypatch, f
         "chunk_id": "chunk",
         "excerpt": "如果支持声道平衡，请恢复居中。",
         "handling": "basic_troubleshooting",
+        "customer_reply": "如果支持声道平衡，请恢复居中。",
     }
     if failure == "field_type":
         payload["missing_information"] = 123
@@ -487,6 +490,7 @@ def test_evidence_matching_normalizes_line_endings_only(source_break):
                 "chunk_id": "chunk",
                 "excerpt": "条件A\n\n步骤B",
                 "handling": "basic_troubleshooting",
+                "customer_reply": "满足条件A时执行步骤B。",
             }
         ),
     )

@@ -54,6 +54,9 @@ class SupportKnowledge(BaseModel):
     category: Literal["headphones", "mice", "keyboards"]
     question: str = Field(min_length=1)
     answer: str = Field(min_length=1)
+    customer_reply: str = Field(
+        default="", max_length=1800, description="用户可见的方案；证据原文另存answer"
+    )
     applicability: str = Field(min_length=1)
     source: dict[str, str]
     data_origin: str

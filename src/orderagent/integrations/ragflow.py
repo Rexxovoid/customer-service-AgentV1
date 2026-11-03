@@ -37,6 +37,7 @@ RAG_ERROR_MESSAGES = {
     "RAG_SELECTION_AUTH_ERROR": "规则选择模型鉴权或权限校验失败",
     "RAG_SELECTION_ERROR": "候选已检索，规则选择模型或输出结构异常",
     "RAG_EVIDENCE_INVALID": "规则摘录、来源或澄清信息未通过校验",
+    "RAG_REPLY_INVALID": "已取得知识，但未能形成可可靠展示的用户方案",
 }
 
 
@@ -83,6 +84,11 @@ class RuleSelection(BaseModel):
         description="按用户描述匹配的处理方式；return_eligible只表示支持模拟入口，不是已核验资格"
     )
     missing_information: list[str] = Field(default_factory=list)
+    customer_reply: str = Field(
+        default="",
+        max_length=1800,
+        description="仅quality且basic_troubleshooting时填写：基于excerpt整理的用户步骤及必要条件/安全提醒；禁止来源和内部流程文字",
+    )
     decision: (
         Literal["applicable", "missing_information", "not_applicable", "conflict", "unreliable"]
         | None
@@ -469,11 +475,44 @@ class RagflowKnowledge:
                 }
             )
             raise ValueError("RAG_EVIDENCE_INVALID")
+        if query.task == "quality" and selection.handling == "basic_troubleshooting":
+            reply = selection.customer_reply.strip()
+            if not reply or any(
+                marker in reply
+                for marker in (
+                    selection.chunk_id,
+                    chosen["document"],
+                    "知识依据",
+                    "reference_text",
+                    "chunk_id",
+                )
+                if marker
+            ):
+                capture.update(phase="reply_rejected", error_code="RAG_REPLY_INVALID")
+                self._diagnostic(
+                    {
+                        "stage": "reply_rejected",
+                        "error_code": "RAG_REPLY_INVALID",
+                        "failure_reasons": ["MISSING_OR_INTERNAL_CUSTOMER_REPLY"],
+                        "chunk_id": selection.chunk_id,
+                        "document": chosen["document"],
+                        "_local_capture": capture,
+                    }
+                )
+                raise ValueError("RAG_REPLY_INVALID")
+            self._diagnostic(
+                {
+                    "stage": "reply_prepared",
+                    "chunk_id": selection.chunk_id,
+                    "document": chosen["document"],
+                }
+            )
         return SupportKnowledge(
             id=selection.chunk_id,
             category=query.category,
             question=query.issue,
             answer=selection.excerpt,
+            customer_reply=selection.customer_reply.strip(),
             applicability="仅适用所引原文明确列出的条件；未知条件需核实",
             source={
                 "reference_text": f"RAGFlow / {chosen['document']} / {selection.chunk_id}",

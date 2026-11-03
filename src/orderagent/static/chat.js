@@ -69,7 +69,11 @@ async function request(path, body) {
     ...(body === undefined ? {} : {body: JSON.stringify(body)}),
   });
   const data = await response.json();
-  if (!response.ok) throw new Error(typeof data.detail === "string" ? data.detail : "请求未完成，请稍后再试。");
+  if (!response.ok) {
+    const id = data.request_id || response.headers.get("X-Request-ID");
+    const message = typeof data.detail === "string" ? data.detail : "请求未完成，请稍后再试。";
+    throw new Error(`${message}${id ? ` 问题编号：${id}` : ""}`);
+  }
   return data;
 }
 

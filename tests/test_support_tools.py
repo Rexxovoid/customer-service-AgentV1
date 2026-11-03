@@ -63,10 +63,13 @@ def test_quality_advice_is_source_based_and_program_rendered():
     assert state["support_phase"] == "advised"
     assert state["support_advice"]["id"] == "DEMO-HP-K-0001"
     assert "左右声道平衡" in state["messages"][-1].text
-    assert "模拟排查案例" in state["messages"][-1].text
+    assert "知识依据" not in state["messages"][-1].text
+    assert "DEMO-HP-K-0001" not in state["messages"][-1].text
     assert len(model._requests) == 1
     message = next(m for m in state["messages"] if isinstance(m, ToolMessage))
     assert message.artifact["data"]["action"] == "advice"
+    assert message.artifact["data"]["source"]
+    assert "reference_text" not in message.content
 
 
 @pytest.mark.parametrize("feedback", ["没有解决", "还是没声音", "试了没用", "方案无效"])

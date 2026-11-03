@@ -80,6 +80,8 @@ compare生成comparison.json，不改人工表。输出人工与机器显式硬�
 
 ## 规则选择现场与配置对照
 
+质量答复新增customer_reply，与原excerpt证据分离。人工核对步骤是否有依据、前提和警告是否保留，不因用户回复未显示分块ID或文档名扣分；原文和来源可在tool_results/artifact核对。新回复模式与旧的原文直出不同，比较实验时记录提示词/代码版本，不能把文案更短直接算作业务更正确。
+
 裁判现使用官方流式累积，实验judge_parameters和judge_diagnostics的stream=true。诊断新增first_event_seconds、first_content_seconds、received_events、content_characters、max_event_gap_seconds；按服务端数据块统计，最后一块至超时的等待不计入相邻间隔。首块前超时相关指标为null；只有一个块时最大间隔null。无用量尾块时usage=null。
 
 必须正常结束且stop、非空正文、五维结构校验通过才产生评分，部分JSON不算有效结果。不新增原始裁判正文日志。当前磁盘timeout30、max_retries1，和前次手动关闭重试的实验有差异，比较时应注明；流式持续返回可减少读取等待，但不能保证消除超时。[阿里云流式与JSON Mode说明](https://help.aliyun.com/en/model-studio/stream)。

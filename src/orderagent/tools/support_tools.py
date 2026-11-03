@@ -82,10 +82,11 @@ def support_reply(state) -> str:
     if state.get("support_result"):
         return state["support_result"]["message"]
     advice = state["support_advice"]
-    source = advice["source"]
-    return (
-        f"可进行以下有依据的排查：{advice['answer']}\n适用条件：{advice['applicability']}\n"
-        f"知识依据：{advice['id']}，{source.get('url') or source.get('reference_text', '')}"
+    # 不将原始RAG摘录回退为用户答案；诊断证据保存在state与工具artifact。
+    return advice.get("customer_reply") or (
+        advice["answer"]
+        if advice.get("data_origin") != "ragflow_retrieval"
+        else "暂时无法整理可靠的排查方案，请联系人工客服。"
     )
 
 
@@ -101,12 +102,23 @@ def create_support_tools(
             for c in runtime.state["messages"][-1].tool_calls
             if c["id"] == runtime.tool_call_id
         )
+        visible_result = result
+        if result.data and result.data.get("action") in {"advice", "clarification"}:
+            visible_result = result.model_copy(
+                update={
+                    "data": {
+                        k: result.data[k]
+                        for k in ("action", "message", "request_count", "missing_information")
+                        if k in result.data
+                    }
+                }
+            )
         return Command(
             update={
                 **update,
                 "messages": [
                     ToolMessage(
-                        content=result.model_dump_json(),
+                        content=visible_result.model_dump_json(),
                         artifact=result.model_dump(mode="json"),
                         tool_call_id=runtime.tool_call_id,
                         name=name,
@@ -164,6 +176,7 @@ def create_support_tools(
         明确换成新的独立故障才令new_issue=true，不清楚先询问，禁止为规避次数伪造新问题。
         程序计数：第4、5次建议人工，第6次自动人工；补信息不增加次数。
         相关规则缺必要信息时只问缺项；无适用规则、冲突或异常立即人工，不凭常识编方案。
+        用户只看整理后的步骤和必要提醒；原文、文档名、分块ID及内部流程仅供诊断，不向用户展示。
         明确要人工用handoff_to_human(request_human=true)；明确退货用handle_return。
         已解决或结束咨询用end_support_session。本工具单独调用；已无效的方案不重复推荐。
         """
@@ -254,20 +267,22 @@ def create_support_tools(
         if handling == "clarify":
             if not knowledge.missing_information:
                 return handoff(runtime, state, "相关规则缺少可核实的澄清条件")
-            message = "已找到相关规则，还需补充：" + "、".join(knowledge.missing_information) + "。"
+            message = "还需要确认：" + "、".join(knowledge.missing_information) + "。"
             phase = "awaiting_information"
         elif knowledge.answer in attempts:
             message = (
-                "当前规则仍是已提供过的方案，不重复推荐。"
-                "请补充已尝试步骤、型号或连接环境，以便继续核查；也可选择人工。"
+                "这些步骤已经提供过，不重复推荐。"
+                "请告诉我已尝试的步骤和结果，以便继续核查；也可选择人工。"
             )
             phase = "awaiting_information"
         else:
-            reference = knowledge.source.get("reference_text") or knowledge.source.get("url", "")
-            message = (
-                f"可进行以下有依据的排查：{knowledge.answer}\n适用条件：{knowledge.applicability}\n"
-                f"知识依据：{knowledge.id}，{reference}"
-            )
+            message = knowledge.customer_reply.strip()
+            if not message:
+                if knowledge.data_origin == "ragflow_retrieval":
+                    state["support_error_code"] = "RAG_REPLY_INVALID"
+                    return handoff(runtime, state, "知识缺少可可靠展示的用户排查方案")
+                # 本地摘要已有可直接使用的条件/安全步骤，不额外调用模型。
+                message = knowledge.answer
             history[key] = [*attempts, knowledge.answer]
             phase = "advised"
         if SUGGEST_HANDOFF_FROM <= state["support_question_count"] < AUTO_HANDOFF_FROM:

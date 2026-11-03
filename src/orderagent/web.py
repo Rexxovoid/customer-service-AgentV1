@@ -1,8 +1,15 @@
 """本地聊天页面接入：HTTP会话连接现有官方Agent图，不重新定义业务规则。"""
 
 import argparse
+import json
+import logging
+import re
 import secrets
+import time
+from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
+from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from threading import Lock
 from uuid import uuid4
@@ -13,12 +20,15 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from langchain_core.messages import AIMessage, HumanMessage
+from langsmith import tracing_context
 from pydantic import BaseModel, ConfigDict, Field
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from orderagent.agents.agent_factory import create_order_agent
+from orderagent.evaluation.runner import Collector, flatten_runs
 from orderagent.schemas.order_schema import ToolContext
-from orderagent.settings import Settings
+from orderagent.settings import PROJECT_ROOT, Settings
 
 STATIC_DIR = Path(__file__).with_name("static")
 COOKIE_NAME = "orderagent_session"
@@ -37,6 +47,7 @@ class BrowserSession:
 
     thread_id: str = field(default_factory=lambda: uuid4().hex)
     csrf: str = field(default_factory=lambda: secrets.token_urlsafe(32))
+    log_id: str = field(default_factory=lambda: uuid4().hex)
     lock: Lock = field(default_factory=Lock)
 
     @property
@@ -44,24 +55,162 @@ class BrowserSession:
         return {"configurable": {"thread_id": self.thread_id}, "recursion_limit": 40}
 
 
-def create_web_app(settings: Settings, user_id: str, *, graph=None) -> FastAPI:
+def create_web_app(settings: Settings, user_id: str, *, graph=None, log_dir=None) -> FastAPI:
     """固定演示用户；通过官方invoke/checkpointer执行及重置浏览器会话。"""
     context = ToolContext(user_id=user_id)
     agent = graph if graph is not None else create_order_agent(settings)
     sessions: dict[str, BrowserSession] = {}
     registry_lock = Lock()
-    app = FastAPI(title="OrderAgent 本地聊天", docs_url=None, redoc_url=None, openapi_url=None)
+    log_dir = Path(log_dir) if log_dir is not None else PROJECT_ROOT / "runtime" / "logs"
+    loggers = {}
+    log_secrets = [
+        settings.api_key.get_secret_value(),
+        settings.ragflow_api_key.get_secret_value(),
+        settings.qiwen_api_key.get_secret_value(),
+    ]
+    for name in ("requests", "agent"):
+        logger = logging.Logger(f"orderagent.web.{name}", level=logging.INFO)
+        logger.propagate = False
+        try:
+            log_dir.mkdir(parents=True, exist_ok=True)
+            handler = RotatingFileHandler(
+                log_dir / f"{name}.jsonl",
+                maxBytes=5 * 1024 * 1024,
+                backupCount=3,
+                encoding="utf-8",
+                delay=True,
+            )
+            handler.setFormatter(logging.Formatter("%(message)s"))
+            logger.addHandler(handler)
+        except OSError:
+            logger.addHandler(logging.NullHandler())
+            print("Web本地日志目录暂不可写；请求仍会继续处理。")
+        loggers[name] = logger
+
+    def write_record(name, record):
+        """使用标准轮转日志；只接收调用处白名单摘要，写失败不改变业务结果。"""
+        try:
+            text = json.dumps(record, ensure_ascii=False)
+            for secret in log_secrets:
+                if secret:
+                    text = text.replace(json.dumps(secret, ensure_ascii=False)[1:-1], "[REDACTED]")
+            loggers[name].info(text)
+        except Exception:
+            print("Web本地日志写入失败；请求结果不受影响。")
+
+    def error_metadata(exc):
+        """异常仅记录类型和分类，避免任意异常正文带入用户消息/密钥/模型正文。"""
+        cause = exc.__cause__ or exc.__context__
+        root = exc
+        seen = set()
+        while id(root) not in seen:
+            seen.add(id(root))
+            next_cause = root.__cause__ or root.__context__
+            if next_cause is None:
+                break
+            root = next_cause
+        name = type(root).__name__
+        return {
+            "error_type": type(exc).__name__,
+            "cause_type": type(cause).__name__ if cause is not None else None,
+            "root_cause_type": name,
+            "cause_category": "timeout" if "Timeout" in name else "execution_error",
+        }
+
+    @asynccontextmanager
+    async def lifespan(app):
+        yield
+        for logger in loggers.values():
+            for handler in logger.handlers:
+                handler.close()
+
+    app = FastAPI(
+        title="OrderAgent 本地聊天",
+        docs_url=None,
+        redoc_url=None,
+        openapi_url=None,
+        lifespan=lifespan,
+    )
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=["127.0.0.1", "localhost", "[::1]"])
 
     @app.exception_handler(RequestValidationError)
     async def invalid_input(request, exc):
+        request.state.error = {
+            "error_type": "RequestValidationError",
+            "cause_type": None,
+            "root_cause_type": None,
+            "cause_category": "invalid_input",
+        }
         return JSONResponse(
-            {"detail": "请输入1—4000字符的消息，请勿附加身份或线程参数。"}, status_code=422
+            {
+                "detail": "请输入1—4000字符的消息，请勿附加身份或线程参数。",
+                "request_id": request.state.request_id,
+            },
+            status_code=422,
+        )
+
+    @app.exception_handler(StarletteHTTPException)
+    async def http_error(request, exc):
+        if not getattr(request.state, "error", None):
+            request.state.error = {
+                "error_type": type(exc).__name__,
+                "cause_type": None,
+                "root_cause_type": None,
+                "cause_category": "http_rejected",
+            }
+        return JSONResponse(
+            {"detail": exc.detail, "request_id": request.state.request_id},
+            status_code=exc.status_code,
+            headers=exc.headers,
         )
 
     @app.middleware("http")
     async def response_headers(request, call_next):
-        response = await call_next(request)
+        request.state.request_id = uuid4().hex
+        request.state.log_session = None
+        started = time.perf_counter()
+        created_at = datetime.now(timezone.utc).isoformat()
+        status = None
+        try:
+            response = await call_next(request)
+            status = response.status_code
+        except Exception as exc:
+            request.state.error = error_metadata(exc)
+            status = 500
+            response = JSONResponse(
+                {
+                    "detail": "服务暂时无法完成请求，请保留问题编号。",
+                    "request_id": request.state.request_id,
+                },
+                status_code=500,
+            )
+        finally:
+            if request.url.path.startswith("/api/"):
+                write_record(
+                    "requests",
+                    {
+                        "request_id": request.state.request_id,
+                        "created_at": created_at,
+                        "session_id": request.state.log_session,
+                        "method": request.method,
+                        "endpoint": request.url.path
+                        if request.url.path in {"/api/chat", "/api/reset", "/api/session"}
+                        else "/api/other",
+                        "seconds": time.perf_counter() - started,
+                        "http_status": status,
+                        **getattr(
+                            request.state,
+                            "error",
+                            {
+                                "error_type": None,
+                                "cause_type": None,
+                                "root_cause_type": None,
+                                "cause_category": None,
+                            },
+                        ),
+                    },
+                )
+        response.headers["X-Request-ID"] = request.state.request_id
         response.headers["Cache-Control"] = "no-store"
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Referrer-Policy"] = "same-origin"
@@ -77,6 +226,7 @@ def create_web_app(settings: Settings, user_id: str, *, graph=None) -> FastAPI:
             session = sessions.get(request.cookies.get(COOKIE_NAME, ""))
         if session is None:
             raise HTTPException(401, "会话已失效，请刷新页面重新连接。")
+        request.state.log_session = session.log_id
         if request.headers.get("sec-fetch-site") == "cross-site":
             raise HTTPException(403, "请从本地聊天页面发起请求。")
         origin = request.headers.get("origin")
@@ -103,6 +253,7 @@ def create_web_app(settings: Settings, user_id: str, *, graph=None) -> FastAPI:
                 token = secrets.token_urlsafe(32)
                 session = BrowserSession()
                 sessions[token] = session
+        request.state.log_session = session.log_id
         if not session.lock.acquire(blocking=False):
             raise HTTPException(409, "该会话仍在处理中，请稍后刷新。")
         try:
@@ -119,23 +270,127 @@ def create_web_app(settings: Settings, user_id: str, *, graph=None) -> FastAPI:
             session.lock.release()
 
     @app.post("/api/chat")
-    def chat(body: ChatRequest, session: BrowserSession = Depends(current_session)):
+    def chat(
+        body: ChatRequest, request: Request, session: BrowserSession = Depends(current_session)
+    ):
         if not session.lock.acquire(blocking=False):
             raise HTTPException(409, "上一条消息仍在处理中，请勿重复发送。")
+        collector = Collector()
+        result = None
         try:
-            result = agent.invoke(
-                {"messages": [{"role": "user", "content": body.message}]},
-                config=session.config,
-                context=context,
-            )
-            return {"answer": result["messages"][-1].text}
-        except Exception:
+            with tracing_context(enabled=False):
+                result = agent.invoke(
+                    {"messages": [{"role": "user", "content": body.message}]},
+                    config={**session.config, "callbacks": [collector]},
+                    context=context,
+                )
+            return {"answer": result["messages"][-1].text, "request_id": request.state.request_id}
+        except Exception as exc:
+            request.state.error = error_metadata(exc)
             # 不重试整轮，避免已执行工具后重复办理；底层SDK仍遵循原有配置。
             raise HTTPException(
                 502, "本轮未能完整返回。操作结果可能已保存，请先查询进度，勿重复确认退货。"
             ) from None
         finally:
-            session.lock.release()
+            try:
+                steps = []
+                for run in flatten_runs(collector.traced_runs):
+                    item = {k: run[k] for k in ("id", "parent_id", "name", "type", "seconds")}
+                    # 官方trace错误可能带正文/堆栈，只提取异常类名。
+                    error = re.search(r"\b(\w+(?:Error|Exception))\b", run["error"] or "")
+                    item["error_type"] = error.group(1) if error else None
+                    output = (run["outputs"] or {}).get("output")
+                    artifact = getattr(output, "artifact", None)
+                    if artifact is None and isinstance(getattr(output, "update", None), dict):
+                        artifacts = [
+                            getattr(m, "artifact", None) for m in output.update.get("messages", [])
+                        ]
+                        artifact = next((a for a in artifacts if isinstance(a, dict)), None)
+                    if isinstance(artifact, dict):
+                        data = artifact.get("data") or {}
+                        item.update(
+                            ok=artifact.get("ok"),
+                            code=(artifact.get("error") or {}).get("code") or data.get("code"),
+                            action=data.get("action"),
+                        )
+                        if data.get("id") and data.get("data_origin"):
+                            item["knowledge"] = {
+                                "id": data["id"],
+                                "data_origin": data["data_origin"],
+                            }
+                    steps.append(item)
+                rag = []
+                for event in collector.events:
+                    if event["name"] != "rag_diagnostic":
+                        continue
+                    data = event["data"]
+                    rag.append(
+                        {
+                            "elapsed_seconds": event["elapsed_seconds"],
+                            **{
+                                k: data[k]
+                                for k in (
+                                    "stage",
+                                    "error_code",
+                                    "error_type",
+                                    "failure_reasons",
+                                    "seconds",
+                                    "debug_status",
+                                    "debug_record",
+                                    "chunk_id",
+                                    "document",
+                                    "candidate_count",
+                                    "handling",
+                                    "applicable",
+                                    "excerpt_valid",
+                                )
+                                if k in data
+                            },
+                        }
+                    )
+                    if isinstance(data.get("selection"), dict):
+                        rag[-1]["selection"] = {
+                            k: data["selection"][k]
+                            for k in ("chunk_id", "handling", "applicable", "decision")
+                            if k in data["selection"]
+                        }
+                    if isinstance(data.get("candidates"), list):
+                        rag[-1]["sources"] = [
+                            {
+                                k: candidate[k]
+                                for k in ("id", "document", "similarity")
+                                if k in candidate
+                            }
+                            for candidate in data["candidates"][:5]
+                        ]
+                write_record(
+                    "agent",
+                    {
+                        "request_id": request.state.request_id,
+                        "created_at": datetime.now(timezone.utc).isoformat(),
+                        "session_id": session.log_id,
+                        "steps": steps,
+                        "rag_diagnostics": rag,
+                        "state": {
+                            k: result.get(k)
+                            for k in (
+                                "active_support_topic",
+                                "support_phase",
+                                "return_stage",
+                                "return_error_code",
+                                "support_question_count",
+                                "return_request_count",
+                            )
+                        }
+                        if result is not None
+                        else None,
+                        "error": getattr(request.state, "error", None),
+                    },
+                )
+            except Exception:
+                print("Agent日志摘要生成失败；请求结果不受影响。")
+            finally:
+                session.lock.release()
 
     @app.post("/api/reset")
     def reset(session: BrowserSession = Depends(current_session)):

@@ -1,3 +1,4 @@
+import json
 from concurrent.futures import ThreadPoolExecutor
 from threading import Event
 
@@ -18,7 +19,7 @@ def web(tmp_path):
     settings = Settings(after_sales_db_path=tmp_path / "after_sales.sqlite3")
     model = ScriptedChatModel(responses=[AIMessage(content="测试回答")])
     graph = create_order_agent(settings, model=model)
-    app = create_web_app(settings, "DEMO-U-004", graph=graph)
+    app = create_web_app(settings, "DEMO-U-004", graph=graph, log_dir=tmp_path / "logs")
     with TestClient(app, base_url="http://127.0.0.1") as client:
         response = client.get("/api/session")
         assert response.status_code == 200
@@ -148,3 +149,181 @@ def test_web_unknown_cookie_does_not_select_existing_thread(web):
     client.cookies.clear()
     client.cookies.set(COOKIE_NAME, "untrusted-thread")
     assert client.get("/api/session").json()["messages"] == []
+
+
+def test_web_logs_correlate_requests_and_agent_without_message_text(web):
+    client, _, _, model, settings = web
+    model.responses = [
+        tool_call("query_order", {"order_id": "DEMO-HP-O-0004"}),
+        AIMessage(content="PRIVATE-ANSWER"),
+    ]
+    response = client.post("/api/chat", json={"message": "PRIVATE-QUESTION"})
+    assert response.status_code == 200
+    request_id = response.json()["request_id"]
+    assert response.headers["X-Request-ID"] == request_id
+    log_dir = settings.after_sales_db_path.parent / "logs"
+    requests = [
+        json.loads(line)
+        for line in (log_dir / "requests.jsonl").read_text(encoding="utf-8").splitlines()
+    ]
+    agent = json.loads((log_dir / "agent.jsonl").read_text(encoding="utf-8").splitlines()[-1])
+    request = next(row for row in requests if row["request_id"] == request_id)
+    assert request["http_status"] == 200 and request["seconds"] >= 0
+    assert request["session_id"] == agent["session_id"]
+    assert agent["request_id"] == request_id
+    assert any(step["type"] == "llm" for step in agent["steps"])
+    tool = next(step for step in agent["steps"] if step["type"] == "tool")
+    assert tool["name"] == "query_order" and tool["ok"] is True
+    assert tool["seconds"] >= 0
+    text = json.dumps([requests, agent])
+    for private in (
+        "PRIVATE-QUESTION",
+        "PRIVATE-ANSWER",
+        "DEMO-HP-O-0004",
+        "DEMO-U-004",
+        client.cookies.get(COOKIE_NAME),
+    ):
+        assert private not in text
+
+
+def test_web_logs_failure_cause_and_error_id(web, monkeypatch):
+    client, _, graph, _, settings = web
+
+    def fail(*args, **kwargs):
+        try:
+            raise TimeoutError("PRIVATE-CAUSE")
+        except TimeoutError as exc:
+            raise RuntimeError("PRIVATE-ERROR") from exc
+
+    monkeypatch.setattr(graph, "invoke", fail)
+    response = client.post("/api/chat", json={"message": "PRIVATE-INPUT"})
+    assert response.status_code == 502
+    request_id = response.json()["request_id"]
+    assert request_id == response.headers["X-Request-ID"]
+    log_dir = settings.after_sales_db_path.parent / "logs"
+    request = json.loads((log_dir / "requests.jsonl").read_text(encoding="utf-8").splitlines()[-1])
+    agent = json.loads((log_dir / "agent.jsonl").read_text(encoding="utf-8").splitlines()[-1])
+    assert request["request_id"] == agent["request_id"] == request_id
+    assert request["error_type"] == "RuntimeError"
+    assert request["cause_type"] == "TimeoutError"
+    assert request["root_cause_type"] == "TimeoutError"
+    assert request["cause_category"] == "timeout"
+    assert "PRIVATE" not in json.dumps([request, agent, response.json()])
+
+
+def test_web_logs_validation_rejection_with_no_agent_call(web):
+    client, _, _, model, settings = web
+    response = client.post("/api/chat", json={"message": ""})
+    assert response.status_code == 422
+    row = json.loads(
+        (settings.after_sales_db_path.parent / "logs/requests.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()[-1]
+    )
+    assert row["request_id"] == response.json()["request_id"]
+    assert row["error_type"] == "RequestValidationError"
+    assert not model._requests
+
+
+def test_web_logging_write_failure_does_not_change_response(web, monkeypatch):
+    from logging.handlers import RotatingFileHandler
+
+    client, _, _, _, _ = web
+
+    def fail(*args, **kwargs):
+        raise OSError("test write failure")
+
+    monkeypatch.setattr(RotatingFileHandler, "emit", fail)
+    response = client.post("/api/chat", json={"message": "hi"})
+    assert response.status_code == 200
+    assert response.json()["answer"] == "测试回答"
+
+
+def test_web_logs_knowledge_id_without_showing_source_to_customer(web, monkeypatch):
+    from orderagent.repositories.support_repository import JsonSupportRepository
+    from orderagent.schemas.support_schema import SupportKnowledge
+
+    client, _, _, model, settings = web
+    monkeypatch.setattr(
+        JsonSupportRepository,
+        "find",
+        lambda self, query: SupportKnowledge(
+            id="knowledge-source-1",
+            category="headphones",
+            question="issue",
+            answer="PRIVATE-EVIDENCE",
+            customer_reply="请先检查设备连接。",
+            applicability="PRIVATE-CONDITIONS",
+            source={"reference_text": "PRIVATE-SOURCE"},
+            data_origin="ragflow_retrieval",
+        ),
+    )
+    model.responses = [
+        tool_call(
+            "query_quality_support",
+            {
+                "category": "headphones",
+                "issue": "issue",
+            },
+        )
+    ]
+    response = client.post("/api/chat", json={"message": "issue"})
+    assert response.json()["answer"] == "请先检查设备连接。"
+    path = settings.after_sales_db_path.parent / "logs/agent.jsonl"
+    row = json.loads(path.read_text(encoding="utf-8").splitlines()[-1])
+    tool = next(step for step in row["steps"] if step["type"] == "tool")
+    assert tool["knowledge"] == {"id": "knowledge-source-1", "data_origin": "ragflow_retrieval"}
+    assert "PRIVATE" not in json.dumps(row)
+
+
+def test_web_logs_tool_result_and_rag_diagnostics_without_evidence_text(web, monkeypatch):
+    from langchain_core.callbacks.manager import dispatch_custom_event
+
+    from orderagent.repositories.support_repository import JsonSupportRepository
+
+    client, _, _, model, settings = web
+
+    def no_rule(self, query):
+        dispatch_custom_event(
+            "rag_diagnostic",
+            {
+                "stage": "retrieved",
+                "candidates": [
+                    {
+                        "id": "chunk-1",
+                        "document": "rules.md",
+                        "content": "PRIVATE-EVIDENCE",
+                    }
+                ],
+                "query": "PRIVATE-QUERY",
+            },
+        )
+        dispatch_custom_event(
+            "rag_diagnostic",
+            {
+                "stage": "no_applicable_rule",
+                "error_code": "RAG_NO_APPLICABLE_RULE",
+            },
+        )
+        return None
+
+    monkeypatch.setattr(JsonSupportRepository, "find", no_rule)
+    model.responses = [
+        tool_call(
+            "query_quality_support",
+            {
+                "category": "headphones",
+                "issue": "PRIVATE-SYMPTOM",
+            },
+        )
+    ]
+    response = client.post("/api/chat", json={"message": "PRIVATE-SYMPTOM"})
+    assert response.status_code == 200
+    path = settings.after_sales_db_path.parent / "logs/agent.jsonl"
+    row = json.loads(path.read_text(encoding="utf-8").splitlines()[-1])
+    assert row["state"]["support_phase"] == "transferred"
+    tool = next(step for step in row["steps"] if step["type"] == "tool")
+    assert tool["action"] == "handoff"
+    assert row["rag_diagnostics"][0]["sources"] == [{"id": "chunk-1", "document": "rules.md"}]
+    assert row["rag_diagnostics"][1]["error_code"] == "RAG_NO_APPLICABLE_RULE"
+    assert "PRIVATE" not in json.dumps(row)

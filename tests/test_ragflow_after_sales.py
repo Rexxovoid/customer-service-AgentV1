@@ -216,6 +216,84 @@ class FakeRagClient:
         ]
 
 
+@pytest.mark.parametrize("reply", ["", " ", "知识依据：故障知识.md / chunk"])
+def test_rag_quality_never_uses_raw_excerpt_when_customer_reply_invalid(reply):
+    repository = object.__new__(RagflowKnowledge)
+    repository.client = FakeRagClient()
+    repository.dataset_name = "售后规则知识库"
+    repository.assistant_name = "售后助手"
+    repository.selector = Selector(
+        RuleSelection(
+            applicable=True,
+            chunk_id="chunk",
+            excerpt="如果支持声道平衡，请恢复居中。",
+            handling="basic_troubleshooting",
+            customer_reply=reply,
+        )
+    )
+    with pytest.raises(ValueError, match="RAG_REPLY_INVALID"):
+        repository.find(SupportQuery(category="headphones", issue="左耳没有声音"))
+
+
+def test_quality_customer_reply_is_separate_from_raw_evidence(tmp_path):
+    from langchain_core.messages import ToolMessage
+
+    evidence = (
+        "适用条件：Windows 10/11的USB鼠标。\n基础答复：重新插入USB，换端口，集线器改直连。\n"
+        "处理边界：按当前内部次数规则转人工。"
+    )
+    reply = (
+        "在Windows电脑上，可以依次尝试：\n1. 重新插入鼠标USB连接。\n"
+        "2. 换一个USB接口。\n3. 使用集线器时改为直连电脑。"
+    )
+    repository = object.__new__(RagflowKnowledge)
+    repository.client = FakeRagClient()
+    repository.client.retrieve = lambda **kwargs: [
+        SimpleNamespace(
+            id="source-id",
+            content=evidence,
+            document_name="MS_02_故障条件问答.md",
+        )
+    ]
+    repository.dataset_name = "售后规则知识库"
+    repository.assistant_name = "售后助手"
+    repository.selector = Selector(
+        RuleSelection(
+            applicable=True,
+            chunk_id="source-id",
+            excerpt=evidence,
+            handling="basic_troubleshooting",
+            customer_reply=reply,
+        )
+    )
+    model = ScriptedChatModel(
+        responses=[
+            tool_call(
+                "query_quality_support",
+                {
+                    "category": "mice",
+                    "issue": "左键没反应",
+                    "environment": "Windows 11 USB",
+                },
+            )
+        ]
+    )
+    graph = create_order_agent(
+        Settings(after_sales_db_path=tmp_path / "state.sqlite3"),
+        model=model,
+        support_repository=repository,
+    )
+    state = invoke(graph, "我的鼠标左键没反应，Windows 11，通过USB连接")
+    assert state["messages"][-1].text == reply
+    assert len(model._requests) == 1
+    assert state["support_advice"]["answer"] == evidence
+    tool = next(m for m in state["messages"] if isinstance(m, ToolMessage))
+    assert tool.artifact["data"]["source"]["reference_text"].endswith("source-id")
+    assert tool.artifact["data"]["answer"] == evidence
+    assert "source-id" not in tool.content
+    assert "处理边界" not in tool.content
+
+
 @pytest.mark.parametrize(
     "excerpt,expected",
     [
@@ -235,6 +313,7 @@ def test_rag_answer_must_be_exact_retrieved_evidence(excerpt, expected):
             chunk_id="chunk",
             excerpt=excerpt,
             handling="basic_troubleshooting",
+            customer_reply="如果支持声道平衡，请恢复居中。",
         )
     )
     if expected:
