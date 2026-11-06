@@ -77,6 +77,7 @@ class ReturnAgentState(SupportAgentState):
     return_error_code: NotRequired[str]
     return_target_product_id: NotRequired[str]
     return_reported_facts: NotRequired[dict]
+    return_fact_diagnostics: NotRequired[list[dict]]
     return_original_statements: NotRequired[list[str]]
     return_confirmation_payload: NotRequired[dict]
     return_has_request: NotRequired[bool]

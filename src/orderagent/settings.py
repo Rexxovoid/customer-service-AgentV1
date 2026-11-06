@@ -46,6 +46,10 @@ class Settings(BaseModel):
     qiwen_api_key: SecretStr = SecretStr("")
     qiwen_base_url: str = "https://dashscope.aliyuncs.com/compatible-mode/v1"
     qianwen: str = "qwen3.8-flash"
+    langfuse_enabled: bool = False
+    langfuse_secret_key: SecretStr = SecretStr("")
+    langfuse_public_key: SecretStr = SecretStr("")
+    langfuse_base_url: str = "https://cloud.langfuse.com"
 
     @field_validator("base_url")
     @classmethod
@@ -126,6 +130,10 @@ class Settings(BaseModel):
                     "QIWEN_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1"
                 ),
                 qianwen=value("QIANWEN", "qwen3.8-flash"),
+                langfuse_enabled=value("LANGFUSE_ENABLED", "false"),
+                langfuse_secret_key=SecretStr(value("LANGFUSE_SECRET_KEY")),
+                langfuse_public_key=SecretStr(value("LANGFUSE_PUBLIC_KEY")),
+                langfuse_base_url=value("LANGFUSE_BASE_URL", "https://cloud.langfuse.com"),
             )
         except ValueError:
             raise ConfigurationError(

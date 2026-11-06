@@ -32,7 +32,7 @@ uv run orderagent-web --user-id DEMO-U-004
 
 首期完整回答返回后展示，不是主Agent逐字流式输出。人工与退货继续使用模拟接口；无需安装Node或单独启动前端。默认仅本机访问，无生产认证与公网部署。Web接口及限制见[WEB规则](docs/rules.md#本地网页聊天)。
 
-网页错误会显示“问题编号”。在`runtime/logs/requests.jsonl`查HTTP状态、耗时与异常分类，在`runtime/logs/agent.jsonl`用相同`request_id`查模型/工具阶段、工具结果码及RAG诊断。两类文件均自动轮转，默认不保存聊天和证据正文。HTTP 200不等于回答正确；网络断开且未收到响应时，页面可能拿不到编号。
+网页错误会显示“问题编号”。在`runtime/logs/requests/<request_id>.json`查HTTP状态、耗时与异常分类，在`runtime/logs/agent/<request_id>.json`用相同`request_id`查模型/工具阶段、工具结果码及RAG诊断。每请求一份缩进JSON，各目录20MiB额度，超额清理旧编号文件，旧JSONL保留。默认不保存聊天和证据正文。HTTP 200不等于回答正确；网络断开且未收到响应时，页面可能拿不到编号。
 
 质量咨询只展示整理后的步骤和必要提醒，不向用户附加知识库原文、文档名和分块ID。来源标识可在Agent日志中定位；需完整原文比对时使用现有`RAGFLOW_EVIDENCE_DEBUG`受控调试（默认关闭）。
 
@@ -67,6 +67,20 @@ uv run orderagent --user-id DEMO-U-004 --trace
 
 模型及裁判调用产生供应商用量。规则选择低强度参数目前仅核对了官方DeepSeek服务；服务和动态模型别名变化会影响复现。
 
+### 可选 Langfuse 执行追踪
+
+`uv sync --locked` 后，在 `.env` 配置已有的 `LANGFUSE_SECRET_KEY`、`LANGFUSE_PUBLIC_KEY`、`LANGFUSE_BASE_URL`，再添加：
+
+```dotenv
+LANGFUSE_ENABLED=true
+```
+
+默认关闭；仅填写密钥不会启用。欧洲区域地址为 `https://cloud.langfuse.com`，须与项目区域一致。重启网页服务或终端后生效。在 Langfuse 的 Traces 中按 `request_id`、`case_id`、`run_id` 元数据查找；Sessions 按脱敏标识关联多轮。网页的问题编号就是 `request_id`。
+
+第一阶段仅上传调用结构、耗时、模型与可获取的用量、错误分类、RAG选择及人工交接摘要，不上传对话、提示词、工具参数/结果正文、隐藏推理或订单详情。追踪失败不重跑业务，本地日志与测评文件继续保留；缺失字段不推造。官方媒体上传被显式关闭；退出清理最多等待2秒，不能保证异常退出时全部追踪已送达。具体边界见 [OBS规则](docs/rules.md#langfuse第一阶段追踪)。
+
+测评来源与云端开关说明见 [测评指南](evals/EVALUATION_GUIDE.md#langfuse追踪)。本阶段未迁移提示词、数据集或裁判，也不因启用 Langfuse 自动开启 LangSmith 上传。
+
 ## 使用流程
 
 | 诉求 | 当前行为 |
@@ -89,6 +103,8 @@ uv run orderagent --user-id DEMO-U-004 --trace
 允许首尾空白及末尾一个`。 . ！ !`，拒绝重复标点、否定引用及混杂内容。已有待确认申请且载荷一致时，由官方中间件短路主模型请求，仍经现有工具核对身份、绑定、幂等和规则；自然语言与内容变更仍走模型。当前只生成**模拟入口**，不代表提交、批准或退款。有效入口复用，处理中/结果不明/可信终态由持久台账保护。
 
 ## 目录与职责
+
+独立测评新增 [10条多轮案例 E33—E42](data/evaluation/multiturn_cases.jsonl)，共31轮、均待人工审批，场景说明和运行命令见[测评指南](evals/EVALUATION_GUIDE.md)。
 
 ```text
 src/orderagent/

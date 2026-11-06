@@ -2,14 +2,11 @@
 
 import argparse
 import json
-import logging
 import re
 import secrets
 import time
-from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from threading import Lock
 from uuid import uuid4
@@ -27,6 +24,7 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from orderagent.agents.agent_factory import create_order_agent
 from orderagent.evaluation.runner import Collector, flatten_runs
+from orderagent.observability import get_observability
 from orderagent.schemas.order_schema import ToolContext
 from orderagent.settings import PROJECT_ROOT, Settings
 
@@ -59,44 +57,53 @@ def create_web_app(settings: Settings, user_id: str, *, graph=None, log_dir=None
     """固定演示用户；通过官方invoke/checkpointer执行及重置浏览器会话。"""
     context = ToolContext(user_id=user_id)
     agent = graph if graph is not None else create_order_agent(settings)
+    observability = get_observability(settings)
     sessions: dict[str, BrowserSession] = {}
     registry_lock = Lock()
     log_dir = Path(log_dir) if log_dir is not None else PROJECT_ROOT / "runtime" / "logs"
-    loggers = {}
+    log_lock = Lock()
     log_secrets = [
         settings.api_key.get_secret_value(),
         settings.ragflow_api_key.get_secret_value(),
         settings.qiwen_api_key.get_secret_value(),
     ]
-    for name in ("requests", "agent"):
-        logger = logging.Logger(f"orderagent.web.{name}", level=logging.INFO)
-        logger.propagate = False
-        try:
-            log_dir.mkdir(parents=True, exist_ok=True)
-            handler = RotatingFileHandler(
-                log_dir / f"{name}.jsonl",
-                maxBytes=5 * 1024 * 1024,
-                backupCount=3,
-                encoding="utf-8",
-                delay=True,
-            )
-            handler.setFormatter(logging.Formatter("%(message)s"))
-            logger.addHandler(handler)
-        except OSError:
-            logger.addHandler(logging.NullHandler())
-            print("Web本地日志目录暂不可写；请求仍会继续处理。")
-        loggers[name] = logger
 
     def write_record(name, record):
-        """使用标准轮转日志；只接收调用处白名单摘要，写失败不改变业务结果。"""
+        """每请求一份格式化JSON，原子替换；保留每类20MiB额度，失败不改变业务。"""
+        temporary = None
         try:
-            text = json.dumps(record, ensure_ascii=False)
+            text = json.dumps(record, ensure_ascii=False, indent=2) + "\n"
             for secret in log_secrets:
                 if secret:
                     text = text.replace(json.dumps(secret, ensure_ascii=False)[1:-1], "[REDACTED]")
-            loggers[name].info(text)
+            with log_lock:
+                directory = log_dir / name
+                directory.mkdir(parents=True, exist_ok=True)
+                target = directory / f"{record['request_id']}.json"
+                temporary = directory / f".{uuid4().hex}.tmp"
+                temporary.write_text(text, encoding="utf-8")
+                temporary.replace(target)
+                # 只清理本模块生成的编号JSON；旧JSONL及无关文件均不动。
+                files = sorted(
+                    (p for p in directory.glob("*.json") if re.fullmatch(r"[a-f0-9]{32}", p.stem)),
+                    key=lambda p: p.stat().st_mtime_ns,
+                )
+                total = sum(p.stat().st_size for p in files)
+                for old in files:
+                    if total <= 20 * 1024 * 1024:
+                        break
+                    if old != target:
+                        size = old.stat().st_size
+                        old.unlink()
+                        total -= size
         except Exception:
             print("Web本地日志写入失败；请求结果不受影响。")
+        finally:
+            if temporary is not None:
+                try:
+                    temporary.unlink(missing_ok=True)
+                except OSError:
+                    pass
 
     def error_metadata(exc):
         """异常仅记录类型和分类，避免任意异常正文带入用户消息/密钥/模型正文。"""
@@ -117,19 +124,11 @@ def create_web_app(settings: Settings, user_id: str, *, graph=None, log_dir=None
             "cause_category": "timeout" if "Timeout" in name else "execution_error",
         }
 
-    @asynccontextmanager
-    async def lifespan(app):
-        yield
-        for logger in loggers.values():
-            for handler in logger.handlers:
-                handler.close()
-
     app = FastAPI(
         title="OrderAgent 本地聊天",
         docs_url=None,
         redoc_url=None,
         openapi_url=None,
-        lifespan=lifespan,
     )
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=["127.0.0.1", "localhost", "[::1]"])
 
@@ -278,12 +277,27 @@ def create_web_app(settings: Settings, user_id: str, *, graph=None, log_dir=None
         collector = Collector()
         result = None
         try:
-            with tracing_context(enabled=False):
-                result = agent.invoke(
-                    {"messages": [{"role": "user", "content": body.message}]},
-                    config={**session.config, "callbacks": [collector]},
-                    context=context,
-                )
+            with (
+                tracing_context(enabled=False),
+                observability.request(
+                    source="web_chat",
+                    session_id=session.log_id,
+                    request_id=request.state.request_id,
+                    knowledge_source="configured_rag" if settings.ragflow_api_url else "local_json",
+                ) as tracking,
+            ):
+                try:
+                    result = agent.invoke(
+                        {"messages": [{"role": "user", "content": body.message}]},
+                        config={
+                            **session.config,
+                            **tracking,
+                            "callbacks": [collector, *tracking.get("callbacks", [])],
+                        },
+                        context=context,
+                    )
+                finally:
+                    observability.diagnostics(collector.events, result, collector.traced_runs)
             return {"answer": result["messages"][-1].text, "request_id": request.state.request_id}
         except Exception as exc:
             request.state.error = error_metadata(exc)
@@ -380,6 +394,7 @@ def create_web_app(settings: Settings, user_id: str, *, graph=None, log_dir=None
                                 "return_error_code",
                                 "support_question_count",
                                 "return_request_count",
+                                "return_fact_diagnostics",
                             )
                         }
                         if result is not None

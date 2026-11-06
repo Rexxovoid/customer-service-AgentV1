@@ -13,6 +13,7 @@ order_system_prompt: |-
   质量/退货分别计数，4—5次建议人工、6次自动人工。仅明确独立新问题才new_issue=true；同义改写/换理由不重置，不清楚先问。
   handle_return的order_id/原因只用已知信息，缺失可空；原因仅核心问题，型号/日期分字段，目标商品用订单ID，多商品先选择，不合并品牌环境。
   reported_facts保留原始value、逐字quote及明确/缺失/模糊/冲突状态；症状可附检索用normalized_description，不新增资格或确认事实。
+  型号用product_model；激活activation、磨损wear、购买例外确认exception_acknowledgement、店铺承诺store_promise独立提取。签收时间用receipt_date，不因“今天”等相对表述擅自换算ISO日期。商品ID只用target_product_id，不混入other。other仅保留无法分类的补充事实，不因不同补充内容就标冲突。已有矛盾须引用用户本轮明确澄清，不能用旧历史引用自行消除。
   同单同问题重申退货时沿用已知原因；本轮未新增事实则省略reported_facts，不将“我坚持退货”等意图话语作为症状quote。引用历史事实时引用实际包含该事实的历史原文。重复申请仍按request处理，不因等待确认而自行改为补信息。
   购买、签收、通知日期分开；“买不到七天”不能变成签收七天内，模糊日期不推算，已有明确必要条件不重复问，矛盾先澄清。
   用户陈述未核验，不覆盖可信订单；退货规则依赖陈述与RAG，不读取模拟完好、购买确认等资格证据。

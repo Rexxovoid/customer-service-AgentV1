@@ -1,6 +1,7 @@
 import json
 from collections.abc import Callable
 from datetime import datetime, timedelta, timezone
+from hashlib import sha256
 from typing import Literal
 from urllib.parse import urlsplit
 from uuid import NAMESPACE_URL, uuid5
@@ -163,6 +164,7 @@ def create_return_tool(
         turn_kind：request明确申请/重申，provide_information补信息，confirm确认，progress查进度，policy_question问规则。
         仅request令is_return_request=true；其余false，不计次数。仅明确新独立问题才new_issue=true，不确定先问。
         reported_facts含field/value/status/逐字quote，status为explicit/missing/ambiguous/conflict；value来自用户原文。
+        型号用product_model，激活activation，磨损wear，购买时例外确认exception_acknowledgement，店铺承诺store_promise；商品ID只用target_product_id，不放other。
         同单同问题仅重申退货时不必重传事实；历史症状须引用含该症状的真实历史原文，不能用退货意图充当症状证据。
         purchase_date/receipt_date/notice_date不可替代；仅symptom可填normalized_description用于检索，不补造资格。
         category仅用于无订单的规则咨询；咨询不创建申请。request_human仅明确人工请求为true。
@@ -206,6 +208,7 @@ def create_return_tool(
             state.get("return_stage") == "awaiting_confirmation" and "确认退货" in latest_user
         )
         facts = {} if switching or new_issue else dict(state.get("return_reported_facts", {}))
+        fact_diagnostics = []
         invalid_fact = False
         for fact in args.reported_facts:
             source = next(
@@ -213,6 +216,7 @@ def create_return_tool(
             )
             if source is None:
                 invalid_fact = True
+                fact_diagnostics.append({"field": fact.field, "change": "unsupported_quote"})
                 continue
             previous_fact = facts.get(fact.field)
             if (
@@ -229,6 +233,7 @@ def create_return_tool(
             ):
                 # 同一申请重申时沿用已有可核对症状，不将退货意图改写成新症状。
                 # 换单/新问题已清空facts；新的资格事实不适用此分支。
+                fact_diagnostics.append({"field": "symptom", "change": "reused_supported_symptom"})
                 continue
             raw_value = fact.value
             search_description = fact.normalized_description if fact.field == "symptom" else ""
@@ -238,8 +243,31 @@ def create_return_tool(
                 search_description = search_description or fact.value
             if fact.status == "explicit" and (not raw_value or raw_value not in fact.quote):
                 invalid_fact = True
+                fact_diagnostics.append({"field": fact.field, "change": "unsupported_value"})
                 continue
-            facts[fact.field] = {
+            # 未分类信息不是同一个业务条件，不将不同补充文字强行比较为冲突。
+            # 键只用于稳定去重；不作为用户身份或已核验事实。
+            fact_key = (
+                "other:" + sha256(raw_value.encode("utf-8")).hexdigest()[:24]
+                if fact.field == "other"
+                else fact.field
+            )
+            previous_fact = facts.get(fact_key)
+            if (
+                previous_fact
+                and previous_fact.get("status") in {"ambiguous", "conflict"}
+                and fact.status == "explicit"
+                and source is not latest
+            ):
+                fact_diagnostics.append(
+                    {
+                        "field": fact.field,
+                        "status": previous_fact["status"],
+                        "change": "awaiting_current_user_clarification",
+                    }
+                )
+                continue
+            facts[fact_key] = {
                 **fact.model_dump(),
                 "value": raw_value,
                 "normalized_description": search_description,
@@ -248,13 +276,27 @@ def create_return_tool(
                 "verified": False,
             }
             if (
-                previous_fact
+                fact.field != "other"
+                and previous_fact
                 and previous_fact["status"] == "explicit"
                 and fact.status == "explicit"
                 and previous_fact["value"] != raw_value
             ):
-                facts[fact.field]["status"] = "conflict"
-                facts[fact.field]["previous_value"] = previous_fact["value"]
+                facts[fact_key]["status"] = "conflict"
+                facts[fact_key]["previous_value"] = previous_fact["value"]
+            fact_diagnostics.append(
+                {
+                    "field": fact.field,
+                    "input_status": fact.status,
+                    "status": facts[fact_key]["status"],
+                    "previous_status": previous_fact.get("status") if previous_fact else None,
+                    "change": "same_field_value_changed"
+                    if "previous_value" in facts[fact_key]
+                    else "repeated"
+                    if previous_fact
+                    else "added",
+                }
+            )
         statements = (
             [] if switching or new_issue else list(state.get("return_original_statements", []))
         )
@@ -265,6 +307,7 @@ def create_return_tool(
         )
         update.update(
             return_reported_facts=facts,
+            return_fact_diagnostics=fact_diagnostics,
             return_original_statements=statements[-20:],
             return_target_product_id=target,
         )
@@ -463,8 +506,21 @@ def create_return_tool(
             [item for item in order.items if item.product_id == target] if target else order.items
         )
         if len(selected_items) != 1:
+            fact_diagnostics.append(
+                {
+                    "field": "target_product_id",
+                    "change": "not_matched"
+                    if target and not selected_items
+                    else "ambiguous_match"
+                    if target
+                    else "selection_required",
+                    "candidate_items": len(order.items),
+                }
+            )
             return finish(
-                "请明确要退货的商品ID，不合并多个商品的型号和条件。",
+                "商品ID未匹配或目标尚未明确。请从该订单中选择要退货的商品ID："
+                + "、".join(dict.fromkeys(item.product_id for item in order.items))
+                + "。",
                 "collecting",
                 missing_fields=["目标商品"],
                 items=[item.model_dump() for item in order.items],
@@ -475,8 +531,40 @@ def create_return_tool(
             key for key, fact in facts.items() if fact["status"] in {"ambiguous", "conflict"}
         ]
         if uncertain:
+            labels = {
+                "symptom": "故障表现",
+                "purchase_date": "购买时间",
+                "receipt_date": "签收时间",
+                "notice_date": "提出退货的时间",
+                "condition": "商品状态",
+                "exception": "适用例外",
+                "product_model": "商品型号",
+                "activation": "激活情况",
+                "wear": "使用磨损情况",
+                "exception_acknowledgement": "购买时的例外确认",
+                "store_promise": "店铺承诺",
+                "other": "尚未分类的补充信息",
+            }
+            questions = []
+            for key in uncertain:
+                fact = facts[key]
+                fact_diagnostics.append(
+                    {
+                        "field": fact.get("field", key),
+                        "status": fact["status"],
+                        "change": "awaiting_clarification",
+                    }
+                )
+                label = labels.get(fact.get("field", key), "补充信息")
+                if fact.get("previous_value"):
+                    questions.append(
+                        f"{label}的两次描述不同：先前为“{fact['previous_value']}”，"
+                        f"后来为“{fact['value']}”。请明确哪一项准确。"
+                    )
+                else:
+                    questions.append(f"{label}“{fact['value']}”还不够明确，请具体说明。")
             return finish(
-                "以下信息模糊或存在冲突，请确认：" + "、".join(uncertain),
+                "需要核对以下信息：\n" + "\n".join(questions),
                 "collecting",
                 missing_fields=uncertain,
             )

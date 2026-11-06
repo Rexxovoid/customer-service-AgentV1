@@ -3,6 +3,7 @@ import json
 import os
 import sys
 from datetime import datetime, timedelta, timezone
+from threading import Lock
 from uuid import uuid4
 
 from dotenv import dotenv_values
@@ -77,10 +78,17 @@ def main():
         json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8"
     )
 
+    repetition_counts = {}
+    repetition_lock = Lock()
+
     def target(inputs):
         """单案例目标函数；官方SDK负责实验样本调度。"""
         from orderagent.evaluation.schemas import Case
 
+        case_id = inputs["case"]["id"]
+        with repetition_lock:
+            repetition_counts[case_id] = repetition_counts.get(case_id, 0) + 1
+            repetition_index = repetition_counts[case_id]
         return execute(
             Case.model_validate(inputs["case"]),
             settings,
@@ -88,6 +96,7 @@ def main():
             judge=args.judge,
             upload=args.upload,
             client=client,
+            repetition_index=repetition_index,
         )
 
     def hard_rule_score(outputs):

@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "dataset_version": "0.6-draft",
+  "dataset_version": "0.7-draft",
   "cases": 20,
   "review_status": "mixed",
   "note": "Independent evaluation data, excluded from RAG ingestion and root business manifest. Update hashes after human edits.",
@@ -12,8 +12,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 3120,
-      "sha256": "8059ac1feb0970893f12434c0d851e7b468ec68fd58e215b97c0f709172899e1"
+      "bytes": 4421,
+      "sha256": "50a227c1b88a02b002e6903e2fe992c3d8ec9646fa6b7eeab821ea276fd138a1"
     },
     {
       "path": "optimization_cases.jsonl",
@@ -24,9 +24,14 @@
       "path": "confirmation_cases.jsonl",
       "bytes": 1714,
       "sha256": "82d6323d578abe1b7ceaa62319a25f75c109701060cb98b20f5ed178f202a224"
+    },
+    {
+      "path": "multiturn_cases.jsonl",
+      "bytes": 14434,
+      "sha256": "ad66fc74f4f7452d9511449a4f7e21e65c58f65aa95a5f4c40562dd15f61867d"
     }
   ],
-  "updated_on": "2026-10-30",
+  "updated_on": "2026-11-06",
   "approved_case_ids": [
     "E01",
     "E02",
@@ -47,7 +52,7 @@
     "E20"
   ],
   "pending_cases": 3,
-  "supplemental_cases": 10,
-  "total_cases": 30,
-  "supplemental_pending_cases": 2
+  "supplemental_cases": 20,
+  "total_cases": 40,
+  "supplemental_pending_cases": 12
 }

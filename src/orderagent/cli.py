@@ -2,9 +2,12 @@ import argparse
 import sys
 from uuid import uuid4
 
+from langsmith import tracing_context
 from pydantic import ValidationError
 
 from orderagent.agents.agent_factory import create_order_agent
+from orderagent.evaluation.runner import Collector
+from orderagent.observability import get_observability
 from orderagent.repositories.after_sales_repository import AfterSalesRepository
 from orderagent.repositories.order_repository import DataLoadError, JsonOrderRepository
 from orderagent.schemas.order_schema import ToolContext
@@ -42,6 +45,7 @@ def main() -> int:
             print(result.model_dump_json(indent=2))
             return 0 if result.ok else 1
         graph = create_order_agent(settings)
+        observability = get_observability(settings)
         config = {"configurable": {"thread_id": uuid4().hex}, "recursion_limit": 40}
 
         def ask(text: str) -> None:
@@ -49,12 +53,29 @@ def main() -> int:
             if not text.strip() or len(text) > 4000:
                 print("请输入1—4000字符的消息。")
                 return
-            result = graph.invoke(
-                {"messages": [{"role": "user", "content": text.strip()}]},
-                config=config,
-                context=context,
-                print_mode=("updates", "custom") if args.trace else (),
-            )
+            collector = Collector()
+            with (
+                tracing_context(enabled=False),
+                observability.request(
+                    source="terminal_chat",
+                    session_id=config["configurable"]["thread_id"],
+                    knowledge_source="configured_rag" if settings.ragflow_api_url else "local_json",
+                ) as tracking,
+            ):
+                try:
+                    result = graph.invoke(
+                        {"messages": [{"role": "user", "content": text.strip()}]},
+                        config={
+                            **config,
+                            **tracking,
+                            "callbacks": [collector, *tracking.get("callbacks", [])],
+                        },
+                        context=context,
+                        print_mode=("updates", "custom") if args.trace else (),
+                    )
+                finally:
+                    observability.diagnostics(collector.events, runs=collector.traced_runs)
+                observability.diagnostics(state=result)
             print(result["messages"][-1].text)
 
         if args.message:

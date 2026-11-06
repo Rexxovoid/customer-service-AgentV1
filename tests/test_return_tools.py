@@ -399,6 +399,105 @@ def test_conflicting_fact_values_require_confirmation(graph_builder):
     assert result["return_reported_facts"]["receipt_date"]["status"] == "conflict"
     assert result["return_stage"] == "collecting"
     assert result["return_request_count"] == 1
+    assert "签收时间的两次描述不同" in result["messages"][-1].text
+    assert "2026-10-21" in result["messages"][-1].text
+    assert "2026-10-22" in result["messages"][-1].text
+    assert "receipt_date" not in result["messages"][-1].text
+
+
+def test_distinct_other_facts_are_not_a_false_conflict(graph_builder):
+    facts = [
+        {"field": "other", "value": "今天刚收到", "quote": "今天刚收到", "status": "explicit"},
+        {"field": "other", "value": "TEST鼠标", "quote": "TEST鼠标", "status": "explicit"},
+    ]
+    graph, _ = graph_builder(
+        [
+            call(reported_facts=[facts[0]]),
+            call(turn_kind="provide_information", reported_facts=[facts[1]]),
+            call(turn_kind="provide_information", reported_facts=[facts[1]]),
+        ]
+    )
+    ask(graph, "今天刚收到，我要退货")
+    state = ask(graph, "TEST鼠标")
+    assert state["return_stage"] == "awaiting_confirmation"
+    assert len(state["return_reported_facts"]) == 2
+    assert all(f["status"] == "explicit" for f in state["return_reported_facts"].values())
+    old_binding = state["return_confirmation_payload"]
+    repeated = ask(graph, "型号还是TEST鼠标")
+    assert len(repeated["return_reported_facts"]) == 2
+    assert repeated["return_confirmation_payload"] == old_binding
+    assert repeated["return_request_count"] == 1
+
+
+def test_model_and_receipt_information_are_independent_fields(graph_builder):
+    graph, _ = graph_builder(
+        [
+            call(
+                reported_facts=[
+                    {
+                        "field": "receipt_date",
+                        "value": "今天",
+                        "status": "explicit",
+                        "quote": "今天收到",
+                    }
+                ]
+            ),
+            call(
+                turn_kind="provide_information",
+                reported_facts=[
+                    {
+                        "field": "product_model",
+                        "value": "TEST",
+                        "status": "explicit",
+                        "quote": "型号TEST",
+                    }
+                ],
+            ),
+        ]
+    )
+    ask(graph, "今天收到，我要退货")
+    state = ask(graph, "型号TEST")
+    assert state["return_stage"] == "awaiting_confirmation"
+    assert set(state["return_reported_facts"]) == {"receipt_date", "product_model"}
+
+
+def test_historical_quote_cannot_silently_clear_conflict(graph_builder):
+    first = {
+        "field": "receipt_date",
+        "value": "2026-10-21",
+        "status": "explicit",
+        "quote": "2026-10-21签收",
+    }
+    second = {
+        "field": "receipt_date",
+        "value": "2026-10-22",
+        "status": "explicit",
+        "quote": "2026-10-22签收",
+    }
+    graph, _ = graph_builder(
+        [
+            call(reported_facts=[first]),
+            call(turn_kind="provide_information", reported_facts=[second]),
+            call(turn_kind="provide_information", reported_facts=[second]),
+            call(turn_kind="provide_information", reported_facts=[second]),
+        ]
+    )
+    ask(graph, "2026-10-21签收，我要退货")
+    ask(graph, "2026-10-22签收")
+    unresolved = ask(graph, "商品HP-P-0001")
+    assert unresolved["return_stage"] == "collecting"
+    assert unresolved["return_reported_facts"]["receipt_date"]["status"] == "conflict"
+    resolved = ask(graph, "请以2026-10-22签收为准")
+    assert resolved["return_reported_facts"]["receipt_date"]["status"] == "explicit"
+    assert resolved["return_stage"] == "awaiting_confirmation"
+
+
+def test_wrong_target_id_returns_owned_candidates(graph_builder):
+    graph, _ = graph_builder([call(target_product_id="MS-P-NOT-OWNED")])
+    state = ask(graph, "我要退货，商品MS-P-NOT-OWNED")
+    assert state["return_stage"] == "collecting"
+    assert "HP-P-0001" in state["messages"][-1].text
+    assert any(d["change"] == "not_matched" for d in state["return_fact_diagnostics"])
 
 
 def test_repeated_return_intent_does_not_replace_existing_symptom(graph_builder):

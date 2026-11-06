@@ -13,6 +13,14 @@ from orderagent.web import COOKIE_NAME, create_web_app
 from tests.fake_chat_model import ScriptedChatModel, tool_call
 
 
+def read_web_logs(settings, name):
+    directory = settings.after_sales_db_path.parent / "logs" / name
+    return [
+        json.loads(path.read_text(encoding="utf-8"))
+        for path in sorted(directory.glob("*.json"), key=lambda p: p.stat().st_mtime_ns)
+    ]
+
+
 @pytest.fixture
 def web(tmp_path):
     """官方图和独立SQLite，避免页面测试消耗远端模型或污染日常台账。"""
@@ -161,12 +169,8 @@ def test_web_logs_correlate_requests_and_agent_without_message_text(web):
     assert response.status_code == 200
     request_id = response.json()["request_id"]
     assert response.headers["X-Request-ID"] == request_id
-    log_dir = settings.after_sales_db_path.parent / "logs"
-    requests = [
-        json.loads(line)
-        for line in (log_dir / "requests.jsonl").read_text(encoding="utf-8").splitlines()
-    ]
-    agent = json.loads((log_dir / "agent.jsonl").read_text(encoding="utf-8").splitlines()[-1])
+    requests = read_web_logs(settings, "requests")
+    agent = read_web_logs(settings, "agent")[-1]
     request = next(row for row in requests if row["request_id"] == request_id)
     assert request["http_status"] == 200 and request["seconds"] >= 0
     assert request["session_id"] == agent["session_id"]
@@ -200,9 +204,8 @@ def test_web_logs_failure_cause_and_error_id(web, monkeypatch):
     assert response.status_code == 502
     request_id = response.json()["request_id"]
     assert request_id == response.headers["X-Request-ID"]
-    log_dir = settings.after_sales_db_path.parent / "logs"
-    request = json.loads((log_dir / "requests.jsonl").read_text(encoding="utf-8").splitlines()[-1])
-    agent = json.loads((log_dir / "agent.jsonl").read_text(encoding="utf-8").splitlines()[-1])
+    request = read_web_logs(settings, "requests")[-1]
+    agent = read_web_logs(settings, "agent")[-1]
     assert request["request_id"] == agent["request_id"] == request_id
     assert request["error_type"] == "RuntimeError"
     assert request["cause_type"] == "TimeoutError"
@@ -215,25 +218,36 @@ def test_web_logs_validation_rejection_with_no_agent_call(web):
     client, _, _, model, settings = web
     response = client.post("/api/chat", json={"message": ""})
     assert response.status_code == 422
-    row = json.loads(
-        (settings.after_sales_db_path.parent / "logs/requests.jsonl")
-        .read_text(encoding="utf-8")
-        .splitlines()[-1]
-    )
+    row = read_web_logs(settings, "requests")[-1]
     assert row["request_id"] == response.json()["request_id"]
     assert row["error_type"] == "RequestValidationError"
     assert not model._requests
 
 
+def test_web_log_files_are_indented_json_and_legacy_logs_are_unchanged(web):
+    client, _, _, _, settings = web
+    directory = settings.after_sales_db_path.parent / "logs"
+    legacy = directory / "requests.jsonl"
+    legacy.write_text('{"legacy":true}\n', encoding="utf-8")
+    response = client.post("/api/chat", json={"message": "hi"})
+    request_id = response.json()["request_id"]
+    for name in ("requests", "agent"):
+        text = (directory / name / f"{request_id}.json").read_text(encoding="utf-8")
+        assert text.startswith('{\n  "request_id":')
+        assert json.loads(text)["request_id"] == request_id
+        assert not list((directory / name).glob("*.tmp"))
+    assert legacy.read_text(encoding="utf-8") == '{"legacy":true}\n'
+
+
 def test_web_logging_write_failure_does_not_change_response(web, monkeypatch):
-    from logging.handlers import RotatingFileHandler
+    from pathlib import Path
 
     client, _, _, _, _ = web
 
     def fail(*args, **kwargs):
         raise OSError("test write failure")
 
-    monkeypatch.setattr(RotatingFileHandler, "emit", fail)
+    monkeypatch.setattr(Path, "write_text", fail)
     response = client.post("/api/chat", json={"message": "hi"})
     assert response.status_code == 200
     assert response.json()["answer"] == "测试回答"
@@ -269,8 +283,7 @@ def test_web_logs_knowledge_id_without_showing_source_to_customer(web, monkeypat
     ]
     response = client.post("/api/chat", json={"message": "issue"})
     assert response.json()["answer"] == "请先检查设备连接。"
-    path = settings.after_sales_db_path.parent / "logs/agent.jsonl"
-    row = json.loads(path.read_text(encoding="utf-8").splitlines()[-1])
+    row = read_web_logs(settings, "agent")[-1]
     tool = next(step for step in row["steps"] if step["type"] == "tool")
     assert tool["knowledge"] == {"id": "knowledge-source-1", "data_origin": "ragflow_retrieval"}
     assert "PRIVATE" not in json.dumps(row)
@@ -319,8 +332,7 @@ def test_web_logs_tool_result_and_rag_diagnostics_without_evidence_text(web, mon
     ]
     response = client.post("/api/chat", json={"message": "PRIVATE-SYMPTOM"})
     assert response.status_code == 200
-    path = settings.after_sales_db_path.parent / "logs/agent.jsonl"
-    row = json.loads(path.read_text(encoding="utf-8").splitlines()[-1])
+    row = read_web_logs(settings, "agent")[-1]
     assert row["state"]["support_phase"] == "transferred"
     tool = next(step for step in row["steps"] if step["type"] == "tool")
     assert tool["action"] == "handoff"

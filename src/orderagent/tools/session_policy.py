@@ -87,6 +87,7 @@ def reset_consultation():
         "return_rule_source": {},
         "return_target_product_id": "",
         "return_reported_facts": {},
+        "return_fact_diagnostics": [],
         "return_original_statements": [],
         "return_confirmation_payload": {},
         "return_has_request": False,

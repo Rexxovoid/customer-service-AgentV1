@@ -188,10 +188,15 @@ def fingerprint(dataset, settings):
                 "langgraph",
                 "langsmith",
                 "openai",
+                "langfuse",
             )
         },
         "agent_model": settings.model_name,
         "judge_model": settings.qianwen,
+        "observability": {
+            "langfuse_enabled": settings.langfuse_enabled,
+            "payload_policy": "metadata-only-v1",
+        },
         "agent_parameters": {
             "max_tokens": model.max_tokens,
             "max_retries": model.max_retries,
@@ -221,10 +226,55 @@ def fingerprint(dataset, settings):
     }
 
 
-def run_case(case, settings, root, *, judge=False):
+def run_case(case, settings, root, *, judge=False, repetition_index=None):
+    """可选云追踪包围现有案例执行，保留本地记录和独立状态。"""
+    from orderagent.observability import get_observability
+
+    observability = get_observability(settings)
+    run_id = f"{case.id}-{uuid4().hex}"
+    with observability.request(
+        source=f"eval_{case.mode}",
+        session_id=run_id,
+        run_id=run_id,
+        case_id=case.id,
+        repetition_index=repetition_index,
+        knowledge_source=case.fixture
+        if case.mode == "controlled_agent"
+        else ("configured_rag" if settings.ragflow_api_url else "local_json"),
+    ) as tracking:
+        record = _run_case(
+            case,
+            settings,
+            root,
+            judge=judge,
+            tracking=tracking,
+            run_id=run_id,
+            repetition_index=repetition_index,
+        )
+        observability.diagnostics(record.get("events", []))
+        if record.get("error_type"):
+            observability.diagnostics(
+                [
+                    {
+                        "data": {
+                            "stage": "evaluation_error",
+                            "error_type": record["error_type"],
+                            "error_code": record.get("error_code"),
+                        }
+                    }
+                ]
+            )
+        for turn in record.get("turns", []):
+            observability.diagnostics(state=turn.get("state"))
+        return record
+
+
+def _run_case(
+    case, settings, root, *, judge=False, tracking=None, run_id=None, repetition_index=None
+):
     """每案例新图、新会话、新SQLite；同案例保留多轮状态，失败分支不继续确认。"""
     started = time.perf_counter()
-    run_id = f"{case.id}-{uuid4().hex}"
+    run_id = run_id or f"{case.id}-{uuid4().hex}"
     work = root / run_id
     work.mkdir(parents=True, exist_ok=False)
     isolated = settings.model_copy(
@@ -240,6 +290,7 @@ def run_case(case, settings, root, *, judge=False):
         "case_id": case.id,
         "user_id": case.user_id,
         "run_id": run_id,
+        "repetition_index": repetition_index,
         "mode": case.mode,
         "category": case.category,
         "review_status": case.review_status,
@@ -260,8 +311,9 @@ def run_case(case, settings, root, *, judge=False):
     }
     gateway = EvaluationReturns()
     config = {
+        **(tracking or {}),
         "configurable": {"thread_id": run_id},
-        "callbacks": [collector],
+        "callbacks": [collector, *(tracking or {}).get("callbacks", [])],
         "recursion_limit": 40,
     }
     try:
@@ -304,6 +356,11 @@ def run_case(case, settings, root, *, judge=False):
             all_checks = []
             for index, turn in enumerate(case.turns, 1):
                 turn_start = time.perf_counter()
+                config["metadata"] = {
+                    **config.get("metadata", {}),
+                    "turn": index,
+                    "request_id": uuid4().hex,
+                }
                 state = graph.invoke(
                     {"messages": [{"role": "user", "content": turn.user}]},
                     config=config,
@@ -495,9 +552,9 @@ def run_case(case, settings, root, *, judge=False):
     return record
 
 
-def execute(case, settings, root, judge=False, upload=False, client=None):
-    """显式覆盖环境追踪开关；默认本地，不因环境变量自动上传。"""
+def execute(case, settings, root, judge=False, upload=False, client=None, repetition_index=None):
+    """LangSmith仅由upload控制；Langfuse使用Settings中的独立显式开关。"""
     # langchain-core 1.6.12将字符串local视为真值并创建远程Tracer；
     # 本地显式False，使用独立RunCollector保留执行树，避免无意联网。
     with tracing_context(enabled=upload, client=client):
-        return run_case(case, settings, root, judge=judge)
+        return run_case(case, settings, root, judge=judge, repetition_index=repetition_index)

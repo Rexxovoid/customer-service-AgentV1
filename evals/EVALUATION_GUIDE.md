@@ -11,6 +11,7 @@
 | `data/evaluation/cases.jsonl` | E01—E20，20条 | 主要业务、异常与真实RAG观察 |
 | `data/evaluation/optimization_cases.jsonl` | E23—E30，8条 | 意图、补信息、日期和目标商品 |
 | `data/evaluation/confirmation_cases.jsonl` | E31/E32，2条 | 句末标点确认、无效确认、幂等 |
+| `data/evaluation/multiturn_cases.jsonl` | E33—E42，10条31轮 | 意图切换、权限、确认、更正、清零和持久幂等；全部待审批 |
 
 审批状态以文件为准。主集E05/E06/E13最近修改后需重新审批；不因当前答案错误就把金标改成错误答案。测试题和参考答案不得导入知识库。
 
@@ -28,9 +29,26 @@ uv run orderagent-eval run --ids E01 --judge
 uv run orderagent-eval run --ids E05,E06,E13,E15 --repeat 3 --concurrency 2 --judge
 uv run orderagent-eval run --cases data/evaluation/confirmation_cases.jsonl --repeat 3 --concurrency 2
 uv run orderagent-eval run --cases data/evaluation/optimization_cases.jsonl --repeat 3 --concurrency 2
+
+# 新多轮集：先校验，再单案例人工核对，最后批量重复。
+uv run orderagent-eval validate --cases data/evaluation/multiturn_cases.jsonl
+uv run orderagent-eval run --cases data/evaluation/multiturn_cases.jsonl --ids E33
+uv run orderagent-eval run --cases data/evaluation/multiturn_cases.jsonl --repeat 3 --concurrency 2 --judge
 ```
 
-repeat范围1—10，concurrency范围1—4，默认均1。默认无云端上传，模型调用仍产生供应商用量。裁判读取QIWEN_API_KEY、QIWEN_BASE_URL、QIANWEN；默认模型qwen3.8-flash，SDK重试1次、超时30秒、输出预算2000。裁判失败不改变业务硬规则结论。
+repeat范围1—10，concurrency范围1—4，默认均1。LangSmith默认无云端上传；Langfuse由独立开关控制，见下文。模型调用仍产生供应商用量。裁判读取QIWEN_API_KEY、QIWEN_BASE_URL、QIANWEN；默认模型qwen3.8-flash，SDK重试1次、超时30秒、输出预算2000。裁判失败不改变业务硬规则结论。
+
+## Langfuse追踪
+
+设置 `LANGFUSE_ENABLED=true` 并配置三个 Langfuse 变量后，原测评命令即可附加官方回调追踪，无需 `--upload`。该参数仍专指现有 LangSmith 上传，未明确需要时不要添加。关闭 Langfuse 使用 `LANGFUSE_ENABLED=false`，默认即关闭；系统环境变量优先于 `.env`。
+
+来源分别为 `eval_controlled_agent`（固定知识夹具）、`eval_live_agent`（实际Agent及配置知识源）、`eval_live_rag`（实际RAG检索/选择）。网页为 `web_chat`，终端为 `terminal_chat`。实际配置知识源及诊断一并记录，不因云端出现追踪就认定真实RAG通过。
+
+每次案例执行有独立 `run_id` 和会话标识，保留 `case_id`。CLI为同案例分配线程安全的 `repetition_index`（从1开始的调度进入顺序，不是完成顺序）；直接调用 `execute` 未传入则为 `null`。每轮Agent调用有独立 `request_id` 及 `turn`；外层案例追踪也有自己的请求标识。`experiment.json` 记录Langfuse版本、启用状态及上传策略，原始配置凭据不保存。
+
+只上传结构与白名单摘要，原始对话、完整状态、证据及裁判正文不上传；五维评分和人工审批仍以本地文件为准。RAG事件通过官方子observation补充，因为当前官方回调未实现项目自定义事件；这些摘要是收集后生成，摘要span本身耗时不是原始RAG阶段耗时，诊断的 `seconds` 才是可获取的原始阶段用时。
+
+追踪服务不可用不改变硬规则和业务状态。上传异步进行，不保证网络异常或退出时记录完整；含无法脱敏事件、链接或状态正文的原始span不导出，异常分类另以安全摘要保留。因此网页中缺少某个span不能直接判为业务没有执行，应结合本地 `result.json`、`trace`、`events` 核对。
 
 ## 先审批案例，再评审结果
 

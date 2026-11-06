@@ -9,7 +9,18 @@ class ReportedFact(BaseModel):
 
     model_config = ConfigDict(extra="forbid", strict=True, str_strip_whitespace=True)
     field: Literal[
-        "symptom", "purchase_date", "receipt_date", "notice_date", "condition", "exception", "other"
+        "symptom",
+        "purchase_date",
+        "receipt_date",
+        "notice_date",
+        "condition",
+        "exception",
+        "product_model",
+        "activation",
+        "wear",
+        "exception_acknowledgement",
+        "store_promise",
+        "other",
     ]
     value: str = Field(max_length=300)
     status: Literal["explicit", "missing", "ambiguous", "conflict"]
