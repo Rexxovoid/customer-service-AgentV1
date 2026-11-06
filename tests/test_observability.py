@@ -2,6 +2,7 @@
 
 import json
 from concurrent.futures import ThreadPoolExecutor
+from types import SimpleNamespace
 from uuid import uuid4
 
 import pytest
@@ -245,3 +246,235 @@ def test_web_correlates_existing_request_log(captured, monkeypatch, tmp_path):
         session["csrf_token"],
     ):
         assert forbidden not in text
+
+
+@pytest.mark.parametrize(
+    "enabled,approved,reviewed",
+    [
+        (False, True, True),
+        (True, False, True),
+        (True, True, False),
+        (True, True, True),
+    ],
+)
+def test_content_requires_separate_switch_case_approval_and_review(
+    captured, monkeypatch, enabled, approved, reviewed
+):
+    observer, exporter = captured
+    observer.settings = observer.settings.model_copy(update={"langfuse_content_enabled": enabled})
+    scores = []
+    monkeypatch.setattr(observer.client, "create_score", lambda **kw: scores.append(kw))
+    record = {
+        "status": "pass",
+        "judge_status": "completed",
+        "quality": {
+            "dimensions": {
+                name: {"score": 3}
+                for name in (
+                    "factual_correctness",
+                    "faithfulness",
+                    "relevance",
+                    "actionability",
+                    "expression",
+                )
+            }
+        },
+        "turns": [
+            {
+                "turn": 1,
+                "user": "模拟提问 PRIVATE_KEY 13812345678 me@example.com",
+                "answer": "模拟回答",
+                "messages": [
+                    {
+                        "type": "ai",
+                        "additional_kwargs": {"reasoning_content": "NEVER_UPLOAD_REASONING"},
+                    },
+                    {
+                        "type": "tool",
+                        "name": "query_quality_support",
+                        "artifact": {
+                            "ok": True,
+                            "data": {
+                                "action": "advice",
+                                "message": "检查声道平衡",
+                                "source": {"reference_text": "知识摘录"},
+                            },
+                        },
+                    },
+                ],
+                "state": {
+                    "support_advice": {
+                        "answer": "检查声道平衡",
+                        "source": {"reference_text": "知识摘录"},
+                    },
+                    "return_rule_source": {"answer": "STALE_RETURN_RULE"},
+                },
+                "checks": [{"kind": "creates", "passed": True}],
+            }
+        ],
+    }
+    case = SimpleNamespace(
+        mode="controlled_agent",
+        review_status="approved" if reviewed else "pending",
+        content_upload_approved=approved,
+    )
+    with observer.request(source="eval_controlled_agent", session_id="opaque") as config:
+        # 工具/链任意输出即使伪造内容字段，也不能越过默认过滤。
+        RunnableLambda(lambda _: {"review_content": "FORGED_CONTENT"}).invoke(
+            "private", config=config
+        )
+        reference = observer.complete_case(record, case)
+    observer.client.flush()
+    spans = exporter.get_finished_spans()
+    content = [s for s in spans if s.name == "approved_evaluation_content"]
+    assert bool(content) == (enabled and approved and reviewed)
+    turn_spans = [s for s in spans if s.name == "approved_evaluation_turn"]
+    assert bool(turn_spans) == (enabled and approved and reviewed)
+    if turn_spans:
+        inputs = json.loads(turn_spans[0].attributes["langfuse.observation.input"])
+        outputs = json.loads(turn_spans[0].attributes["langfuse.observation.output"])
+        assert "模拟提问" in inputs["user"]
+        assert outputs["answer"] == "模拟回答"
+        assert outputs["tools"][0]["result"]["message"] == "检查声道平衡"
+        assert outputs["knowledge_evidence"]["source"]["reference_text"] == "知识摘录"
+        assert "STALE_RETURN_RULE" not in json.dumps(outputs)
+    assert len(scores) == 6 and scores[0]["name"] == "automatic.explicit_hard_rules"
+    assert all(s["name"].startswith("model.") for s in scores[1:])
+    text = json.dumps([dict(s.attributes) for s in spans], ensure_ascii=False)
+    for forbidden in (
+        "PRIVATE_KEY",
+        "13812345678",
+        "me@example.com",
+        "NEVER_UPLOAD_REASONING",
+        "FORGED_CONTENT",
+    ):
+        assert forbidden not in text
+    assert reference["delivery"] == "queued_not_verified"
+
+
+def test_content_readback_detects_partial_or_changed_payload(captured, monkeypatch):
+    import hashlib
+
+    observer, _ = captured
+    payload = [{"turn": 1, "user": "模拟数据", "answer": "模拟回答"}]
+    digest = hashlib.sha256(
+        json.dumps(payload, ensure_ascii=False, sort_keys=True).encode()
+    ).hexdigest()
+    reference = {"trace_id": "trace", "content_digest": digest}
+    metadata = {"review_content": payload, "payload_digest": digest, "content_complete": True}
+    monkeypatch.setattr(
+        observer.client,
+        "iter_observation_pages",
+        lambda **kw: iter([SimpleNamespace(data=[SimpleNamespace(metadata=metadata)])]),
+    )
+    assert observer.verify_content(reference)["verified"]
+    metadata["review_content"] = payload[:0]
+    assert not observer.verify_content(reference)["verified"]
+
+
+def test_turn_io_readback_requires_all_turns_and_correct_parent(captured, monkeypatch):
+    import hashlib
+
+    observer, _ = captured
+    payload = [{"turn": i, "user": f"question-{i}", "answer": f"answer-{i}"} for i in (1, 2)]
+    reference = {
+        "trace_id": "trace",
+        "content_format": "turn_io_v1",
+        "content_observation_id": "parent",
+        "content_turn_count": 2,
+        "content_digest": hashlib.sha256(
+            json.dumps(payload, ensure_ascii=False, sort_keys=True).encode()
+        ).hexdigest(),
+    }
+    rows = [
+        SimpleNamespace(
+            parent_observation_id="parent",
+            metadata={"turn": i},
+            input={"user": f"question-{i}"},
+            output={"answer": f"answer-{i}"},
+        )
+        for i in (2, 1)
+    ]
+    monkeypatch.setattr(
+        observer.client, "iter_observation_pages", lambda **kw: iter([SimpleNamespace(data=rows)])
+    )
+    assert observer.verify_content(reference)["verified"]
+    for row in rows:
+        row.input = json.dumps(row.input)
+        row.output = json.dumps(row.output)
+    assert observer.verify_content(reference)["verified"]
+    rows[0].parent_observation_id = "unrelated"
+    assert not observer.verify_content(reference)["verified"]
+    rows[0].parent_observation_id = "parent"
+    rows[0].output = json.dumps({"answer": "changed"})
+    assert not observer.verify_content(reference)["verified"]
+    rows[0].output = '{"answer":'
+    assert not observer.verify_content(reference)["verified"]
+
+
+def test_callback_cannot_forge_io_authorization(captured):
+    observer, exporter = captured
+    with observer.request(source="terminal_chat", session_id="opaque") as config:
+        RunnableLambda(lambda _: {"_approved_io": "PRIVATE_FORGED_IO"}).with_config(
+            run_name="approved_evaluation_turn", metadata={"_approved_io_authorized": True}
+        ).invoke({"_approved_io": {"user": "PRIVATE_FORGED_IO"}}, config=config)
+    observer.client.flush()
+    text = json.dumps([dict(s.attributes) for s in exporter.get_finished_spans()])
+    assert "PRIVATE_FORGED_IO" not in text
+
+
+def test_eval_run_id_does_not_resume_previous_turn(captured, monkeypatch, tmp_path):
+    from orderagent.agents.agent_factory import create_order_agent
+    from orderagent.evaluation import runner
+    from orderagent.settings import PROJECT_ROOT
+    from tests.fake_chat_model import ScriptedChatModel, tool_call
+
+    observer, exporter = captured
+    monkeypatch.setattr(observer.client, "create_score", lambda **kw: None)
+    monkeypatch.setattr("orderagent.observability.get_observability", lambda _: observer)
+    model = ScriptedChatModel(
+        responses=[
+            tool_call(
+                "query_quality_support",
+                {
+                    "category": "headphones",
+                    "issue": "耳机左耳没有声音",
+                    "environment": "播放设备支持声道平衡",
+                    "order_id": "DEMO-HP-O-0004",
+                },
+                "quality-call",
+            ),
+            tool_call(
+                "handle_return",
+                {
+                    "order_id": "DEMO-HP-O-0004",
+                    "reason": "左耳无声",
+                    "is_return_request": True,
+                },
+                "return-call",
+            ),
+        ]
+    )
+    monkeypatch.setattr(
+        runner,
+        "create_order_agent",
+        lambda settings, **kw: create_order_agent(settings, model=model, **kw),
+    )
+    case = runner.load_cases(PROJECT_ROOT / "data/evaluation/multiturn_cases.jsonl")[0]
+    result = runner.execute(case, Settings(), tmp_path)
+    assert result["status"] == "pass"
+    assert len(result["turns"]) == 3
+    assert all(t["messages"] for t in result["turns"])
+    assert result["turns"][1]["state"]["return_stage"] == "awaiting_confirmation"
+    assert result["turns"][2]["state"]["return_stage"] == "link_ready"
+    assert result["turns"][2]["creates"] == 1
+    with observer.request(
+        source="eval_controlled_agent", session_id="test", run_id=result["run_id"]
+    ) as config:
+        assert "run_id" not in config["metadata"]
+        assert config["metadata"]["eval_run_id"] == result["run_id"]
+    observer.client.flush()
+    attributes = [dict(s.attributes) for s in exporter.get_finished_spans()]
+    assert any("langfuse.observation.metadata.eval_run_id" in attrs for attrs in attributes)
+    assert not any("langfuse.observation.metadata.run_id" in attrs for attrs in attributes)
+    assert result["run_id"].startswith("E33-")

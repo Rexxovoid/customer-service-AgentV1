@@ -1,6 +1,7 @@
 import csv
 import json
 import math
+import re
 from collections import Counter
 
 
@@ -67,10 +68,77 @@ def summarize(records):
     }
 
 
+def compact_record(record):
+    """索引保留汇总/对比所需值，正文、执行树和状态仅保留在案例详情。"""
+    fields = (
+        "case_id",
+        "run_id",
+        "mode",
+        "category",
+        "review_status",
+        "repetition_index",
+        "status",
+        "failure",
+        "judge_status",
+        "target_seconds",
+        "judge_seconds",
+        "model_calls",
+        "tool_calls",
+        "hard_check_count",
+        "rag_outcome_code",
+        "hit_at_5",
+        "error_type",
+        "error_code",
+        "judge_error_type",
+        "knowledge_source",
+        "langfuse",
+    )
+    result = {k: record[k] for k in fields if k in record}
+    result["storage_version"] = 2
+    result["turns"] = [
+        {
+            "turn": t.get("turn"),
+            "seconds": t.get("seconds"),
+            "checks": [
+                {k: c.get(k) for k in ("kind", "key", "passed")} for c in t.get("checks", [])
+            ],
+        }
+        for t in record.get("turns", [])
+    ]
+    result["diagnostics"] = [
+        {k: d.get(k) for k in ("stage", "seconds", "usage")}
+        for d in record.get("diagnostics", [])
+        if d.get("stage") == "selection_metrics"
+    ]
+    result["dependency_errors"] = [
+        {"error_code": d.get("error_code")} for d in record.get("dependency_errors", [])
+    ]
+    if record.get("quality"):
+        result["quality"] = {
+            "dimensions": {
+                k: {"score": v["score"]} for k, v in record["quality"]["dimensions"].items()
+            }
+        }
+    result["detail_path"] = f"{record['run_id']}/result.json"
+    return result
+
+
 def write_report(root, records):
-    """结果不可覆盖人工表；按模式分类汇总并创建待填写的独立审核表。"""
+    """每案例一份详情，根JSONL仅存索引；不采样、不删除、不设保留天数。"""
+    indices = []
+    for record in records:
+        if not re.fullmatch(r"[A-Za-z0-9_-]{1,100}", record["run_id"]):
+            raise ValueError("Invalid evaluation run_id")
+        detail = root / record["run_id"] / "result.json"
+        detail.parent.mkdir(exist_ok=True)
+        if not detail.exists():
+            detail.write_text(json.dumps(record, ensure_ascii=False, indent=2), encoding="utf-8")
+        index = compact_record(record)
+        index["detail_retention"] = "manual_only"
+        index["detail_status"] = "local_available"
+        indices.append(index)
     (root / "results.jsonl").write_text(
-        "\n".join(json.dumps(r, ensure_ascii=False) for r in records) + "\n", encoding="utf-8"
+        "\n".join(json.dumps(r, ensure_ascii=False) for r in indices) + "\n", encoding="utf-8"
     )
     summary = {"overall": summarize(records), "groups": {}, "stability": {}}
     for case_id in sorted({r["case_id"] for r in records}):

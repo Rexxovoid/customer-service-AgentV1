@@ -50,6 +50,8 @@ class Settings(BaseModel):
     langfuse_secret_key: SecretStr = SecretStr("")
     langfuse_public_key: SecretStr = SecretStr("")
     langfuse_base_url: str = "https://cloud.langfuse.com"
+    langfuse_content_enabled: bool = False
+    langfuse_plan: Literal["unknown", "hobby", "core", "pro", "enterprise"] = "unknown"
 
     @field_validator("base_url")
     @classmethod
@@ -134,6 +136,8 @@ class Settings(BaseModel):
                 langfuse_secret_key=SecretStr(value("LANGFUSE_SECRET_KEY")),
                 langfuse_public_key=SecretStr(value("LANGFUSE_PUBLIC_KEY")),
                 langfuse_base_url=value("LANGFUSE_BASE_URL", "https://cloud.langfuse.com"),
+                langfuse_content_enabled=value("LANGFUSE_CONTENT_ENABLED", "false"),
+                langfuse_plan=value("LANGFUSE_PLAN", "unknown"),
             )
         except ValueError:
             raise ConfigurationError(

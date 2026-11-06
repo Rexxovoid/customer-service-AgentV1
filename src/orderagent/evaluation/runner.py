@@ -195,7 +195,11 @@ def fingerprint(dataset, settings):
         "judge_model": settings.qianwen,
         "observability": {
             "langfuse_enabled": settings.langfuse_enabled,
-            "payload_policy": "metadata-only-v1",
+            "payload_policy": "metadata-with-reviewed-content-v2"
+            if settings.langfuse_content_enabled
+            else "metadata-only-v2",
+            "content_enabled": settings.langfuse_content_enabled,
+            "plan": settings.langfuse_plan,
         },
         "agent_parameters": {
             "max_tokens": model.max_tokens,
@@ -232,12 +236,24 @@ def run_case(case, settings, root, *, judge=False, repetition_index=None):
 
     observability = get_observability(settings)
     run_id = f"{case.id}-{uuid4().hex}"
+    experiment = {}
+    if (root / "experiment.json").exists():
+        experiment = json.loads((root / "experiment.json").read_text(encoding="utf-8"))
     with observability.request(
         source=f"eval_{case.mode}",
         session_id=run_id,
         run_id=run_id,
         case_id=case.id,
         repetition_index=repetition_index,
+        experiment_id=root.name,
+        code_version=(experiment["commit"] + ("+dirty" if experiment.get("dirty") else ""))
+        if experiment.get("commit")
+        else None,
+        dataset_hash=experiment.get("dataset_hash"),
+        model_config_summary={
+            "agent": settings.model_name,
+            "selection_effort": settings.ragflow_selection_reasoning_effort,
+        },
         knowledge_source=case.fixture
         if case.mode == "controlled_agent"
         else ("configured_rag" if settings.ragflow_api_url else "local_json"),
@@ -251,7 +267,8 @@ def run_case(case, settings, root, *, judge=False, repetition_index=None):
             run_id=run_id,
             repetition_index=repetition_index,
         )
-        observability.diagnostics(record.get("events", []))
+        if case.mode == "live_rag":
+            observability.diagnostics(record.get("events", []))
         if record.get("error_type"):
             observability.diagnostics(
                 [
@@ -264,9 +281,11 @@ def run_case(case, settings, root, *, judge=False, repetition_index=None):
                     }
                 ]
             )
-        for turn in record.get("turns", []):
-            observability.diagnostics(state=turn.get("state"))
-        return record
+        record["langfuse"] = observability.complete_case(record, case)
+    (root / run_id / "result.json").write_text(
+        json.dumps(record, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    return record
 
 
 def _run_case(
@@ -361,11 +380,36 @@ def _run_case(
                     "turn": index,
                     "request_id": uuid4().hex,
                 }
-                state = graph.invoke(
-                    {"messages": [{"role": "user", "content": turn.user}]},
-                    config=config,
-                    context=ToolContext(user_id=case.user_id),
-                )
+                from orderagent.observability import get_observability
+
+                event_start = len(collector.events)
+                run_start = len(collector.traced_runs)
+                observer = get_observability(settings)
+                with observer.request(
+                    source="evaluation_turn",
+                    session_id=run_id,
+                    run_id=run_id,
+                    case_id=case.id,
+                    turn=index,
+                    experiment_id=root.name,
+                    request_id=config["metadata"]["request_id"],
+                    repetition_index=repetition_index,
+                ) as turn_tracking:
+                    try:
+                        state = graph.invoke(
+                            {"messages": [{"role": "user", "content": turn.user}]},
+                            config={
+                                **config,
+                                **turn_tracking,
+                                "callbacks": [collector, *turn_tracking.get("callbacks", [])],
+                            },
+                            context=ToolContext(user_id=case.user_id),
+                        )
+                        observer.diagnostics(state=state)
+                    finally:
+                        observer.diagnostics(
+                            collector.events[event_start:], runs=collector.traced_runs[run_start:]
+                        )
                 messages = [m for m in state["messages"] if m.id not in previous_ids]
                 previous_ids = {m.id for m in state["messages"]}
                 store = AfterSalesRepository(isolated.after_sales_db_path)
@@ -546,9 +590,6 @@ def _run_case(
         record["judge_seconds"] = time.perf_counter() - judge_start
         record["judge_diagnostics"]["total_seconds"] = record["judge_seconds"]
     record = sanitize(record, secrets)
-    (work / "result.json").write_text(
-        json.dumps(record, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
     return record
 
 

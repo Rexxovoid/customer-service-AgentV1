@@ -21,19 +21,54 @@ def main():
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser(description="售后Agent独立测评")
-    parser.add_argument("action", choices=["validate", "run", "compare"])
+    parser.add_argument("action", choices=["validate", "run", "compare", "verify"])
     parser.add_argument("--cases", default=str(PROJECT_ROOT / "data/evaluation/cases.jsonl"))
     parser.add_argument("--ids", help="逗号分隔案例编号")
     parser.add_argument("--repeat", type=int, default=1)
     parser.add_argument("--concurrency", type=int, default=1)
     parser.add_argument("--judge", action="store_true")
     parser.add_argument("--upload", action="store_true", help="显式上传LangSmith；详情输入输出隐藏")
-    parser.add_argument("--result", help="compare时指定已有实验目录")
+    parser.add_argument("--result", help="compare/verify时指定已有实验目录")
     args = parser.parse_args()
     from pathlib import Path
 
     if not 1 <= args.repeat <= 10 or not 1 <= args.concurrency <= 4:
         parser.error("repeat范围1—10，concurrency范围1—4")
+    if args.action == "verify":
+        if not args.result:
+            parser.error("verify需要--result")
+        from orderagent.observability import get_observability
+
+        root = Path(args.result).resolve()
+        observer = get_observability(Settings.load())
+        rows = [
+            json.loads(line)
+            for line in (root / "results.jsonl").read_text(encoding="utf-8").splitlines()
+        ]
+        verification = []
+        for row in rows:
+            proof = observer.verify_content(row.get("langfuse") or {})
+            trace_id = (row.get("langfuse") or {}).get("trace_id")
+            trace_url = None
+            if trace_id and observer.client is not None:
+                try:
+                    trace_url = observer.client.get_trace_url(trace_id=trace_id)
+                except Exception:
+                    pass
+            verification.append(
+                {
+                    "run_id": row["run_id"],
+                    "case_id": row["case_id"],
+                    "cloud_content": proof,
+                    "trace_id": trace_id,
+                    "trace_url": trace_url,
+                }
+            )
+        (root / "langfuse_verification.json").write_text(
+            json.dumps(verification, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+        print(json.dumps(verification, ensure_ascii=False, indent=2))
+        return 0
     if args.action == "compare":
         if not args.result:
             parser.error("compare需要--result")
@@ -73,11 +108,12 @@ def main():
         upload=args.upload,
         selected_ids=[c.id for c in cases],
         judge_enabled=args.judge,
+        dataset_hash=meta["files"][str(dataset)],
+        storage_policy="manual",
     )
     (root / "experiment.json").write_text(
         json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8"
     )
-
     repetition_counts = {}
     repetition_lock = Lock()
 
@@ -153,6 +189,16 @@ def main():
                     "target_seconds": 0,
                 }
             records.append(outputs)
+    from orderagent.observability import get_observability
+
+    observer = get_observability(settings)
+    with observer.request(
+        source="evaluation_experiment",
+        session_id=root.name,
+        experiment_id=root.name,
+        case_trace_ids=[r.get("langfuse", {}).get("trace_id") for r in records],
+    ):
+        pass
     write_report(root, records)
     if client:
         client.flush()

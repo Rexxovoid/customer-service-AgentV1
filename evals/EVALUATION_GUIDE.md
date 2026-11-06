@@ -1,6 +1,6 @@
 # 测评操作指南
 
-更新：2026-10-30。本文负责测评操作，不重复定义业务规则；当前边界见[规则规范](../docs/rules.md)，职责和修改清单见[边界维护分工](../docs/boundary-maintenance.md)。原evals/README.md已更名为本文件。
+更新：2026-11-06。本文负责测评操作，不重复定义业务规则；当前边界见[规则规范](../docs/rules.md)，职责和修改清单见[边界维护分工](../docs/boundary-maintenance.md)。原evals/README.md已更名为本文件。
 
 ## 案例与执行方式
 
@@ -40,13 +40,33 @@ repeat范围1—10，concurrency范围1—4，默认均1。LangSmith默认无云
 
 ## Langfuse追踪
 
+本地案例编号字段仍为 `run_id`；传给LangGraph的追踪metadata统一映射为 `eval_run_id`，Langfuse中据此查找，值保持相同。不要把固定案例编号放入 `metadata.run_id`：当前LangGraph将其用于运行恢复，会把后续用户消息当成同一次运行重入，导致直接返回旧结果。历史实验不改写，重新运行产生新记录。
+
 设置 `LANGFUSE_ENABLED=true` 并配置三个 Langfuse 变量后，原测评命令即可附加官方回调追踪，无需 `--upload`。该参数仍专指现有 LangSmith 上传，未明确需要时不要添加。关闭 Langfuse 使用 `LANGFUSE_ENABLED=false`，默认即关闭；系统环境变量优先于 `.env`。
 
 来源分别为 `eval_controlled_agent`（固定知识夹具）、`eval_live_agent`（实际Agent及配置知识源）、`eval_live_rag`（实际RAG检索/选择）。网页为 `web_chat`，终端为 `terminal_chat`。实际配置知识源及诊断一并记录，不因云端出现追踪就认定真实RAG通过。
 
-每次案例执行有独立 `run_id` 和会话标识，保留 `case_id`。CLI为同案例分配线程安全的 `repetition_index`（从1开始的调度进入顺序，不是完成顺序）；直接调用 `execute` 未传入则为 `null`。每轮Agent调用有独立 `request_id` 及 `turn`；外层案例追踪也有自己的请求标识。`experiment.json` 记录Langfuse版本、启用状态及上传策略，原始配置凭据不保存。
+每次案例执行有独立 `run_id` 和会话标识，保留 `case_id`。CLI为同案例分配线程安全的 `repetition_index`（从1开始的调度进入顺序，不是完成顺序）；直接调用 `execute` 未传入则为 `null`。每轮有独立 `evaluation_turn` 父observation、`request_id` 和 `turn`，内部复用官方模型/工具回调。通过 `experiment_id` 关联各案例追踪与独立的 `evaluation_experiment` 总览，不把整场并发实验挤成一个巨大trace。`experiment.json` 和案例追踪记录代码版本、数据哈希和模型配置摘要；没有commit信息时为null。
 
-只上传结构与白名单摘要，原始对话、完整状态、证据及裁判正文不上传；五维评分和人工审批仍以本地文件为准。RAG事件通过官方子observation补充，因为当前官方回调未实现项目自定义事件；这些摘要是收集后生成，摘要span本身耗时不是原始RAG阶段耗时，诊断的 `seconds` 才是可获取的原始阶段用时。
+默认只上传结构与白名单摘要。显式断言评分为 `automatic.explicit_hard_rules`，已有五维评分为 `model.维度名`，关联案例observation；没有断言或没有有效评分时不伪造分数，裁判异常通过 `evaluation_result` 元数据展示。人工结论仍在本地 `human_review.csv`，不自动上传或冒充人工金标。RAG事件在对应轮次下补充，不重复生成整条调用链；`original_stage_seconds` 是原始阶段用时，`summary_generated_after_execution=true` 表示该摘要在收集后生成，其span耗时不替代阶段耗时。
+
+可选正文上传需同时满足：`LANGFUSE_ENABLED=true`、`LANGFUSE_CONTENT_ENABLED=true`、案例 `mode=controlled_agent`、`review_status=approved`、`content_upload_approved=true`。审批标记需要你先核对这份模拟数据可上传，不能自动批量设true。现有案例默认没有授权。网页、终端、live_agent及live_rag原文不在本次范围。
+
+新运行在 `approved_evaluation_content` 下按轮创建 `approved_evaluation_turn`。打开节点的Input查看user，Output查看answer、tools、knowledge_evidence和checks，metadata.turn区分轮次。专用展示节点是在执行后生成，不能把其span耗时当作模型/工具原始耗时；实际调用树仍由官方回调记录。
+
+tools保留名称/ok/action/code和按字段筛选的必要结果：订单状态与商品摘要、商品资料及参数证据分组、排查/退货回复与缺项，不包含物流单号、联系方式或完整工具返回。knowledge_evidence仅取本轮实际查询主题的质量知识或退货规则，包括摘录、适用条件、来源分块和处理方式；不因旧状态残留就把上次退货规则当作本轮质量依据。没有查询时不补造知识证据。
+
+不上传原始异常、完整消息历史/状态或隐藏推理。已知密钥、业务ID、邮箱、手机号及敏感标记行做二次过滤；正则不能识别所有自然语言个人信息，人工内容审批仍是必要条件。整个案例正文超过128KiB不静默截断，记录 `over_budget_local_preserved`。新格式 `turn_io_v1` 使用父observation ID、逐轮序号、总轮数及SHA256检查完整性，兼容旧metadata.review_content的回读。云端仅为审查内容，不是完整SQLite或执行现场备份。
+
+上传排队记录为 `queued_not_verified`，得到trace ID或flush不代表完整保存。可运行：
+
+```powershell
+uv run orderagent-eval verify --result evals/results/实验目录名
+```
+
+该命令使用官方分页API回读内容并重新计算SHA256，保存 `langfuse_verification.json`；缺字段、解析/网络失败或摘要不一致都不记为验证成功，不改变业务与评分。默认关闭正文时出现unavailable是预期结果。正文送达检查不证明所有模型span或score均送达，也不能证明业务正确。
+
+你声明的Hobby套餐可用 `LANGFUSE_PLAN=hobby` 记录，套餐不是由代码自动推断。官方当前说明Hobby的数据访问窗口为30天，访问窗口与服务端删除策略不同：[官方说明](https://langfuse.com/faq/all/data-access-vs-data-retention)。项目不设置保留期限，不配置云端删除，不自动清理任何本地实验、详情或SQLite；所有文件由你自行决定删除。云端不作为永久存储承诺。
 
 追踪服务不可用不改变硬规则和业务状态。上传异步进行，不保证网络异常或退出时记录完整；含无法脱敏事件、链接或状态正文的原始span不导出，异常分类另以安全摘要保留。因此网页中缺少某个span不能直接判为业务没有执行，应结合本地 `result.json`、`trace`、`events` 核对。
 
@@ -66,7 +86,7 @@ repeat范围1—10，concurrency范围1—4，默认均1。LangSmith默认无云
 | 文件 | 内容 |
 |---|---|
 | `experiment.json` | 代码/数据指纹、版本、模型配置和实验参数 |
-| `results.jsonl` | 各次运行记录 |
+| `results.jsonl` | 新格式storage_version=2：精简索引、逐轮检查摘要、评分、耗时、detail_path及Langfuse关联；无正文/完整状态/trace |
 | `summary.json` / `report.md` | 指标、失败归因、耗时和重复分布 |
 | `E编号-运行编号/result.json` | 逐轮回答、检查、状态、工具、RAG与评分 |
 | `human_review.csv` | 本次实验的独立人工评分表 |

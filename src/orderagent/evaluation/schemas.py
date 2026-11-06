@@ -38,6 +38,7 @@ class Case(BaseModel):
     forbid: list[str] = Field(default_factory=list)
     reference: str
     review_status: Literal["pending", "approved"] = "pending"
+    content_upload_approved: bool = False
     # 真实检索金标由人工填写，不根据Agent当前输出自动产生。
     relevant_documents: list[str] = Field(default_factory=list)
 

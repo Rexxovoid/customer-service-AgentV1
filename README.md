@@ -75,9 +75,13 @@ uv run orderagent --user-id DEMO-U-004 --trace
 LANGFUSE_ENABLED=true
 ```
 
-默认关闭；仅填写密钥不会启用。欧洲区域地址为 `https://cloud.langfuse.com`，须与项目区域一致。重启网页服务或终端后生效。在 Langfuse 的 Traces 中按 `request_id`、`case_id`、`run_id` 元数据查找；Sessions 按脱敏标识关联多轮。网页的问题编号就是 `request_id`。
+默认关闭；仅填写密钥不会启用。欧洲区域地址为 `https://cloud.langfuse.com`，须与项目区域一致。重启网页服务或终端后生效。在 Langfuse 的 Traces 中按 `request_id`、`case_id`、`eval_run_id` 元数据查找；本地结果字段仍叫 `run_id`，值与云端 `eval_run_id` 相同。该映射避免占用LangGraph的运行恢复字段。Sessions 按脱敏标识关联多轮。网页的问题编号就是 `request_id`。
 
-第一阶段仅上传调用结构、耗时、模型与可获取的用量、错误分类、RAG选择及人工交接摘要，不上传对话、提示词、工具参数/结果正文、隐藏推理或订单详情。追踪失败不重跑业务，本地日志与测评文件继续保留；缺失字段不推造。官方媒体上传被显式关闭；退出清理最多等待2秒，不能保证异常退出时全部追踪已送达。具体边界见 [OBS规则](docs/rules.md#langfuse第一阶段追踪)。
+默认仅上传调用结构、耗时、模型与可获取的用量、错误分类、RAG选择及人工交接摘要。测评还关联实验、逐轮调用、显式硬断言及已有五维评分，不重新调用裁判。追踪失败不重跑业务；官方媒体上传关闭；退出时SDK发送线程收尾最多等待2秒，不保证全部送达。具体边界见 [OBS规则](docs/rules.md#langfuse第一阶段追踪)。
+
+可选设置 `LANGFUSE_CONTENT_ENABLED=true`；仅对 `controlled_agent`、`review_status=approved` 且 `content_upload_approved=true` 的案例上传脱敏用户原文、最终答复、工具结果摘要和选定证据。该开关默认false，现有案例不会被自动授权；网页和终端原文仍不上传。打开案例trace → `approved_evaluation_content` → `approved_evaluation_turn`：Input看用户输入，Output看answer、tools、knowledge_evidence和checks，metadata.turn标识轮次。节点是事后展示，不是新增模型调用，其耗时不是用户等待时长。不包含完整状态或隐藏推理，旧metadata内容包仍可回读。人工结果仍保存在本地CSV，不能把自动评分当成人工结论。`LANGFUSE_PLAN=hobby` 仅记录你声明的套餐，不改变云端期限。
+
+新实验的 `results.jsonl` 仅保存索引，完整详情每案例保留一份；没有自动采样、删除或保留天数设置，所有本地测评文件由你决定何时删除。云端回读核对可执行 `uv run orderagent-eval verify --result evals/results/实验目录名`，详情见测评指南。历史实验不迁移或清理。
 
 测评来源与云端开关说明见 [测评指南](evals/EVALUATION_GUIDE.md#langfuse追踪)。本阶段未迁移提示词、数据集或裁判，也不因启用 Langfuse 自动开启 LangSmith 上传。
 
