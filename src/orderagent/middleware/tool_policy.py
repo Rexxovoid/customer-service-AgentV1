@@ -213,9 +213,13 @@ class BusinessToolPolicyMiddleware(AgentMiddleware):
                     for key, fact in (facts.items() if valid_facts else [])
                 },
             }
+            if "revision" in state.get("return_confirmation_payload", {}):
+                binding["revision"] = state.get("return_application_revision", 0)
             if (
                 state.get("return_stage") == "awaiting_confirmation"
                 and state.get("return_has_request")
+                and not state.get("return_reason_update_pending")
+                and not state.get("return_information_pending")
                 and order_id
                 and product_id
                 and reason

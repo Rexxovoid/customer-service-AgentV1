@@ -216,6 +216,129 @@ def test_policy_consultation_does_not_create_or_count_request(graph_builder):
     assert "尚未收到明确退货申请" in result["messages"][-1].text
 
 
+@pytest.mark.parametrize("category", ["headphones", "mice", "keyboards"])
+def test_policy_category_reaches_tool_and_finishes_without_application(
+    graph_builder, category, tmp_path
+):
+    rules = TestReturnRules()
+    original = rules.find
+    queries = []
+    rules.find = lambda query: (queries.append(query), original(query))[1]
+    gateway = MockReturnGateway()
+    gateway.create_link = lambda request, now: pytest.fail("规则咨询不应创建入口")
+    graph, model = graph_builder(
+        [
+            call(
+                order_id="",
+                reason="退货需要什么条件",
+                category=category,
+                turn_kind="policy_question",
+                is_return_request=False,
+            ),
+        ],
+        knowledge=rules,
+        gateway=gateway,
+    )
+    result = ask(graph, "退货需要什么条件")
+    assert len(model._requests) == 1
+    assert len(queries) == 1 and queries[0].category == category
+    assert result["return_request_count"] == 0
+    assert result["return_has_request"] is False
+    assert result["return_stage"] == "guided"
+    assert not result["return_result"].get("url")
+    assert "未申请退货" in result["messages"][-1].text
+    store = AfterSalesRepository(tmp_path / "state.sqlite3")
+    assert store.get_return_operation(USER.user_id, ORDER) is None
+    assert store.get_status(USER.user_id, ORDER) == "未售后"
+
+
+def test_policy_missing_category_clarifies_without_query_or_count(graph_builder):
+    rules = TestReturnRules()
+    rules.find = lambda query: pytest.fail("缺品类不应调用知识库")
+    graph, model = graph_builder(
+        [
+            call(order_id="", reason="退货条件", turn_kind="policy_question"),
+        ],
+        knowledge=rules,
+    )
+    result = ask(graph, "退货需要什么条件")
+    assert len(model._requests) == 1
+    assert "请说明" in result["messages"][-1].text
+    assert result["return_request_count"] == 0 and result["return_has_request"] is False
+    assert not result["return_result"].get("url")
+
+
+def test_policy_owned_order_overrides_user_category(graph_builder):
+    rules = TestReturnRules()
+    original = rules.find
+    queries = []
+    rules.find = lambda query: (queries.append(query), original(query))[1]
+    graph, _ = graph_builder(
+        [
+            call(turn_kind="policy_question", category="mice"),
+        ],
+        knowledge=rules,
+    )
+    result = ask(graph, "查询这个订单的退货规则")
+    assert len(queries) == 1 and queries[0].category == "headphones"
+    assert result["return_has_request"] is False
+    assert result["return_request_count"] == 0
+
+
+def test_policy_unowned_order_cannot_use_user_category_to_query(graph_builder):
+    rules = TestReturnRules()
+    rules.find = lambda query: pytest.fail("越权订单不应调用知识库")
+    graph, _ = graph_builder(
+        [
+            call(order_id="RETURN-HP-O-0003", turn_kind="policy_question", category="mice"),
+        ],
+        knowledge=rules,
+    )
+    result = ask(graph, "查询该订单的退货规则")
+    assert result["return_result"]["code"] == "ORDER_NOT_FOUND"
+    assert result["return_has_request"] is False
+
+
+@pytest.mark.parametrize("extra", [{"category": "phones"}, {"category": 1}, {"unexpected": True}])
+def test_policy_invalid_category_or_extra_is_still_rejected(graph_builder, extra):
+    with pytest.raises(ValidationError):
+        ReturnQuery(turn_kind="policy_question", **extra)
+    graph, _ = graph_builder(
+        [
+            call(order_id="", turn_kind="policy_question", **extra),
+            AIMessage(content="请提供有效品类"),
+        ]
+    )
+    result = ask(graph, "咨询退货规则")
+    errors = [m.artifact for m in result["messages"] if isinstance(m, ToolMessage)]
+    assert errors[0]["error"]["code"] == "INVALID_ARGUMENTS"
+    assert not result.get("return_has_request")
+
+
+def test_e34_policy_quality_then_return_completes_each_turn(graph_builder):
+    graph, model = graph_builder(
+        [
+            call(
+                order_id="",
+                reason="耳机退货条件",
+                category="headphones",
+                turn_kind="policy_question",
+                is_return_request=False,
+            ),
+            tool_call("query_quality_support", {"category": "headphones", "issue": "左耳没有声音"}),
+            call(reason="左耳没有声音"),
+        ]
+    )
+    policy = ask(graph, "耳机退货一般需要什么条件")
+    assert policy["return_has_request"] is False
+    assert policy["return_request_count"] == 0
+    ask(graph, "耳机左耳没有声音，怎么排查")
+    final = ask(graph, f"订单{ORDER}，左耳没有声音，我申请退货")
+    assert len(model._requests) == 3
+    assert final["return_stage"] == "awaiting_confirmation"
+    assert not final["return_result"].get("url")
+
+
 def test_future_iso_date_cannot_be_used_for_return(graph_builder):
     graph, _ = graph_builder(
         [
@@ -285,12 +408,339 @@ def test_invalid_confirmation_does_not_query_rule_or_increment(graph_builder, te
 
 def test_confirmation_with_changed_reason_needs_new_binding(graph_builder):
     graph, _ = graph_builder(
-        [call(), call(reason="改为另一原因", turn_kind="confirm", is_return_request=False)]
+        [
+            call(),
+            call(
+                reason="改为另一原因",
+                turn_kind="confirm",
+                is_return_request=False,
+                reason_update="replace",
+                reason_quote="原因改为另一原因",
+            ),
+        ]
     )
     ask(graph, "我要退货")
     result = ask(graph, f"确认退货 {ORDER}，原因改为另一原因")
     assert result["return_stage"] == "awaiting_confirmation"
     assert result["return_reason"] == "改为另一原因"
+
+
+@pytest.mark.parametrize(
+    "correction_text",
+    [
+        "修改这次申请：退货原因改为左耳无声。先不要执行，请重新让我确认。",
+        "我刚才说得不准确，这次请按照左耳无声这个原因办理，先让我确认。",
+        "把这次申请换一下，用左耳无声作为原因。",
+    ],
+)
+def test_explicit_reason_correction_rebinds_without_conflict_or_execution(
+    graph_builder, correction_text
+):
+    graph, _ = graph_builder(
+        [
+            call(
+                reason="佩戴不舒服",
+                reported_facts=[
+                    {
+                        "field": "symptom",
+                        "value": "佩戴不舒服",
+                        "status": "explicit",
+                        "quote": "佩戴不舒服",
+                    }
+                ],
+            ),
+            call(
+                reason="左耳无声",
+                turn_kind="provide_information",
+                is_return_request=False,
+                reason_update="replace",
+                reason_quote=correction_text,
+                reported_facts=[
+                    {
+                        "field": "symptom",
+                        "value": "左耳无声",
+                        "status": "explicit",
+                        "quote": "左耳无声",
+                        "relation": "correction",
+                    }
+                ],
+            ),
+        ]
+    )
+    initial = ask(graph, "佩戴不舒服，我申请退货")
+    old_binding = initial["return_confirmation_payload"]
+    changed = ask(graph, correction_text)
+    assert changed["return_stage"] == "awaiting_confirmation"
+    assert changed["return_reason"] == "左耳无声"
+    assert changed["return_reported_facts"]["symptom"]["status"] == "explicit"
+    assert changed["return_reported_facts"]["symptom"]["verified"] is False
+    assert changed["return_confirmation_payload"] != old_binding
+    assert changed["return_confirmation_payload"]["reason"] == "左耳无声"
+    assert (
+        changed["return_confirmation_payload"]["revision"] == changed["return_application_revision"]
+    )
+    assert changed["return_request_count"] == 1
+    assert not changed.get("return_result", {}).get("url")
+    final = ask(graph, f"确认退货 {ORDER}")
+    assert final["return_stage"] == "link_ready"
+    assert final["return_reason"] == "左耳无声"
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "不要把退货原因改为左耳无声",
+        "他说“退货原因改为左耳无声”",
+        "现在左耳无声",
+    ],
+)
+def test_additional_symptom_coexists_and_keeps_application_reason(graph_builder, text):
+    graph, _ = graph_builder(
+        [
+            call(
+                reason="佩戴不舒服",
+                reported_facts=[
+                    {
+                        "field": "symptom",
+                        "value": "佩戴不舒服",
+                        "status": "explicit",
+                        "quote": "佩戴不舒服",
+                    }
+                ],
+            ),
+            call(
+                reason="左耳无声",
+                turn_kind="provide_information",
+                reported_facts=[
+                    {
+                        "field": "symptom",
+                        "value": "左耳无声",
+                        "status": "explicit",
+                        "quote": "左耳无声",
+                    }
+                ],
+            ),
+        ]
+    )
+    ask(graph, "佩戴不舒服，我申请退货")
+    result = ask(graph, text)
+    assert result["return_stage"] == "awaiting_confirmation"
+    assert {f["value"] for f in result["return_reported_facts"].values()} == {
+        "佩戴不舒服",
+        "左耳无声",
+    }
+    assert all(f["status"] == "explicit" for f in result["return_reported_facts"].values())
+    assert result["return_reason"] == "佩戴不舒服"
+
+
+def test_relation_uncertain_blocks_confirmation_until_user_clarifies(graph_builder):
+    graph, _ = graph_builder(
+        [
+            call(reason="佩戴不舒服"),
+            call(
+                reason="左耳无声",
+                turn_kind="provide_information",
+                reason_update="uncertain",
+                new_issue=True,
+            ),
+            call(turn_kind="confirm", is_return_request=False),
+            call(turn_kind="provide_information", reason_quote="只是补充，不改退货原因"),
+        ]
+    )
+    initial = ask(graph, "佩戴不舒服，我申请退货")
+    uncertain = ask(graph, "左耳还没声音")
+    assert uncertain["return_stage"] == "collecting"
+    assert uncertain["return_confirmation_payload"] == {}
+    assert uncertain["return_problem_key"] == initial["return_problem_key"]
+    blocked = ask(graph, f"确认退货 {ORDER}")
+    assert blocked["return_stage"] == "collecting"
+    assert not blocked["return_result"].get("url")
+    clarified = ask(graph, "只是补充，不改退货原因")
+    assert clarified["return_stage"] == "awaiting_confirmation"
+    assert clarified["return_reason"] == "佩戴不舒服"
+
+
+def test_reason_change_requires_current_quote_and_keeps_history(graph_builder):
+    graph, _ = graph_builder(
+        [
+            call(reason="佩戴不舒服"),
+            call(
+                reason="左耳无声",
+                turn_kind="provide_information",
+                reason_update="replace",
+                reason_quote="不存在的修改意图",
+            ),
+            call(
+                reason="左耳无声",
+                turn_kind="provide_information",
+                reason_update="replace",
+                reason_quote="这次用左耳无声办理",
+                new_issue=True,
+            ),
+        ]
+    )
+    initial = ask(graph, "佩戴不舒服，我申请退货")
+    invalid = ask(graph, "左耳无声")
+    assert invalid["return_result"]["code"] == "UNSUPPORTED_USER_FACT"
+    assert invalid["return_reason"] == "佩戴不舒服"
+    revised = ask(graph, "这次用左耳无声办理")
+    assert revised["return_stage"] == "awaiting_confirmation"
+    assert revised["return_reason"] == "左耳无声"
+    assert revised["return_application_revision"] > initial["return_application_revision"]
+    assert revised["return_problem_key"] == initial["return_problem_key"]
+    event = next(e for e in revised["return_information_history"] if e["kind"] == "reason_update")
+    assert event["before"] == "佩戴不舒服" and event["after"] == "左耳无声"
+    assert event["verified"] is False
+
+
+def test_multiple_symptom_correction_requires_target_and_keeps_other_symptoms(graph_builder):
+    first = {"field": "symptom", "value": "佩戴不舒服", "status": "explicit", "quote": "佩戴不舒服"}
+    second = {"field": "symptom", "value": "左耳无声", "status": "explicit", "quote": "左耳无声"}
+    changed = {
+        "field": "symptom",
+        "value": "右耳无声",
+        "status": "explicit",
+        "quote": "右耳无声",
+        "relation": "correction",
+    }
+    graph, _ = graph_builder(
+        [
+            call(reason="佩戴不舒服", reported_facts=[first]),
+            call(turn_kind="provide_information", reported_facts=[second], new_issue=True),
+            call(turn_kind="provide_information", reported_facts=[changed]),
+            call(
+                turn_kind="provide_information",
+                reason_quote="只纠正刚才的描述",
+                reported_facts=[{**changed, "replaces_quote": "左耳无声"}],
+            ),
+        ]
+    )
+    initial = ask(graph, "佩戴不舒服，我申请退货")
+    supplemented = ask(graph, "还有左耳无声")
+    assert supplemented["return_problem_key"] == initial["return_problem_key"]
+    uncertain = ask(graph, "我说错了，是右耳无声")
+    assert uncertain["return_stage"] == "collecting"
+    final = ask(graph, "只纠正刚才的描述，左耳无声说错了，是右耳无声")
+    assert final["return_stage"] == "awaiting_confirmation"
+    assert {f["value"] for f in final["return_reported_facts"].values()} == {
+        "佩戴不舒服",
+        "右耳无声",
+    }
+    assert any(
+        (e.get("before") or {}).get("value") == "左耳无声"
+        for e in final["return_information_history"]
+        if e["kind"] == "fact"
+    )
+
+
+def test_explicit_critical_fact_correction_is_unverified_and_rechecked(graph_builder):
+    first = {
+        "field": "receipt_date",
+        "value": "2026-10-21",
+        "status": "explicit",
+        "quote": "2026-10-21",
+    }
+    second = {
+        "field": "receipt_date",
+        "value": "2026-10-22",
+        "status": "explicit",
+        "quote": "2026-10-22",
+        "relation": "correction",
+    }
+    graph, _ = graph_builder(
+        [
+            call(reported_facts=[first]),
+            call(turn_kind="provide_information", reported_facts=[second]),
+        ]
+    )
+    initial = ask(graph, "2026-10-21签收，我要退货")
+    final = ask(graph, "之前日期说错了，2026-10-22才签收")
+    assert final["return_stage"] == "awaiting_confirmation"
+    assert final["return_reported_facts"]["receipt_date"]["value"] == "2026-10-22"
+    assert final["return_reported_facts"]["receipt_date"]["verified"] is False
+    assert final["return_confirmation_payload"] != initial["return_confirmation_payload"]
+
+
+def test_nonidentical_critical_text_is_ambiguous_not_proven_conflict(graph_builder):
+    graph, _ = graph_builder(
+        [
+            call(
+                reported_facts=[
+                    {
+                        "field": "receipt_date",
+                        "value": "今天",
+                        "status": "explicit",
+                        "quote": "今天",
+                    }
+                ]
+            ),
+            call(
+                turn_kind="provide_information",
+                reported_facts=[
+                    {
+                        "field": "receipt_date",
+                        "value": "2026-10-23",
+                        "status": "explicit",
+                        "quote": "2026-10-23",
+                    }
+                ],
+            ),
+        ]
+    )
+    ask(graph, "今天签收，我要退货")
+    final = ask(graph, "2026-10-23签收")
+    assert final["return_reported_facts"]["receipt_date"]["status"] == "ambiguous"
+    assert final["return_stage"] == "collecting"
+    assert not final["return_result"].get("url")
+
+
+def test_explicit_new_problem_starts_new_context_without_deleting_history(graph_builder):
+    graph, _ = graph_builder(
+        [
+            call(
+                reason="佩戴不舒服",
+                reported_facts=[
+                    {
+                        "field": "symptom",
+                        "value": "佩戴不舒服",
+                        "status": "explicit",
+                        "quote": "佩戴不舒服",
+                    }
+                ],
+            ),
+            call(
+                reason="左耳无声",
+                new_issue=True,
+                reported_facts=[
+                    {
+                        "field": "symptom",
+                        "value": "左耳无声",
+                        "status": "explicit",
+                        "quote": "左耳无声",
+                        "relation": "new_problem",
+                    }
+                ],
+            ),
+        ]
+    )
+    initial = ask(graph, "佩戴不舒服，我要退货")
+    final = ask(graph, "这是独立的新问题：左耳无声，我申请退货")
+    assert final["return_problem_key"] != initial["return_problem_key"]
+    assert final["return_request_count"] == 1
+    assert final["return_reason"] == "左耳无声"
+    assert len(final["return_information_history"]) >= 2
+    assert final["return_stage"] == "awaiting_confirmation"
+
+
+def test_reset_clears_statement_context_and_application_revision_only():
+    from orderagent.tools.session_policy import reset_consultation
+
+    reset = reset_consultation()
+    assert reset["return_information_history"] == []
+    assert reset["return_application_revision"] == 0
+    assert reset["return_information_pending"] == {}
+    assert reset["return_reason_update_pending"] is False
+    assert "return_operations" not in reset
 
 
 def test_strict_pending_confirmation_skips_llm_but_rechecks_rule_and_limits(graph_builder):
@@ -927,6 +1377,8 @@ def test_model_return_schema_has_no_injected_or_eligibility_arguments(graph_buil
         "target_product_id",
         "turn_kind",
         "reported_facts",
+        "reason_update",
+        "reason_quote",
         "category",
     }
 

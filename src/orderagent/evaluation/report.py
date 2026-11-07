@@ -76,6 +76,10 @@ def archive_case(record, work):
         "return_reported_facts",
         "return_fact_diagnostics",
         "return_rule_source",
+        "return_information_history",
+        "return_application_revision",
+        "return_reason_update_pending",
+        "return_information_pending",
     }
     previous = {}
 

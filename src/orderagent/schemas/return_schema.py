@@ -12,6 +12,9 @@ class ReturnQuery(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True, str_strip_whitespace=True)
     order_id: str = Field(default="", max_length=100)
     reason: str = Field(default="", max_length=500)
+    category: Literal["headphones", "mice", "keyboards"] | None = Field(
+        default=None, description="仅无订单规则咨询使用；有订单时以可信订单品类为准"
+    )
     request_human: bool = False
     is_return_request: bool = True
     new_issue: bool = False
@@ -20,6 +23,12 @@ class ReturnQuery(BaseModel):
         "request", "provide_information", "confirm", "progress", "policy_question"
     ] = "request"
     reported_facts: list[ReportedFact] = Field(default_factory=list, max_length=20)
+    reason_update: Literal["keep", "replace", "uncertain"] = Field(
+        default="keep", description="保持申请原因、明确修改或关系待澄清；不等于执行确认"
+    )
+    reason_quote: str = Field(
+        default="", max_length=500, description="本轮修改/澄清申请意图的逐字原文；replace须含新原因"
+    )
 
 
 class ReturnLinkRequest(BaseModel):
@@ -81,3 +90,7 @@ class ReturnAgentState(SupportAgentState):
     return_original_statements: NotRequired[list[str]]
     return_confirmation_payload: NotRequired[dict]
     return_has_request: NotRequired[bool]
+    return_information_history: NotRequired[list[dict]]
+    return_application_revision: NotRequired[int]
+    return_reason_update_pending: NotRequired[bool]
+    return_information_pending: NotRequired[dict]

@@ -28,6 +28,12 @@ class ReportedFact(BaseModel):
     normalized_description: str = Field(
         default="", max_length=300, description="仅症状检索用同义描述，不是新增事实或资格条件"
     )
+    relation: Literal["supplement", "correction", "new_problem", "uncertain"] = Field(
+        default="supplement", description="相对已有陈述的关系；新增症状不等于新的独立问题"
+    )
+    replaces_quote: str = Field(
+        default="", max_length=500, description="纠正多条同字段陈述时，引用被纠正的历史原文"
+    )
 
 
 class SupportQuery(BaseModel):

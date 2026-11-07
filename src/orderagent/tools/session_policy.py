@@ -91,4 +91,8 @@ def reset_consultation():
         "return_original_statements": [],
         "return_confirmation_payload": {},
         "return_has_request": False,
+        "return_information_history": [],
+        "return_application_revision": 0,
+        "return_reason_update_pending": False,
+        "return_information_pending": {},
     }

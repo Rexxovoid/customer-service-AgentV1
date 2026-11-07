@@ -395,6 +395,9 @@ def create_web_app(settings: Settings, user_id: str, *, graph=None, log_dir=None
                                 "support_question_count",
                                 "return_request_count",
                                 "return_fact_diagnostics",
+                                "return_application_revision",
+                                "return_reason_update_pending",
+                                "return_information_pending",
                             )
                         }
                         if result is not None

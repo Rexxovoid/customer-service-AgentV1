@@ -155,6 +155,8 @@ def create_return_tool(
             "request", "provide_information", "confirm", "progress", "policy_question"
         ] = "request",
         reported_facts: list[ReportedFact] | None = None,
+        reason_update: Literal["keep", "replace", "uncertain"] = "keep",
+        reason_quote: str = "",
         category: Literal["headphones", "mice", "keyboards"] | None = None,
     ) -> Command:
         """处理明确退货、退货信息补充及规则咨询；无需先查订单或强制质量排查。
@@ -166,8 +168,12 @@ def create_return_tool(
         reported_facts含field/value/status/逐字quote，status为explicit/missing/ambiguous/conflict；value来自用户原文。
         型号用product_model，激活activation，磨损wear，购买时例外确认exception_acknowledgement，店铺承诺store_promise；商品ID只用target_product_id，不放other。
         同单同问题仅重申退货时不必重传事实；历史症状须引用含该症状的真实历史原文，不能用退货意图充当症状证据。
+        relation描述陈述关系：supplement补充/新增可共存症状，correction纠正，new_problem新独立问题，uncertain关系不明。
+        correction的quote须来自本轮；多个旧症状时用replaces_quote选择被纠正原文。日期/资格差异不能仅以文字不同判冲突。
+        明确修改申请原因用reason_update=replace、reason填新原因、reason_quote逐字引用本轮修改意图与原因；不确定用uncertain。
+        补症状默认reason_update=keep，不替换申请原因；修改申请用provide_information，不代表确认，不设new_issue。
         purchase_date/receipt_date/notice_date不可替代；仅symptom可填normalized_description用于检索，不补造资格。
-        category仅用于无订单的规则咨询；咨询不创建申请。request_human仅明确人工请求为true。
+        category仅用于无订单的规则咨询，缺失先补问；有订单以归属校验后的订单品类为准。咨询不创建申请。request_human仅明确人工请求为true。
         工具校验可信身份、归属、确认绑定及幂等；无规则/冲突/异常人工，缺必要信息先补问。
         规则支持后须确认“确认退货 订单号”，允许首尾空白及单个句末。 . ！ !。
         引用、否定或混杂指令不执行。
@@ -183,6 +189,17 @@ def create_return_tool(
             target_product_id=target_product_id,
             turn_kind=turn_kind,
             reported_facts=reported_facts or [],
+            reason_update=reason_update,
+            reason_quote=reason_quote,
+            category=category,
+        )
+        # 原因修订/关系待澄清不能借new_issue清零；新增症状本身也不是独立问题。
+        symptom_relations = [f.relation for f in args.reported_facts if f.field == "symptom"]
+        new_issue = (
+            args.new_issue
+            and args.reason_update == "keep"
+            and not any(f.relation in {"correction", "uncertain"} for f in args.reported_facts)
+            and (not symptom_relations or "new_problem" in symptom_relations)
         )
         state = dict(runtime.state)
         previous_order = state.get("return_order_id", "")
@@ -191,7 +208,7 @@ def create_return_tool(
         current_reason = args.reason or (
             "" if switching or new_issue else state.get("return_reason", "")
         )
-        if args.turn_kind in {"provide_information", "progress"} and not switching:
+        if not switching and not new_issue and state.get("return_has_request"):
             current_reason = state.get("return_reason") or args.reason
         update = {
             "return_order_id": current_order,
@@ -210,6 +227,49 @@ def create_return_tool(
         facts = {} if switching or new_issue else dict(state.get("return_reported_facts", {}))
         fact_diagnostics = []
         invalid_fact = False
+        information_history = list(state.get("return_information_history", []))
+        pending_information = (
+            {} if switching or new_issue else dict(state.get("return_information_pending", {}))
+        )
+        pending_reason = (
+            False if switching or new_issue else state.get("return_reason_update_pending", False)
+        )
+        if args.reason_update == "keep" and args.reason_quote and args.reason_quote in latest_user:
+            pending_reason = False
+        if args.reason_update == "uncertain":
+            pending_reason = True
+        elif args.reason_update == "replace":
+            if (
+                latest
+                and args.reason
+                and args.reason_quote
+                and args.reason_quote in latest_user
+                and args.reason in args.reason_quote
+            ):
+                reason_event = {
+                    "kind": "reason_update",
+                    "order_id": current_order,
+                    "before": state.get("return_reason", ""),
+                    "after": args.reason,
+                    "quote": args.reason_quote,
+                    "message_id": latest.id,
+                    "source": "user_statement",
+                    "verified": False,
+                }
+                if not any(
+                    event.get("kind") == "reason_update"
+                    and event.get("message_id") == latest.id
+                    and event.get("after") == args.reason
+                    for event in information_history
+                ):
+                    information_history.append(reason_event)
+                current_reason = args.reason
+                update["return_reason"] = current_reason
+                pending_reason = False
+            else:
+                invalid_fact = True
+                pending_reason = True
+                fact_diagnostics.append({"field": "reason", "change": "unsupported_reason_update"})
         for fact in args.reported_facts:
             source = next(
                 (m for m in reversed(user_messages) if fact.quote and fact.quote in m.text), None
@@ -245,14 +305,41 @@ def create_return_tool(
                 invalid_fact = True
                 fact_diagnostics.append({"field": fact.field, "change": "unsupported_value"})
                 continue
-            # 未分类信息不是同一个业务条件，不将不同补充文字强行比较为冲突。
-            # 键只用于稳定去重；不作为用户身份或已核验事实。
+            # 症状可共存；仅显式纠正选择旧陈述，不以新旧字符串不同判症状冲突。
             fact_key = (
                 "other:" + sha256(raw_value.encode("utf-8")).hexdigest()[:24]
                 if fact.field == "other"
                 else fact.field
             )
+            same_field = [(k, v) for k, v in facts.items() if v.get("field") == fact.field]
+            if fact.field == "symptom":
+                matches = [(k, v) for k, v in same_field if v.get("value") == raw_value]
+                if fact.relation == "correction":
+                    matches = [
+                        (k, v)
+                        for k, v in same_field
+                        if not fact.replaces_quote or v.get("quote") == fact.replaces_quote
+                    ]
+                    if source is not latest or len(matches) != 1:
+                        pending_information[fact.field] = {"reason": "correction_target_uncertain"}
+                        fact_diagnostics.append(
+                            {"field": "symptom", "change": "correction_target_uncertain"}
+                        )
+                        continue
+                if matches:
+                    fact_key = matches[0][0]
+                elif same_field:
+                    fact_key = "symptom:" + sha256(raw_value.encode("utf-8")).hexdigest()[:24]
             previous_fact = facts.get(fact_key)
+            if fact.relation == "uncertain":
+                pending_information[fact.field] = {"reason": "information_relation_uncertain"}
+                fact_diagnostics.append(
+                    {"field": fact.field, "change": "information_relation_uncertain"}
+                )
+                continue
+            correction = fact.relation == "correction" and source is latest
+            if source is latest:
+                pending_information.pop(fact.field, None)
             if (
                 previous_fact
                 and previous_fact.get("status") in {"ambiguous", "conflict"}
@@ -276,21 +363,47 @@ def create_return_tool(
                 "verified": False,
             }
             if (
-                fact.field != "other"
+                fact.field not in {"other", "symptom"}
                 and previous_fact
                 and previous_fact["status"] == "explicit"
                 and fact.status == "explicit"
                 and previous_fact["value"] != raw_value
+                and not correction
             ):
-                facts[fact_key]["status"] = "conflict"
+                # 非同文不等于语义矛盾：保留两个陈述，默认待澄清；不同ISO日期可确定不一致。
+                facts[fact_key]["status"] = "ambiguous"
+                if fact.field in {"purchase_date", "receipt_date", "notice_date"}:
+                    try:
+                        before_date = datetime.strptime(previous_fact["value"], "%Y-%m-%d").date()
+                        after_date = datetime.strptime(raw_value, "%Y-%m-%d").date()
+                        if before_date != after_date:
+                            facts[fact_key]["status"] = "conflict"
+                    except ValueError:
+                        pass
                 facts[fact_key]["previous_value"] = previous_fact["value"]
+            if source is latest:
+                history_event = {
+                    "kind": "fact",
+                    "order_id": current_order,
+                    "field": fact.field,
+                    "relation": fact.relation,
+                    "before": previous_fact,
+                    "after": dict(facts[fact_key]),
+                    "message_id": source.id,
+                    "source": "user_statement",
+                    "verified": False,
+                }
+                if history_event not in information_history:
+                    information_history.append(history_event)
             fact_diagnostics.append(
                 {
                     "field": fact.field,
                     "input_status": fact.status,
                     "status": facts[fact_key]["status"],
                     "previous_status": previous_fact.get("status") if previous_fact else None,
-                    "change": "same_field_value_changed"
+                    "change": "statement_corrected"
+                    if correction
+                    else "same_field_value_changed"
                     if "previous_value" in facts[fact_key]
                     else "repeated"
                     if previous_fact
@@ -310,7 +423,29 @@ def create_return_tool(
             return_fact_diagnostics=fact_diagnostics,
             return_original_statements=statements[-20:],
             return_target_product_id=target,
+            return_information_history=information_history,
+            return_reason_update_pending=pending_reason,
+            return_information_pending=pending_information,
         )
+        previous_business = {
+            k: {"value": v["value"], "status": v["status"]}
+            for k, v in state.get("return_reported_facts", {}).items()
+        }
+        current_business = {
+            k: {"value": v["value"], "status": v["status"]} for k, v in facts.items()
+        }
+        changed = (
+            switching
+            or new_issue
+            or current_reason != state.get("return_reason", "")
+            or target != state.get("return_target_product_id", "")
+            or previous_business != current_business
+        )
+        update["return_application_revision"] = state.get("return_application_revision", 0) + int(
+            changed
+        )
+        if changed or pending_reason or pending_information:
+            update["return_confirmation_payload"] = {}
         has_request = (not switching and state.get("return_has_request", False)) or (
             args.is_return_request and args.turn_kind == "request"
         )
@@ -326,6 +461,9 @@ def create_return_tool(
                 and not confirmation_attempt,
             )
         )
+        for event in information_history:
+            if latest and event.get("message_id") == latest.id:
+                event["problem_key"] = update["return_problem_key"]
         entry = {"count": update["return_request_count"]}
         update["support_handoff"] = {}
         combined = {**state, **update}
@@ -408,7 +546,7 @@ def create_return_tool(
         if args.request_human:
             return handoff("用户明确要求人工")
         if args.turn_kind == "policy_question":
-            policy_category = category
+            policy_category = args.category
             if current_order:
                 policy_order = repository.find_owned(current_order, runtime.context.user_id)
                 if policy_order is None:
@@ -502,6 +640,13 @@ def create_return_tool(
                 "collecting",
                 code="UNSUPPORTED_USER_FACT",
             )
+        if pending_reason or pending_information:
+            return finish(
+                "请确认这次是在补充已有问题、纠正之前的描述，还是修改本次退货原因；"
+                "如修改，请说明新的退货原因。当前未执行退货操作。",
+                "collecting",
+                missing_fields=["本轮信息与当前申请的关系"],
+            )
         selected_items = (
             [item for item in order.items if item.product_id == target] if target else order.items
         )
@@ -527,6 +672,9 @@ def create_return_tool(
             )
         target = selected_items[0].product_id
         update["return_target_product_id"] = target
+        for event in information_history:
+            if latest and event.get("message_id") == latest.id:
+                event["product_id"] = target
         uncertain = [
             key for key, fact in facts.items() if fact["status"] in {"ambiguous", "conflict"}
         ]
@@ -642,12 +790,15 @@ def create_return_tool(
         business_facts = {
             key: {"value": fact["value"], "status": fact["status"]} for key, fact in facts.items()
         }
-        binding_unchanged = state.get("return_confirmation_payload") == {
+        binding = {
             "order_id": current_order,
             "product_id": target,
             "reason": current_reason,
             "facts": business_facts,
         }
+        if "revision" in state.get("return_confirmation_payload", {}):
+            binding["revision"] = update["return_application_revision"]
+        binding_unchanged = state.get("return_confirmation_payload") == binding
         if (
             prior_stage == "awaiting_confirmation"
             and binding_unchanged
@@ -739,6 +890,7 @@ def create_return_tool(
                 "product_id": target,
                 "reason": current_reason,
                 "facts": business_facts,
+                "revision": update["return_application_revision"],
             }
             return finish(
                 f"请确认是否为订单 {current_order} 的商品 {target} 申请退货，"
