@@ -2,6 +2,8 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+RESULT_STORAGE_VERSION = 3
+
 
 class Check(BaseModel):
     """机器检查与自然语言规格分离，禁止将未检查项冒充通过。"""

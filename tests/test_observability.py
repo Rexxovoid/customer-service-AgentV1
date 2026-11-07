@@ -464,7 +464,11 @@ def test_eval_run_id_does_not_resume_previous_turn(captured, monkeypatch, tmp_pa
     result = runner.execute(case, Settings(), tmp_path)
     assert result["status"] == "pass"
     assert len(result["turns"]) == 3
-    assert all(t["messages"] for t in result["turns"])
+    from orderagent.evaluation.report import load_evidence
+
+    evidence = load_evidence(tmp_path / result["run_id"], result)
+    assert len(evidence["conversation"]["turns"]) == 3
+    assert all(t["tool_results"] for t in evidence["conversation"]["turns"])
     assert result["turns"][1]["state"]["return_stage"] == "awaiting_confirmation"
     assert result["turns"][2]["state"]["return_stage"] == "link_ready"
     assert result["turns"][2]["creates"] == 1
@@ -478,3 +482,47 @@ def test_eval_run_id_does_not_resume_previous_turn(captured, monkeypatch, tmp_pa
     assert any("langfuse.observation.metadata.eval_run_id" in attrs for attrs in attributes)
     assert not any("langfuse.observation.metadata.run_id" in attrs for attrs in attributes)
     assert result["run_id"].startswith("E33-")
+
+
+@pytest.mark.parametrize("scenario", ["oversize", "upload_error", "not_approved"])
+def test_archive_retains_evidence_when_content_cannot_be_uploaded(
+    captured, monkeypatch, tmp_path, scenario
+):
+    from orderagent.evaluation.report import archive_case, load_evidence
+    from orderagent.evaluation.runner import build_judge_input
+    from tests.test_evaluation_storage import archive_input
+
+    observer, _ = captured
+    observer.settings = observer.settings.model_copy(update={"langfuse_content_enabled": True})
+    calls = []
+
+    def score(**kwargs):
+        calls.append(kwargs)
+        if scenario == "upload_error":
+            raise ConnectionError("test upload failure")
+
+    monkeypatch.setattr(observer.client, "create_score", score)
+    raw = archive_input(tmp_path)
+    if scenario == "oversize":
+        raw["turns"][0]["user"] = "x" * 150000
+        raw["judge_input"] = build_judge_input(raw, raw["reference"])
+    case = SimpleNamespace(
+        mode="controlled_agent",
+        review_status="approved",
+        content_upload_approved=scenario != "not_approved",
+    )
+    with observer.request(source="eval_controlled_agent", session_id="opaque"):
+        raw["langfuse"] = observer.complete_case(raw, case)
+    archived = archive_case(raw, tmp_path)
+    evidence = load_evidence(tmp_path, archived)
+    assert archived["status"] == "pass"
+    assert evidence["conversation"]["turns"][0]["user"] == raw["judge_input"]["turns"][0]["user"]
+    assert not archived["langfuse"]["content_complete"]
+    if scenario == "oversize":
+        assert archived["langfuse"]["content_status"] == "over_budget_local_preserved"
+    elif scenario == "upload_error":
+        assert archived["langfuse"]["delivery"] == "queue_error"
+        assert archived["langfuse"]["upload_error_type"] == "ConnectionError"
+        assert len(calls) == 1  # 不重跑Agent或裁判来补传。
+    else:
+        assert archived["langfuse"]["content_status"] == "content_not_approved"

@@ -1,4 +1,5 @@
 import json
+import re
 import time
 from difflib import unified_diff
 from typing import Literal
@@ -21,6 +22,42 @@ from ragflow_sdk import RAGFlow
 from orderagent.prompts.order_prompt import load_prompt
 from orderagent.schemas.support_schema import SupportKnowledge
 from orderagent.settings import PROJECT_ROOT, ConfigurationError
+
+
+def http_error_context(exc):
+    """只记录可获取的HTTP状态和已知静态路由模板，不输出URL或资源ID。"""
+    response = getattr(exc, "response", None)
+    request = getattr(response, "request", None) if response is not None else None
+    if request is None:
+        try:
+            request = getattr(exc, "request", None)
+        except RuntimeError:
+            request = None
+    raw_url = getattr(request, "url", None)
+    path = urlsplit(str(raw_url)).path if raw_url is not None else ""
+    templates = (
+        (r"/api/v1/datasets", "/api/v1/datasets"),
+        (r"/api/v1/chats", "/api/v1/chats"),
+        (r"/api/v1/retrieval", "/api/v1/retrieval"),
+        (
+            r"/api/v1/datasets/[^/]+/documents/[^/]+",
+            "/api/v1/datasets/{dataset_id}/documents/{document_id}",
+        ),
+        (r"/api/v1/datasets/[^/]+/documents", "/api/v1/datasets/{dataset_id}/documents"),
+        (r"/api/v1/chats/[^/]+/completions", "/api/v1/chats/{chat_id}/completions"),
+        (r"/compatible-mode/v1/chat/completions", "/compatible-mode/v1/chat/completions"),
+        (r"/v1/chat/completions", "/v1/chat/completions"),
+        (r"/chat/completions", "/chat/completions"),
+    )
+    return {
+        "status_code": getattr(response, "status_code", None)
+        if response is not None
+        else getattr(exc, "status_code", None),
+        "endpoint_template": next(
+            (template for pattern, template in templates if re.fullmatch(pattern, path)), None
+        ),
+    }
+
 
 # 稳定且不含供应商敏感正文的业务诊断码；不新增异常/执行框架。
 RAG_ERROR_MESSAGES = {
@@ -159,7 +196,13 @@ class RagflowKnowledge:
                 else:
                     code = "RAG_SELECTION_ERROR" if selecting else "RAG_RETRIEVAL_ERROR"
             self._diagnostic(
-                {"stage": "rag_exception", "error_type": type(exc).__name__, "error_code": code}
+                {
+                    "stage": "rag_exception",
+                    "error_type": type(exc).__name__,
+                    "error_code": code,
+                    **http_error_context(exc),
+                    "cause_type": type(exc.__cause__).__name__ if exc.__cause__ else None,
+                }
             )
             raise ValueError(code) from exc
         finally:

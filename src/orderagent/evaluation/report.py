@@ -1,8 +1,407 @@
 import csv
+import hashlib
 import json
 import math
 import re
 from collections import Counter
+
+from orderagent.evaluation.schemas import RESULT_STORAGE_VERSION
+
+
+def archive_case(record, work):
+    """执行/评分结束后归档：结论与唯一证据分离，绝不依据排队状态省略本地证据。"""
+    from orderagent.evaluation.runner import build_judge_input, sanitize
+
+    evidence = {
+        "schema_version": 1,
+        "conversation": record.get("judge_input")
+        or build_judge_input(record, record.get("reference", "")),
+        "tool_calls": [],
+        "state_values": {},
+        "diagnostics": [],
+    }
+    result = {
+        k: v
+        for k, v in record.items()
+        if k
+        not in {
+            "trace",
+            "events",
+            "diagnostics",
+            "evidence_failures",
+            "selection_records",
+            "dependency_errors",
+            "knowledge_misses",
+            "judge_input",
+            "turns",
+            "failed_turn",
+            "_failed_runs",
+            "rag_answer",
+            "error_diagnostic",
+        }
+    }
+    result.update(
+        storage_version=RESULT_STORAGE_VERSION,
+        experiment_id=work.parent.name,
+        executed_turns=len(record.get("turns", [])),
+        turns=[],
+        trace_summary=[],
+    )
+    state_keys = {
+        "active_support_topic",
+        "consultation_id",
+        "question_processed_messages",
+        "support_phase",
+        "support_order_id",
+        "support_issue",
+        "support_question_count",
+        "support_question_scope",
+        "support_problem_key",
+        "support_error_code",
+        "support_handoff",
+        "support_handoff_topic",
+        "support_question_history",
+        "support_advice_history",
+        "return_stage",
+        "return_order_id",
+        "return_reason",
+        "return_target_product_id",
+        "return_request_count",
+        "return_request_history",
+        "return_problem_key",
+        "return_question_scope",
+        "return_has_request",
+        "return_error_code",
+        "return_confirmation_payload",
+        "return_reported_facts",
+        "return_fact_diagnostics",
+        "return_rule_source",
+    }
+    previous = {}
+
+    text_keys = {"support_issue", "return_reason"}
+
+    def state_value(value, force_ref=False):
+        if (
+            isinstance(value, (dict, list))
+            or isinstance(value, str)
+            and (len(value) > 160 or force_ref)
+        ):
+            key = hashlib.sha256(
+                json.dumps(value, ensure_ascii=False, sort_keys=True).encode()
+            ).hexdigest()
+            evidence["state_values"].setdefault(key, value)
+            return {"evidence_pointer": f"/state_values/{key}"}
+        return value
+
+    for index, turn in enumerate(record.get("turns", [])):
+        checks = turn.get("checks", [])
+        keys = state_keys | {c["key"] for c in checks if c["kind"] == "state"}
+        state = {k: v for k, v in turn.get("state", {}).items() if k in keys}
+        changes = {
+            k: {
+                "before": state_value(previous.get(k), k in text_keys),
+                "after": state_value(state.get(k), k in text_keys),
+                "removed": k not in state,
+            }
+            for k in set(state) | set(previous)
+            if previous.get(k) != state.get(k) or (k in previous) != (k in state)
+        }
+        # 保留常用小状态快照，完整绑定/历史用差异及证据引用，而非整份状态副本。
+        snapshot = {
+            k: v
+            for k, v in state.items()
+            if k not in text_keys
+            and not isinstance(v, (dict, list))
+            and not (isinstance(v, str) and len(v) > 160)
+        }
+        row = {k: turn[k] for k in ("turn", "seconds", "creates", "checks") if k in turn}
+        row.update(
+            state=snapshot, state_changes=changes, evidence_pointer=f"/conversation/turns/{index}"
+        )
+        if turn.get("operation") is not None:
+            row["operation"] = state_value(turn["operation"])
+        calls = [
+            call for message in turn.get("messages", []) for call in message.get("tool_calls", [])
+        ]
+        row["tool_calls"] = []
+        for call in calls:
+            pointer = f"/tool_calls/{len(evidence['tool_calls'])}"
+            evidence["tool_calls"].append({"turn": turn["turn"], **call})
+            row["tool_calls"].append({"name": call.get("name"), "evidence_pointer": pointer})
+        result["turns"].append(row)
+        previous = state
+
+    events = record.get("events")
+    if events is None:
+        events = [{"name": "rag_diagnostic", "data": d} for d in record.get("diagnostics", [])]
+    for index, event in enumerate(events):
+        evidence["diagnostics"].append({"diagnostic_id": f"D{index + 1:04}", **event})
+    result["diagnostics"] = []
+    for name in ("evidence_failures", "selection_records", "dependency_errors", "knowledge_misses"):
+        result[name] = []
+    for index, event in enumerate(events):
+        data = event.get("data", {})
+        summary = {
+            k: data[k]
+            for k in (
+                "stage",
+                "error_type",
+                "error_code",
+                "seconds",
+                "failure_reasons",
+                "status_code",
+                "endpoint_template",
+            )
+            if k in data
+        }
+        summary.update(diagnostic_id=f"D{index + 1:04}", evidence_pointer=f"/diagnostics/{index}")
+        summary.update({k: event[k] for k in ("turn", "request_id") if k in event})
+        if data.get("stage") == "selection_metrics":
+            summary["usage"] = data.get("usage")
+        result["diagnostics"].append(summary)
+        misses = {"RAG_NO_CANDIDATES", "RAG_NO_APPLICABLE_RULE"}
+        for name, matches in {
+            "evidence_failures": data.get("stage") == "selection_rejected",
+            "selection_records": "debug_status" in data,
+            "dependency_errors": data.get("error_type") and data.get("error_code") not in misses,
+            "knowledge_misses": data.get("error_code") in misses,
+        }.items():
+            if matches:
+                result[name].append(
+                    {
+                        k: summary[k]
+                        for k in ("diagnostic_id", "error_code", "evidence_pointer")
+                        if k in summary
+                    }
+                )
+    if record.get("rag_answer") is not None:
+        evidence["rag_answer"] = record["rag_answer"]
+        result["rag_answer_ref"] = "/rag_answer"
+    failed = record.get("failed_turn")
+    if failed:
+        evidence["failed_execution"] = {"user": failed.get("user"), "calls": [], "tool_results": []}
+        for run in record.get("_failed_runs", []):
+            if run.get("type") == "tool":
+                arguments = {
+                    k: v
+                    for k, v in (run.get("inputs") or {}).items()
+                    if k not in {"runtime", "context", "config", "callbacks"}
+                }
+                if arguments:
+                    evidence["failed_execution"]["calls"].append(
+                        {"name": run["name"], "args": arguments, "source": "tool_callback"}
+                    )
+                output = (run.get("outputs") or {}).get("output")
+                messages = (
+                    [output]
+                    if isinstance(output, dict) and "update" not in output
+                    else (output.get("update") or {}).get("messages", [])
+                    if isinstance(output, dict)
+                    else [{"content": output}]
+                    if output is not None
+                    else []
+                )
+                for message in messages:
+                    value = message.get("artifact")
+                    if value is None:
+                        value = message.get("content")
+                    if value is not None:
+                        evidence["failed_execution"]["tool_results"].append(
+                            {"name": run["name"], "result": value}
+                        )
+            if run.get("type") == "llm":
+                for group in (run.get("outputs") or {}).get("generations", []):
+                    for generation in group:
+                        evidence["failed_execution"]["calls"].extend(
+                            (generation.get("message") or {}).get("tool_calls", [])
+                        )
+        result["failed_turn"] = {k: failed[k] for k in ("turn", "seconds") if k in failed}
+        result["failed_turn"]["evidence_pointer"] = "/failed_execution"
+    else:
+        failed_checks = [
+            t["turn"] for t in result["turns"] if any(not c["passed"] for c in t.get("checks", []))
+        ]
+        result["failed_turn"] = {"turn": failed_checks[0]} if failed_checks else None
+    if record.get("error_diagnostic"):
+        evidence["execution_error"] = record["error_diagnostic"]
+        result["error_diagnostic_ref"] = "/execution_error"
+        result["error_stage"] = record["error_diagnostic"].get("stage")
+        result["execution_error_code"] = record["error_diagnostic"].get("diagnostic_code")
+    attempted = [turn["turn"] for turn in result["turns"]]
+    if failed and failed.get("turn") not in attempted:
+        attempted.append(failed["turn"])
+    result["attempted_turns"] = attempted
+    result["failed_turns"] = [
+        turn["turn"]
+        for turn in result["turns"]
+        if any(not c["passed"] for c in turn.get("checks", []))
+    ]
+    if failed and failed.get("turn") not in result["failed_turns"]:
+        result["failed_turns"].append(failed["turn"])
+    result["skipped_turn_indices"] = [
+        i for i in range(1, record.get("planned_turns", len(attempted)) + 1) if i not in attempted
+    ]
+    result.setdefault("skipped_turns", len(result["skipped_turn_indices"]))
+
+    # 用量只从实际llm回调提取，每次调用选一个来源，避免generations/llm_output双计。
+    def find_usage(value):
+        if not isinstance(value, dict):
+            return None
+        for key in ("usage_metadata", "token_usage", "usage"):
+            usage = value.get(key)
+            if isinstance(usage, dict) and any(
+                k in usage
+                for k in (
+                    "input_tokens",
+                    "prompt_tokens",
+                    "output_tokens",
+                    "completion_tokens",
+                    "total_tokens",
+                )
+            ):
+                return usage
+        for child in value.values():
+            for item in child if isinstance(child, list) else [child]:
+                for nested in item if isinstance(item, list) else [item]:
+                    usage = find_usage(nested)
+                    if usage is not None:
+                        return usage
+        return None
+
+    usages = []
+    for run in record.get("trace", []):
+        if run.get("type") not in {"llm", "tool"}:
+            continue
+        step = {k: run.get(k) for k in ("id", "parent_id", "name", "type", "seconds")}
+        if run.get("error"):
+            step["error_detail"] = re.sub(r"https?://[^\s]+", "[ENDPOINT]", run["error"])
+        if run["type"] == "llm":
+            usage = find_usage(run.get("outputs")) or {}
+            normalized = {
+                name: usage.get(name, usage.get(alias))
+                for name, alias in (
+                    ("input_tokens", "prompt_tokens"),
+                    ("output_tokens", "completion_tokens"),
+                    ("total_tokens", "total_tokens"),
+                )
+            }
+            step["usage"] = normalized
+            usages.append(normalized)
+        result["trace_summary"].append(step)
+    result["model_usage"] = {
+        "measured_calls": len(usages),
+        "calls_with_usage": sum(any(v is not None for v in u.values()) for u in usages),
+        **{
+            k: sum(u[k] for u in usages)
+            if usages and all(u[k] is not None for u in usages)
+            else None
+            for k in ("input_tokens", "output_tokens", "total_tokens")
+        },
+        "scope": "framework_llm_calls; SDK HTTP attempts unknown",
+    }
+    judge_diagnostics = dict(result.get("judge_diagnostics") or {})
+    request = judge_diagnostics.pop("_request", None)
+    if request:
+        evidence["judge_request"] = request
+        result["judge_input_ref"] = {
+            "pointer": "/conversation",
+            "request_pointer": "/judge_request",
+            "input_version": "compact-v1",
+            "actual_user_sha256": request["user_content_sha256"],
+        }
+    elif record.get("judge_status") != "disabled":
+        result["judge_input_ref"] = {
+            "pointer": "/conversation",
+            "input_version": "compact-v1",
+            "actual_user_sha256": None,
+            "request_capture": "unavailable",
+        }
+    if judge_diagnostics:
+        result["judge_diagnostics"] = judge_diagnostics
+    result["local_evidence_policy"] = "minimal_per_turn_fallback; never_removed_on_queue_status"
+
+    # 原始诊断中的URL仅保留模板；不保存URL中的查询串、凭据或资源ID。
+    def redact_urls(value):
+        if isinstance(value, str):
+            return re.sub(r"https?://[^\s\"<>]+", "[ENDPOINT]", value)
+        if isinstance(value, dict):
+            return {k: redact_urls(v) for k, v in value.items()}
+        if isinstance(value, list):
+            return [redact_urls(v) for v in value]
+        return value
+
+    evidence = sanitize(evidence, limit=None)
+
+    def redact_contacts(value):
+        if isinstance(value, str):
+            if "@" in value:
+                value = re.sub(
+                    r"(?<![\w.+-])[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}", "[EMAIL]", value
+                )
+            value = re.sub(r"(?<!\d)(?:\+?86[- ]?)?1[3-9]\d{9}(?!\d)", "[PHONE]", value)
+            return re.sub(
+                r"(?im)^.*(?:地址|收件人|联系人|身份证|银行卡|cookie|authorization)[:：].*$",
+                "[SENSITIVE_LINE]",
+                value,
+            )
+        if isinstance(value, list):
+            return [redact_contacts(v) for v in value]
+        if isinstance(value, dict):
+            return {
+                k: redact_contacts(v)
+                for k, v in value.items()
+                if k.lower() not in {"cookie", "password", "address", "phone", "email"}
+            }
+        return value
+
+    evidence = redact_contacts(evidence)
+    if evidence.get("judge_request"):
+        request = evidence["judge_request"]
+        request["stored_system_prompt_sha256"] = hashlib.sha256(
+            request["system_prompt"].encode()
+        ).hexdigest()
+        request["system_prompt_matches_actual"] = (
+            request["stored_system_prompt_sha256"] == request["system_prompt_sha256"]
+        )
+    for key in ("judge_diagnostics", "quality", "trace_summary"):
+        if key in result:
+            result[key] = redact_contacts(result[key])
+    evidence["diagnostics"] = redact_urls(evidence["diagnostics"])
+    if "execution_error" in evidence:
+        evidence["execution_error"] = redact_urls(evidence["execution_error"])
+    body = json.dumps(evidence, ensure_ascii=False, indent=2) + "\n"
+    digest = hashlib.sha256(body.encode()).hexdigest()
+    conversation_sha = hashlib.sha256(
+        json.dumps(evidence["conversation"], ensure_ascii=False).encode()
+    ).hexdigest()
+    if result.get("judge_input_ref"):
+        result["judge_input_ref"].update(
+            stored_user_sha256=conversation_sha,
+            matches_actual_request=(
+                conversation_sha == result["judge_input_ref"]["actual_user_sha256"]
+            )
+            if result["judge_input_ref"].get("actual_user_sha256")
+            else None,
+        )
+    result["evidence"] = {"path": "evidence.json", "sha256": digest, "schema_version": 1}
+    # 哈希对应实际UTF-8字节，避免Windows文本写入转换CRLF造成引用失效。
+    (work / "evidence.json").write_bytes(body.encode("utf-8"))
+    (work / "result.json").write_text(
+        json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+    return result
+
+
+def load_evidence(work, result):
+    """仅读取固定证据文件并校验哈希，不通过引用跳转任意文件。"""
+    reference = result.get("evidence") or {}
+    if reference.get("path") != "evidence.json":
+        raise ValueError("证据引用缺失或路径不合法")
+    body = (work / "evidence.json").read_bytes()
+    if hashlib.sha256(body).hexdigest() != reference.get("sha256"):
+        raise ValueError("证据哈希不匹配")
+    return json.loads(body)
 
 
 def percentile(values, quantile):
@@ -92,9 +491,23 @@ def compact_record(record):
         "judge_error_type",
         "knowledge_source",
         "langfuse",
+        "experiment_id",
+        "executed_turns",
+        "planned_turns",
+        "skipped_turns",
+        "failed_turn",
+        "model_usage",
+        "evidence",
+        "judge_input_ref",
+        "local_evidence_policy",
+        "error_stage",
+        "execution_error_code",
+        "attempted_turns",
+        "failed_turns",
+        "skipped_turn_indices",
     )
     result = {k: record[k] for k in fields if k in record}
-    result["storage_version"] = 2
+    result["storage_version"] = record.get("storage_version", 2)
     result["turns"] = [
         {
             "turn": t.get("turn"),

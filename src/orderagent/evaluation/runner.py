@@ -1,5 +1,6 @@
 import hashlib
 import json
+import re
 import subprocess
 import time
 from importlib.metadata import version
@@ -13,7 +14,7 @@ from pydantic import ValidationError
 from orderagent.agents.agent_factory import create_order_agent
 from orderagent.evaluation.evaluators import check_turn, grade_quality
 from orderagent.evaluation.schemas import Case
-from orderagent.integrations.ragflow import RagflowKnowledge
+from orderagent.integrations.ragflow import RagflowKnowledge, http_error_context
 from orderagent.integrations.returns import MockReturnGateway
 from orderagent.models import create_deepseek_model
 from orderagent.repositories.after_sales_repository import AfterSalesRepository
@@ -22,7 +23,7 @@ from orderagent.schemas.support_schema import SupportKnowledge, SupportQuery
 from orderagent.settings import PROJECT_ROOT
 
 
-def sanitize(value, secrets=()):
+def sanitize(value, secrets=(), *, limit=16000):
     """持久化前移除凭据及推理字段，限制长字段；不保存原始异常堆栈。"""
     if hasattr(value, "model_dump"):
         value = value.model_dump(mode="json")
@@ -30,7 +31,7 @@ def sanitize(value, secrets=()):
         if value.get("type") in {"reasoning", "thinking", "redacted_thinking"}:
             return {"type": "omitted_private_reasoning"}
         return {
-            str(k): sanitize(v, secrets)
+            str(k): sanitize(v, secrets, limit=None if k == "_request" else limit)
             for k, v in value.items()
             if not any(
                 x in str(k).lower()
@@ -46,12 +47,12 @@ def sanitize(value, secrets=()):
             )
         }
     if isinstance(value, (list, tuple)):
-        return [sanitize(v, secrets) for v in value]
+        return [sanitize(v, secrets, limit=limit) for v in value]
     if isinstance(value, str):
         for secret in secrets:
             if secret:
                 value = value.replace(secret, "[REDACTED]")
-        return value[:16000]
+        return value[:limit] if limit is not None else value
     if value is None or isinstance(value, (bool, int, float)):
         return value
     return str(value)[:500]
@@ -154,6 +155,34 @@ def load_cases(path):
     if len({c.id for c in cases}) != len(cases):
         raise ValueError("案例编号重复")
     return cases
+
+
+def build_judge_input(record, reference):
+    """唯一compact-v1输入构建器：裁判和归档复用同一内容，不增加上下文。"""
+    return {
+        "reference": reference,
+        "knowledge_source": record.get("knowledge_source"),
+        "turns": [
+            {
+                "turn": turn["turn"],
+                "user": turn["user"],
+                "answer": turn["answer"],
+                "tool_results": [
+                    {
+                        "name": message.get("name"),
+                        "result": message.get("artifact")
+                        if message.get("artifact") is not None
+                        else message.get("content"),
+                    }
+                    for message in turn["messages"]
+                    if message.get("type") == "tool"
+                ],
+                "expect": turn["expect"],
+                "forbid": turn["forbid"],
+            }
+            for turn in record.get("turns", [])
+        ],
+    }
 
 
 def fingerprint(dataset, settings):
@@ -282,10 +311,9 @@ def run_case(case, settings, root, *, judge=False, repetition_index=None):
                 ]
             )
         record["langfuse"] = observability.complete_case(record, case)
-    (root / run_id / "result.json").write_text(
-        json.dumps(record, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
-    return record
+    from orderagent.evaluation.report import archive_case
+
+    return archive_case(record, root / run_id)
 
 
 def _run_case(
@@ -309,6 +337,8 @@ def _run_case(
         "case_id": case.id,
         "user_id": case.user_id,
         "run_id": run_id,
+        "experiment_id": root.name,
+        "planned_turns": len(case.turns),
         "repetition_index": repetition_index,
         "mode": case.mode,
         "category": case.category,
@@ -407,6 +437,9 @@ def _run_case(
                         )
                         observer.diagnostics(state=state)
                     finally:
+                        for event in collector.events[event_start:]:
+                            event["turn"] = index
+                            event["request_id"] = config["metadata"]["request_id"]
                         observer.diagnostics(
                             collector.events[event_start:], runs=collector.traced_runs[run_start:]
                         )
@@ -425,7 +458,15 @@ def _run_case(
                         "answer": state["messages"][-1].text,
                         "messages": [m.model_dump(mode="json") for m in messages],
                         "state": {
-                            k: v for k, v in state.items() if k.startswith(("support_", "return_"))
+                            k: v
+                            for k, v in state.items()
+                            if k.startswith(("support_", "return_"))
+                            or k
+                            in {
+                                "active_support_topic",
+                                "consultation_id",
+                                "question_processed_messages",
+                            }
                         },
                         "operation": gateway.last_operation,
                         "creates": len(gateway.requests),
@@ -457,6 +498,17 @@ def _run_case(
         original = exc.__cause__ or exc
         record.update(
             status="error", failure="target_exception", error_type=type(original).__name__
+        )
+        record["error_diagnostic"] = {
+            "stage": "rag_execution" if case.mode == "live_rag" else "agent_execution",
+            "diagnostic_code": "EVAL_TARGET_EXCEPTION",
+            "error_type": type(exc).__name__,
+            "cause_type": type(original).__name__,
+            "detail": re.sub(r"https?://[^\s]+", "[ENDPOINT]", str(original))[:1000],
+            **http_error_context(original),
+        }
+        record["_failed_runs"] = (
+            flatten_runs(collector.traced_runs[run_start:]) if "run_start" in locals() else []
         )
         if isinstance(exc, ValueError) and str(exc).startswith("RAG_"):
             record["error_code"] = str(exc)
@@ -496,41 +548,14 @@ def _run_case(
         settings.api_key.get_secret_value(),
         settings.ragflow_api_key.get_secret_value(),
         settings.qiwen_api_key.get_secret_value(),
+        settings.langfuse_secret_key.get_secret_value(),
+        settings.langfuse_public_key.get_secret_value(),
     ]
     record = sanitize(record, secrets)
+    record["judge_input"] = build_judge_input(record, case.reference)
     if judge and record["turns"]:
-        # 只发送逐轮回答及工具执行证据；完整消息和业务状态仍保存在原记录。
-        judge_input = {
-            "reference": case.reference,
-            "knowledge_source": record.get("knowledge_source"),
-            "turns": [],
-        }
-        for turn_record in record["turns"]:
-            tool_results = []
-            for message in turn_record["messages"]:
-                if message.get("type") != "tool":
-                    continue
-                # artifact通常与content重复；优先保留结构化artifact，否则保留正文。
-                tool_results.append(
-                    {
-                        "name": message.get("name"),
-                        "result": message.get("artifact")
-                        if message.get("artifact") is not None
-                        else message.get("content"),
-                    }
-                )
-            judge_input["turns"].append(
-                {
-                    "turn": turn_record["turn"],
-                    "user": turn_record["user"],
-                    "answer": turn_record["answer"],
-                    "tool_results": tool_results,
-                    "expect": turn_record["expect"],
-                    "forbid": turn_record["forbid"],
-                }
-            )
-        # 实际裁判输入单独存档，便于核对删减范围，不覆盖完整执行记录。
-        record["judge_input"] = judge_input
+        # 原始执行记录仅供本轮内存处理；评分后按v3保存必要证据，不重复归档整棵树。
+        judge_input = record["judge_input"]
         record["judge_diagnostics"] = {
             "stream": True,
             "input_version": "compact-v1",
@@ -570,20 +595,25 @@ def _run_case(
                     ]
                 )
                 if isinstance(exc, ValidationError)
-                else str(exc)
+                else re.sub(r"https?://[^\s]+", "[ENDPOINT]", str(exc))
             )
-            cause_detail = str(cause) if cause is not None else None
+            cause_detail = (
+                re.sub(r"https?://[^\s]+", "[ENDPOINT]", str(cause)) if cause is not None else None
+            )
             for secret in secrets:
                 if secret:
                     detail = detail.replace(secret, "[REDACTED]")
                     if cause_detail is not None:
                         cause_detail = cause_detail.replace(secret, "[REDACTED]")
             record["judge_diagnostics"].update(
+                stage="judge",
+                diagnostic_code="EVAL_JUDGE_EXCEPTION",
                 error_type=type(exc).__name__,
                 error_detail=detail[:1000],
                 cause_type=type(cause).__name__ if cause is not None else None,
                 cause_detail=cause_detail[:1000] if cause_detail is not None else None,
                 status_code=getattr(exc, "status_code", None),
+                endpoint_template=http_error_context(exc)["endpoint_template"],
                 request_id=getattr(exc, "request_id", None)
                 or record["judge_diagnostics"]["request_id"],
             )

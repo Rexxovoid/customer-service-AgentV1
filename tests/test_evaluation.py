@@ -59,6 +59,17 @@ def test_judge_records_response_metadata_before_validation(monkeypatch):
     assert diagnostics["finish_reason"] == "stop"
     assert diagnostics["usage"] == {"total_tokens": 123}
     assert diagnostics["request_id"] == "request-1"
+    import hashlib
+
+    sent = client.__enter__.return_value.chat.completions.stream.call_args.kwargs
+    request = diagnostics["_request"]
+    assert sent["messages"][1]["content"] == "{}"
+    assert (
+        request["user_content_sha256"]
+        == hashlib.sha256(sent["messages"][1]["content"].encode()).hexdigest()
+    )
+    assert request["system_prompt"] == sent["messages"][0]["content"]
+    assert sent["max_tokens"] == 2000 and sent["stream_options"] == {"include_usage": True}
 
 
 @pytest.mark.parametrize(
@@ -224,8 +235,15 @@ def test_judge_compact_input_and_failure_diagnostics(tmp_path, monkeypatch, time
     assert turn["user"] == case.turns[0].user
     assert turn["tool_results"][0]["result"]["data"]["source"] == "test-source"
     assert "duplicate-tool-body" not in json.dumps(captured)
-    assert result["turns"][0]["state"]["support_private_state"] == "unneeded-state"
-    assert result["turns"][0]["messages"]
+    from pathlib import Path
+
+    from orderagent.evaluation.report import load_evidence
+
+    evidence = load_evidence(Path(result["workdir"]), result)
+    assert evidence["conversation"] == captured
+    assert "duplicate-tool-body" not in json.dumps(evidence)
+    assert "messages" not in result["turns"][0]
+    assert "support_private_state" not in result["turns"][0]["state"]
     diagnostic = result["judge_diagnostics"]
     assert diagnostic["total_seconds"] == result["judge_seconds"]
     if timeout:
@@ -308,7 +326,8 @@ def test_runner_isolates_state_and_stops_midway(tmp_path, monkeypatch):
     assert len(a["turns"]) == 1 and a["skipped_turns"] == len(case.turns) - 1
     assert paths[0] != paths[1]
     assert not settings.after_sales_db_path.exists()
-    assert a["trace"]
+    assert a["trace_summary"]
+    assert "trace" not in a
 
 
 def sample_record(status="pass"):
@@ -366,4 +385,9 @@ def test_fixture_is_not_live_rag_and_records_events(tmp_path, monkeypatch):
     monkeypatch.setattr(runner, "create_order_agent", build)
     result = execute(case, Settings(), tmp_path)
     assert result["status"] == "pass"
-    assert result["events"][0]["data"]["stage"] == "fixture"
+    from pathlib import Path
+
+    from orderagent.evaluation.report import load_evidence
+
+    evidence = load_evidence(Path(result["workdir"]), result)
+    assert evidence["diagnostics"][0]["data"]["stage"] == "fixture"

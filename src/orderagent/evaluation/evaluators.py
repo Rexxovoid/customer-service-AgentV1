@@ -1,3 +1,4 @@
+import hashlib
 import json
 import time
 
@@ -56,6 +57,24 @@ def grade_quality(settings, record, diagnostics=None):
     )
     if not settings.qiwen_api_key.get_secret_value():
         raise ValueError("缺少QIWEN_API_KEY")
+    system_prompt = load_prompt("judge_prompt", evaluation=True)
+    user_content = json.dumps(record, ensure_ascii=False)
+    # 只记录同一次compact-v1请求的元数据，不另造精简输入、不重复调用裁判。
+    diagnostics["_request"] = {
+        "system_prompt": system_prompt,
+        "system_prompt_sha256": hashlib.sha256(system_prompt.encode()).hexdigest(),
+        "user_content_sha256": hashlib.sha256(user_content.encode()).hexdigest(),
+        "user_content_characters": len(user_content),
+        "model": settings.qianwen,
+        "input_version": "compact-v1",
+        "stream": True,
+        "max_tokens": 2000,
+        "temperature": 0,
+        "response_format": {"type": "json_object"},
+        "stream_options": {"include_usage": True},
+        "timeout_seconds": 30,
+        "max_retries": 1,
+    }
     with OpenAI(
         api_key=settings.qiwen_api_key.get_secret_value(),
         base_url=settings.qiwen_base_url,
@@ -67,8 +86,8 @@ def grade_quality(settings, record, diagnostics=None):
         with client.chat.completions.stream(
             model=settings.qianwen,
             messages=[
-                {"role": "system", "content": load_prompt("judge_prompt", evaluation=True)},
-                {"role": "user", "content": json.dumps(record, ensure_ascii=False)},
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_content},
             ],
             response_format={"type": "json_object"},
             max_tokens=2000,

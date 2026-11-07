@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+import re
 import sys
 from datetime import datetime, timedelta, timezone
 from threading import Lock
@@ -11,7 +12,7 @@ from langsmith import Client
 from langsmith.evaluation import evaluate
 from langsmith.schemas import Example
 
-from orderagent.evaluation.report import compare_reviews, write_report
+from orderagent.evaluation.report import archive_case, compare_reviews, load_evidence, write_report
 from orderagent.evaluation.runner import execute, fingerprint, load_cases
 from orderagent.settings import PROJECT_ROOT, Settings
 
@@ -47,6 +48,15 @@ def main():
         ]
         verification = []
         for row in rows:
+            local_evidence = {"verified": None, "reason": "legacy_format_not_checked"}
+            if row.get("storage_version") == 3:
+                try:
+                    if not re.fullmatch(r"[A-Za-z0-9_-]{1,100}", row["run_id"]):
+                        raise ValueError("非法运行编号")
+                    load_evidence(root / row["run_id"], row)
+                    local_evidence = {"verified": True, "reason": "file_hash_matched"}
+                except (OSError, ValueError) as exc:
+                    local_evidence = {"verified": False, "reason": type(exc).__name__}
             proof = observer.verify_content(row.get("langfuse") or {})
             trace_id = (row.get("langfuse") or {}).get("trace_id")
             trace_url = None
@@ -60,6 +70,11 @@ def main():
                     "run_id": row["run_id"],
                     "case_id": row["case_id"],
                     "cloud_content": proof,
+                    "verification_scope": (
+                        "specified_turn_content_only; "
+                        "all_spans_scores_usage_not_checked"
+                    ),
+                    "local_evidence": local_evidence,
                     "trace_id": trace_id,
                     "trace_url": trace_url,
                 }
@@ -187,7 +202,19 @@ def main():
                     "failure": "evaluation_runner",
                     "judge_status": "disabled",
                     "target_seconds": 0,
+                    "planned_turns": len(case.get("turns", [])),
+                    "reference": case.get("reference", ""),
+                    "knowledge_source": case.get("fixture") or "configured_rag_or_json",
+                    "skipped_turns": len(case.get("turns", [])),
+                    "error_diagnostic": {
+                        "stage": "evaluation_runner",
+                        "diagnostic_code": "EVAL_RUNNER_FAILURE",
+                        "detail": "执行初始化或调度失败",
+                    },
                 }
+                work = root / outputs["run_id"]
+                work.mkdir(exist_ok=False)
+                outputs = archive_case(outputs, work)
             records.append(outputs)
     from orderagent.observability import get_observability
 

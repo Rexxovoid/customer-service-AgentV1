@@ -68,7 +68,7 @@ uv run orderagent-eval verify --result evals/results/实验目录名
 
 你声明的Hobby套餐可用 `LANGFUSE_PLAN=hobby` 记录，套餐不是由代码自动推断。官方当前说明Hobby的数据访问窗口为30天，访问窗口与服务端删除策略不同：[官方说明](https://langfuse.com/faq/all/data-access-vs-data-retention)。项目不设置保留期限，不配置云端删除，不自动清理任何本地实验、详情或SQLite；所有文件由你自行决定删除。云端不作为永久存储承诺。
 
-追踪服务不可用不改变硬规则和业务状态。上传异步进行，不保证网络异常或退出时记录完整；含无法脱敏事件、链接或状态正文的原始span不导出，异常分类另以安全摘要保留。因此网页中缺少某个span不能直接判为业务没有执行，应结合本地 `result.json`、`trace`、`events` 核对。
+追踪服务不可用不改变硬规则和业务状态。上传异步进行，不保证网络异常或退出时记录完整；含无法脱敏事件、链接或状态正文的原始span不导出，异常分类另以安全摘要保留。因此网页中缺少某个span不能直接判为业务没有执行。v3结合本地 `result.json` 的调用摘要与 `evidence.json` 核对；旧实验仍使用原有trace/events字段。
 
 ## 先审批案例，再评审结果
 
@@ -86,12 +86,20 @@ uv run orderagent-eval verify --result evals/results/实验目录名
 | 文件 | 内容 |
 |---|---|
 | `experiment.json` | 代码/数据指纹、版本、模型配置和实验参数 |
-| `results.jsonl` | 新格式storage_version=2：精简索引、逐轮检查摘要、评分、耗时、detail_path及Langfuse关联；无正文/完整状态/trace |
+| `cases.snapshot.jsonl` | 当次案例快照，不受后续案例编辑影响 |
+| `results.jsonl` | storage_version=3精简索引、检查摘要、评分、耗时、detail_path、证据哈希及Langfuse关联；无正文/完整状态/trace |
 | `summary.json` / `report.md` | 指标、失败归因、耗时和重复分布 |
-| `E编号-运行编号/result.json` | 逐轮回答、检查、状态、工具、RAG与评分 |
+| `E编号-运行编号/result.json` | 结论、完整逐轮断言、状态变化、错误分类、调用/用量摘要、裁判诊断和证据引用 |
+| `E编号-运行编号/evidence.json` | 一份必要逐轮正文、工具参数与结果、绑定/幂等状态值、完整诊断事实、裁判实际请求配置及提示词 |
 | `human_review.csv` | 本次实验的独立人工评分表 |
 
-先核对knowledge_source、initial_state及逐轮answer、checks.actual、state、operation、trace/events。建议先不看裁判分数，独立作人工判断。
+先核对knowledge_source、initial_state、逐轮checks.actual和state_changes，再通过evidence_pointer查看证据。`conversation.turns`含用户、回答、工具结果及知识依据，`tool_calls`含参数，`state_values`保存绑定和幂等记录，`diagnostics`保存单份诊断事实。建议先不看裁判分数，独立作人工判断。
+
+存储分工与兼容：runner产生执行记录及唯一compact-v1输入，evaluators记录实际裁判请求配置和诊断；report在执行与评分完成后写v3归档，再由同一结论产生索引、汇总和人工CSV。Langfuse在归档前消费内存中的官方回调及已批准正文，不从精简结果重建调用链，也不重跑Agent或裁判。compare仍读取索引；旧格式仍可汇总和人工对比，不批量迁移历史。
+
+v3不持久化整棵执行树的inputs/outputs或每层消息历史；同一工具结果优先artifact，没有时才取content。诊断分类仅引用同一diagnostic_id；逐轮诊断关联turn/request_id。`trace_summary`只记录实际模型/工具回调摘要；Token缺失为null，不能由此推断SDK底层HTTP尝试次数。失败轮保留用户输入及可获取的部分工具证据，不补造未返回的回答。HTTP异常仅保存状态码和已识别的静态路径模板，未知路径为null。
+
+所有案例均保留本地最小证据，不因云端queued而删除。verify分别报告本地证据SHA256和指定云端逐轮正文的回读校验；不代表所有span、score、用量已送达。未授权、超预算和追踪异常继续保留本地证据。所有历史文件、SQLite和人工审核文件由用户自行决定是否删除。
 
 填写human_review.csv：reviewer用别名；verdict为pass/fail/unjudgeable，空白表示未审；evidence填可核查回答、状态或原文；reason解释原因。run_id+turn+reviewer不可重复。预置turn=all为整场评分；可加逐轮行，但逐轮行不进入整场一致率。
 
@@ -126,7 +134,7 @@ compare生成comparison.json，不改人工表。输出人工与机器显式硬�
 
 裁判排查查看案例`result.json`中的`judge_diagnostics`：`error_type/error_detail`为最终异常，`cause_type/cause_detail`为直接底层异常；`total_seconds`包含SDK重试和解析。成功或响应后解析失败时可查看`finish_reason/usage/model/response_id/request_id`，无法获取的值为null。当前不记录每次重试，不能从总耗时推断准确尝试次数。
 
-`judge_input`保存实际送评的精简输入（用户原文、最终回答、工具结果及其中知识依据、参考标准），不再重复发送消息历史、完整状态和硬规则检查结果。完整执行证据仍在`turns/messages/state`中供人工审查。评分输入版本为compact-v1，与旧评分输入不同，比较质量与耗时应注明版本。本次未改变裁判超时、重试和输出预算；历史报告不追改。
+裁判仍使用现有compact-v1（用户原文、最终回答、工具结果及知识依据、参考标准），没有增加另一套精简机制，也不发送完整状态、重复历史或机器断言结论。v3只将该输入保存在`evidence.json/conversation`，`result.json/judge_input_ref`记录位置与实际/落盘哈希；系统提示词及实际请求配置保存在`evidence.json/judge_request`，不再复制用户正文。发生脱敏后哈希可能不同，matches_actual_request如实标为false；未获取实际请求时为null。旧实验的judge_input仍在原位置。本次不改变裁判流式接口、超时、重试、输出预算或判分规则。
 
 ```powershell
 $env:RAGFLOW_EVIDENCE_DEBUG = "true"

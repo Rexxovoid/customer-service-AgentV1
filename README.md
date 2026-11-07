@@ -81,7 +81,7 @@ LANGFUSE_ENABLED=true
 
 可选设置 `LANGFUSE_CONTENT_ENABLED=true`；仅对 `controlled_agent`、`review_status=approved` 且 `content_upload_approved=true` 的案例上传脱敏用户原文、最终答复、工具结果摘要和选定证据。该开关默认false，现有案例不会被自动授权；网页和终端原文仍不上传。打开案例trace → `approved_evaluation_content` → `approved_evaluation_turn`：Input看用户输入，Output看answer、tools、knowledge_evidence和checks，metadata.turn标识轮次。节点是事后展示，不是新增模型调用，其耗时不是用户等待时长。不包含完整状态或隐藏推理，旧metadata内容包仍可回读。人工结果仍保存在本地CSV，不能把自动评分当成人工结论。`LANGFUSE_PLAN=hobby` 仅记录你声明的套餐，不改变云端期限。
 
-新实验的 `results.jsonl` 仅保存索引，完整详情每案例保留一份；没有自动采样、删除或保留天数设置，所有本地测评文件由你决定何时删除。云端回读核对可执行 `uv run orderagent-eval verify --result evals/results/实验目录名`，详情见测评指南。历史实验不迁移或清理。
+新实验采用存储 v3：`results.jsonl` 为精简索引，每案例 `result.json` 保存结论、断言、状态变化和诊断引用，`evidence.json` 集中保存必要逐轮证据与裁判输入。Langfuse 用于查看已授权的执行过程，本地证据不因上传排队而省略。没有自动删除、采样或保留天数，历史实验不迁移。核对命令为 `uv run orderagent-eval verify --result evals/results/实验目录名`，操作见测评指南。
 
 测评来源与云端开关说明见 [测评指南](evals/EVALUATION_GUIDE.md#langfuse追踪)。本阶段未迁移提示词、数据集或裁判，也不因启用 Langfuse 自动开启 LangSmith 上传。
 

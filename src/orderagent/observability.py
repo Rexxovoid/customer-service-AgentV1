@@ -24,6 +24,8 @@ META = {
     "turn",
     "error_type",
     "cause_type",
+    "status_code",
+    "endpoint_template",
     "stage",
     "error_code",
     "failure_reasons",
@@ -102,6 +104,8 @@ class Observability:
 
     def __init__(self, settings):
         self.client = None
+        self.initialization_status = "disabled"
+        self.initialization_error_type = None
         self.settings = settings
         self.secrets = [
             settings.api_key.get_secret_value(),
@@ -113,6 +117,7 @@ class Observability:
         if not settings.langfuse_enabled:
             return
         if not all(self.secrets[-2:]):
+            self.initialization_status = "missing_configuration"
             print("Langfuse 未配置完整，继续使用本地记录。")
             return
         try:
@@ -136,7 +141,10 @@ class Observability:
                 ),
             )
             atexit.register(self.close)
-        except Exception:
+            self.initialization_status = "ready"
+        except Exception as exc:
+            self.initialization_status = "initialization_error"
+            self.initialization_error_type = type(exc).__name__
             print("Langfuse 初始化失败，继续使用本地记录。")
 
     def clean(self, data):
@@ -166,7 +174,8 @@ class Observability:
         for secret in self.secrets:
             if secret:
                 text = text.replace(secret, "[REDACTED]")
-        text = re.sub(r"[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}", "[EMAIL]", text)
+        if "@" in text:
+            text = re.sub(r"(?<![\w.+-])[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}", "[EMAIL]", text)
         text = re.sub(r"(?<!\d)(?:\+?86[- ]?)?1[3-9]\d{9}(?!\d)", "[PHONE]", text)
         text = re.sub(r"(?<!\d)\d{15,19}[Xx]?(?!\d)", "[IDENTIFIER]", text)
         text = re.sub(
@@ -188,6 +197,12 @@ class Observability:
             "delivery": "disabled",
             "plan": self.settings.langfuse_plan,
             "content_status": "disabled",
+            "initialization_status": self.initialization_status,
+            "initialization_error_type": self.initialization_error_type,
+            "verification_scope": "specified_turn_content_only",
+            "verification_status": "not_verified",
+            "content_enabled": self.settings.langfuse_content_enabled,
+            "content_policy": "approved_controlled_only",
         }
         if self.client is None:
             return result
@@ -207,6 +222,9 @@ class Observability:
                 observation_id=self.client.get_current_observation_id(),
                 delivery="queued_not_verified",
             )
+            if result["trace_id"] is None:
+                result["delivery"] = "trace_unavailable"
+                return result
             # 官方get_trace_url首次会查询项目ID；不在案例执行路径额外联网。
             # trace_id可直接用于UI筛选，URL待显式回读时再获取。
             checks = [c for t in record.get("turns", []) for c in t.get("checks", [])]
@@ -417,8 +435,9 @@ class Observability:
                     result["content_status"] = "queued"
                 else:
                     result["content_status"] = "over_budget_local_preserved"
-        except Exception:
+        except Exception as exc:
             result["delivery"] = "queue_error"
+            result["upload_error_type"] = type(exc).__name__
         return result
 
     def verify_content(self, reference):
