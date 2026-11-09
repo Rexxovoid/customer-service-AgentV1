@@ -57,6 +57,13 @@ META = {
     "turn_count",
     "case_trace_ids",
     "original_stage_seconds",
+    "completed",
+    "raw_candidate_count",
+    "nonempty_candidate_count",
+    "filtered_candidate_count",
+    "candidate_limit",
+    "top_k",
+    "similarity_threshold",
     "summary_generated_after_execution",
 }
 _content_scope = ContextVar("approved_evaluation_content", default=False)

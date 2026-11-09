@@ -216,6 +216,75 @@ class FakeRagClient:
         ]
 
 
+def test_retrieval_only_measures_same_candidate_window_and_skips_selector():
+    repository = object.__new__(RagflowKnowledge)
+    repository.client = FakeRagClient()
+    repository.dataset_name = "售后规则知识库"
+    repository.assistant_name = "售后助手"
+    repository.selector = None
+    events = []
+    repository._diagnostic = events.append
+    rows = [
+        SimpleNamespace(id="fault", document_name="MS_02_故障条件问答.md", content="故障"),
+        SimpleNamespace(id="policy", document_name="MS_03_售后规则场景_01.md", content="政策"),
+        SimpleNamespace(id="empty", document_name="empty", content=""),
+    ]
+    parameters = []
+    repository.client.retrieve = lambda **kwargs: (parameters.append(kwargs), rows)[1]
+    answer = repository.find(
+        SupportQuery(category="mice", issue="退货规则与适用条件", task="return"),
+        retrieval_only=True,
+    )
+    assert answer is None
+    metrics = next(e for e in events if e["stage"] == "retrieval_metrics")
+    assert metrics["completed"] is True and metrics["seconds"] >= 0
+    assert metrics["raw_candidate_count"] == 3
+    assert metrics["nonempty_candidate_count"] == 2
+    assert metrics["filtered_candidate_count"] == 1
+    assert parameters[0]["page_size"] == 5 and parameters[0]["top_k"] == 64
+    assert parameters[0]["similarity_threshold"] == 0.3
+    retrieved = next(e for e in events if e["stage"] == "retrieved")
+    assert retrieved["filtered_candidate_ids"] == ["policy"]
+    assert not any(e["stage"].startswith("selection") for e in events)
+
+
+@pytest.mark.parametrize("failure", ["binding", "request", "empty"])
+def test_retrieval_metrics_distinguish_failed_request_empty_and_binding(failure):
+    import requests
+
+    repository = object.__new__(RagflowKnowledge)
+    repository.client = FakeRagClient(bound=failure != "binding")
+    repository.dataset_name = "售后规则知识库"
+    repository.assistant_name = "售后助手"
+    repository.selector = None
+    events = []
+    repository._diagnostic = events.append
+    if failure == "request":
+
+        def fail(**kwargs):
+            raise requests.Timeout("timeout")
+
+        repository.client.retrieve = fail
+    elif failure == "empty":
+        repository.client.retrieve = lambda **kwargs: []
+    if failure == "empty":
+        repository.find(SupportQuery(category="mice", issue="未知问题"), retrieval_only=True)
+    else:
+        with pytest.raises(ValueError, match="RAG_BINDING_MISMATCH|RAG_RETRIEVAL_TIMEOUT"):
+            repository.find(SupportQuery(category="mice", issue="未知问题"), retrieval_only=True)
+    metrics = [e for e in events if e["stage"] == "retrieval_metrics"]
+    if failure == "binding":
+        assert not metrics
+        assert any(e.get("completed") is False for e in events if e["stage"] == "binding_metrics")
+    elif failure == "request":
+        assert metrics[0]["completed"] is False
+        assert metrics[0]["raw_candidate_count"] is None
+    else:
+        assert metrics[0]["completed"] is True
+        assert metrics[0]["raw_candidate_count"] == 0
+        assert metrics[0]["filtered_candidate_count"] == 0
+
+
 @pytest.mark.parametrize("reply", ["", " ", "知识依据：故障知识.md / chunk"])
 def test_rag_quality_never_uses_raw_excerpt_when_customer_reply_invalid(reply):
     repository = object.__new__(RagflowKnowledge)

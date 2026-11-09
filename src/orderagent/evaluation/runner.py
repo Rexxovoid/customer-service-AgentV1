@@ -185,7 +185,7 @@ def build_judge_input(record, reference):
     }
 
 
-def fingerprint(dataset, settings):
+def fingerprint(dataset, settings, *, include_model=True):
     """只记录配置白名单与文件哈希；不导出Settings或.env。"""
     paths = [
         *PROJECT_ROOT.joinpath("src").rglob("*.py"),
@@ -203,7 +203,7 @@ def fingerprint(dataset, settings):
             ["git", *args], cwd=PROJECT_ROOT, capture_output=True, text=True, check=False
         ).stdout.strip()
 
-    model = create_deepseek_model(settings)
+    model = create_deepseek_model(settings) if include_model else None
     return {
         "commit": git("rev-parse", "HEAD"),
         "dirty": bool(git("status", "--porcelain")),
@@ -220,7 +220,7 @@ def fingerprint(dataset, settings):
                 "langfuse",
             )
         },
-        "agent_model": settings.model_name,
+        "agent_model": settings.model_name if include_model else None,
         "judge_model": settings.qianwen,
         "observability": {
             "langfuse_enabled": settings.langfuse_enabled,
@@ -235,7 +235,9 @@ def fingerprint(dataset, settings):
             "max_retries": model.max_retries,
             "timeout_seconds": model.request_timeout,
             "temperature": model.temperature,
-        },
+        }
+        if model is not None
+        else None,
         "judge_parameters": {
             "stream": True,
             "max_tokens": 2000,
@@ -280,12 +282,20 @@ def run_case(case, settings, root, *, judge=False, repetition_index=None):
         else None,
         dataset_hash=experiment.get("dataset_hash"),
         model_config_summary={
-            "agent": settings.model_name,
-            "selection_effort": settings.ragflow_selection_reasoning_effort,
+            "agent": settings.model_name if not case.retrieval_only else None,
+            "selection_effort": settings.ragflow_selection_reasoning_effort
+            if not case.retrieval_only
+            else None,
         },
         knowledge_source=case.fixture
         if case.mode == "controlled_agent"
-        else ("configured_rag" if settings.ragflow_api_url else "local_json"),
+        else (
+            "ragflow_retrieval_only"
+            if case.retrieval_only
+            else "configured_rag"
+            if settings.ragflow_api_url
+            else "local_json"
+        ),
     ) as tracking:
         record = _run_case(
             case,
@@ -341,6 +351,7 @@ def _run_case(
         "planned_turns": len(case.turns),
         "repetition_index": repetition_index,
         "mode": case.mode,
+        "retrieval_only": case.retrieval_only,
         "category": case.category,
         "review_status": case.review_status,
         "turns": [],
@@ -351,6 +362,8 @@ def _run_case(
         "reference": case.reference,
         "knowledge_source": case.fixture
         if case.mode == "controlled_agent"
+        else "ragflow_retrieval_only"
+        if case.retrieval_only
         else "configured_rag_or_json",
         "initial_state": {
             "session": "new",
@@ -369,9 +382,16 @@ def _run_case(
         if case.mode == "live_rag":
             from langchain_core.runnables import RunnableLambda
 
-            repo = RagflowKnowledge(isolated, create_deepseek_model(isolated))
+            repo = RagflowKnowledge(
+                isolated, None if case.retrieval_only else create_deepseek_model(isolated)
+            )
             try:
-                answer = RunnableLambda(repo.find).invoke(
+                lookup = (
+                    (lambda query: repo.find(query, retrieval_only=True))
+                    if case.retrieval_only
+                    else repo.find
+                )
+                answer = RunnableLambda(lookup).invoke(
                     SupportQuery.model_validate(case.query), config=config
                 )
             except ValueError as exc:
@@ -385,8 +405,21 @@ def _run_case(
                 d["document"] for e in collector.events for d in e["data"].get("candidates", [])
             ]
             record["retrieved_documents"] = documents
+            record["filtered_documents"] = [
+                d["document"]
+                for event in collector.events
+                for d in event["data"].get("candidates", [])
+                if d["id"] in event["data"].get("filtered_candidate_ids", [])
+            ]
             if case.relevant_documents and case.review_status == "approved":
                 record["hit_at_5"] = bool(set(documents) & set(case.relevant_documents))
+                # 历史诊断没有过滤后ID时不伪造过滤后命中。
+                has_filtered = any("filtered_candidate_ids" in e["data"] for e in collector.events)
+                record["filtered_hit_at_5"] = (
+                    bool(set(record["filtered_documents"]) & set(case.relevant_documents))
+                    if has_filtered
+                    else None
+                )
                 record["status"] = "pass" if record["hit_at_5"] else "fail"
                 record["failure"] = None if record["hit_at_5"] else "retrieval"
         else:

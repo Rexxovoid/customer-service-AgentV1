@@ -81,6 +81,36 @@ uv run orderagent-eval verify --result evals/results/实验目录名
 
 ## 结果与人工评分
 
+### 纯RAG检索性能
+
+`data/evaluation/rag_retrieval_cases.jsonl`提供E67—E90共24条，派生自E43—E66首轮输入，不是新增24道独立题。模式为`live_rag`且`retrieval_only=true`：沿用官方SDK、知识库/助手绑定检查、检索参数及候选过滤，检索后停止。不执行主Agent、规则选择或裁判，不办理售后；RAGFlow服务端仍可能执行Embedding/重排，不能以本地model_calls=0推断服务端零成本。
+
+```powershell
+uv run orderagent-eval validate --cases data/evaluation/rag_retrieval_cases.jsonl
+uv run orderagent-eval run --cases data/evaluation/rag_retrieval_cases.jsonl --ids E67,E75,E83 --repeat 1
+# 检查上述三例后，再重复全部案例观察性能：
+uv run orderagent-eval run --cases data/evaluation/rag_retrieval_cases.jsonl --repeat 3 --concurrency 1
+```
+
+需要RAGFLOW_API_URL、API_KEY和正确绑定；不回退本地JSON。全部为纯检索时无需DEEP_API_KEY，实验配置不初始化模型；`--judge`明确拒绝（混合数据含纯检索也拒绝），要测答复请用原rag_acceptance_cases.jsonl。`validate`只检查格式，不访问服务器。
+
+| 位置 | 含义 |
+|---|---|
+| `diagnostics.stage=binding_metrics` | 名称查询及助手绑定检查的客户端耗时，与检索分开；失败单列 |
+| `diagnostics.stage=retrieval_metrics` | 官方retrieve请求的客户端耗时，含网络/服务端处理/响应解码；不等于向量库内部耗时 |
+| `raw_candidate_count` | SDK实际返回页的分块数，不是top_k或服务器总命中数 |
+| `nonempty_candidate_count` / `filtered_candidate_count` | 前5窗口非空数、按既有规则过滤/分块ID去重后的数量 |
+| `summary.json → overall.retrieval` | 完成/失败请求数、成功请求P50/P95、绑定P50/P95、候选均值、金标覆盖和命中率 |
+| `hit_at_5` / `filtered_hit_at_5` | 原始前5非空候选/过滤后候选中，是否至少命中一个正例文档名称 |
+
+请求失败时计数为null，不伪造0；正常返回空列表计0。绑定失败不假装发送过检索请求。成功时延分位数不包含失败请求，失败数仍保留在报告及计划分母。整例target_seconds还包含初始化等，不能代替独立检索耗时。少量样本的P95不代表容量。
+
+命中只对`approved`且有`relevant_documents`的正例计算；当前24条均pending，运行可观察耗时，但labeled_runs=0、hit_at_5_rate=null是正常的。先人工核对远端真实文档名（包括_v3等后缀）和题目依据再审批。排除规则/无技术答案题保持空正例，不自动判断“无文档就是正确”。该指标不是Recall@K、证据完整性、规则适用性或最终业务正确率，多轮题的派生请求只测第1轮快照。
+
+候选正文继续只在本地evidence.json的唯一diagnostics中保留（查stage=retrieved）；纯检索不经过规则选择，因此不会生成规则选择的rag_evidence现场文件。索引和Langfuse只增加数字/状态摘要，不开放live_rag正文上传。不增加自动清理、缓存、业务重试或并发检索竞速。
+
+RAG开发验收补充集为`data/evaluation/rag_acceptance_cases.jsonl`（E43—E66，24例30轮），按三类各8题组织。逐题文档/规则、适用条件、预期动作、必须项、禁止项及技术不可判定标注见`data/evaluation/RAG_ACCEPTANCE_24.md`。先按`data/RAG_IMPORT_GUIDE.md`同步远端并检查候选，再使用现有validate/run/compare流程；本次没有新增评分器或框架。案例全部pending、live_agent，当前内容上传边界不开放live_agent；看正文可用受控本地RAG调试。正例、应排除规则与无技术来源分别判断，不将无答案题当作检索命中文档正例。
+
 每次生成`evals/results/时间-随机编号/`，不覆盖历史：
 
 | 文件 | 内容 |

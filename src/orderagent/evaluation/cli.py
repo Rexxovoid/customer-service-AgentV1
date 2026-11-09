@@ -101,7 +101,15 @@ def main():
         print(f"格式有效：{len(cases)}条；已人工确认{approved}条")
         return 0
     settings = Settings.load()
-    settings.require_api_key()
+    retrieval_only = all(case.retrieval_only for case in cases)
+    if any(case.retrieval_only for case in cases) and args.judge:
+        parser.error("纯检索没有最终答复，不能使用--judge；完整链路请使用原验收集")
+    if any(case.retrieval_only for case in cases) and (
+        not settings.ragflow_api_url or not settings.ragflow_api_key.get_secret_value()
+    ):
+        parser.error("纯检索需要RAGFLOW_API_URL及RAGFLOW_API_KEY，不回退本地JSON")
+    if not retrieval_only:
+        settings.require_api_key()
     if args.judge and not settings.qiwen_api_key.get_secret_value():
         parser.error("--judge需要QIWEN_API_KEY")
     client = None
@@ -116,13 +124,14 @@ def main():
     root = PROJECT_ROOT / "evals/results" / f"{stamp}-{uuid4().hex[:8]}"
     root.mkdir(parents=True, exist_ok=False)
     (root / "cases.snapshot.jsonl").write_bytes(dataset.read_bytes())
-    meta = fingerprint(dataset, settings)
+    meta = fingerprint(dataset, settings, include_model=not retrieval_only)
     meta.update(
         repetitions=args.repeat,
         concurrency=args.concurrency,
         upload=args.upload,
         selected_ids=[c.id for c in cases],
         judge_enabled=args.judge,
+        retrieval_only=retrieval_only,
         dataset_hash=meta["files"][str(dataset)],
         storage_policy="manual",
     )

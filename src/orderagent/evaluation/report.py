@@ -156,6 +156,13 @@ def archive_case(record, work):
                 "failure_reasons",
                 "status_code",
                 "endpoint_template",
+                "completed",
+                "raw_candidate_count",
+                "nonempty_candidate_count",
+                "filtered_candidate_count",
+                "candidate_limit",
+                "top_k",
+                "similarity_threshold",
             )
             if k in data
         }
@@ -340,9 +347,7 @@ def archive_case(record, work):
     def redact_contacts(value):
         if isinstance(value, str):
             if "@" in value:
-                value = re.sub(
-                    r"(?<![\w.+-])[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}", "[EMAIL]", value
-                )
+                value = re.sub(r"(?<![\w.+-])[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}", "[EMAIL]", value)
             value = re.sub(r"(?<!\d)(?:\+?86[- ]?)?1[3-9]\d{9}(?!\d)", "[PHONE]", value)
             return re.sub(
                 r"(?im)^.*(?:地址|收件人|联系人|身份证|银行卡|cookie|authorization)[:：].*$",
@@ -428,6 +433,29 @@ def summarize(records):
         if d.get("stage") == "selection_metrics"
     ]
     selection_latencies = [d["seconds"] for d in selection_metrics]
+    retrieval = [
+        d
+        for r in records
+        for d in r.get("diagnostics", [])
+        if d.get("stage") == "retrieval_metrics"
+    ]
+    bindings = [
+        d for r in records for d in r.get("diagnostics", []) if d.get("stage") == "binding_metrics"
+    ]
+    retrieval_seconds = [d["seconds"] for d in retrieval if d.get("completed") is True]
+    binding_seconds = [d["seconds"] for d in bindings if d.get("completed", True)]
+    labeled = [r["hit_at_5"] for r in records if isinstance(r.get("hit_at_5"), bool)]
+    filtered_labeled = [
+        r["filtered_hit_at_5"] for r in records if isinstance(r.get("filtered_hit_at_5"), bool)
+    ]
+    raw_counts = [
+        d["raw_candidate_count"] for d in retrieval if d.get("raw_candidate_count") is not None
+    ]
+    filtered_counts = [
+        d["filtered_candidate_count"]
+        for d in retrieval
+        if d.get("filtered_candidate_count") is not None
+    ]
     quality = {}
     for dim in ("factual_correctness", "faithfulness", "relevance", "actionability", "expression"):
         scores = [
@@ -454,6 +482,30 @@ def summarize(records):
         "selection_p50_seconds": percentile(selection_latencies, 0.5),
         "selection_p95_seconds": percentile(selection_latencies, 0.95),
         "selection_usage_available": sum(d.get("usage") is not None for d in selection_metrics),
+        "retrieval": {
+            "retrieval_only_runs": sum(bool(r.get("retrieval_only")) for r in records),
+            "request_samples": len(retrieval),
+            "completed_requests": sum(d.get("completed") is True for d in retrieval),
+            "failed_requests": sum(d.get("completed") is False for d in retrieval),
+            "binding_samples": len(bindings),
+            "binding_failures": sum(d.get("completed") is False for d in bindings),
+            "latency_scope": "completed_client_calls_only; includes_network_and_response_decoding",
+            "p50_seconds": percentile(retrieval_seconds, 0.5),
+            "p95_seconds": percentile(retrieval_seconds, 0.95),
+            "binding_p50_seconds": percentile(binding_seconds, 0.5),
+            "binding_p95_seconds": percentile(binding_seconds, 0.95),
+            "raw_candidate_mean": sum(raw_counts) / len(raw_counts) if raw_counts else None,
+            "filtered_candidate_mean": sum(filtered_counts) / len(filtered_counts)
+            if filtered_counts
+            else None,
+            "labeled_runs": len(labeled),
+            "hit_at_5_rate": sum(labeled) / len(labeled) if labeled else None,
+            "filtered_labeled_runs": len(filtered_labeled),
+            "filtered_hit_at_5_rate": sum(filtered_labeled) / len(filtered_labeled)
+            if filtered_labeled
+            else None,
+            "gold_scope": "approved_positive_document_names_only; not_rule_applicability",
+        },
         "selection_truncations": sum(
             d.get("error_code") == "RAG_SELECTION_TRUNCATED"
             for r in records
@@ -490,6 +542,8 @@ def compact_record(record):
         "hard_check_count",
         "rag_outcome_code",
         "hit_at_5",
+        "filtered_hit_at_5",
+        "retrieval_only",
         "error_type",
         "error_code",
         "judge_error_type",
@@ -523,9 +577,24 @@ def compact_record(record):
         for t in record.get("turns", [])
     ]
     result["diagnostics"] = [
-        {k: d.get(k) for k in ("stage", "seconds", "usage")}
+        {
+            k: d[k]
+            for k in (
+                "stage",
+                "seconds",
+                "usage",
+                "completed",
+                "raw_candidate_count",
+                "nonempty_candidate_count",
+                "filtered_candidate_count",
+                "candidate_limit",
+                "top_k",
+                "similarity_threshold",
+            )
+            if k in d
+        }
         for d in record.get("diagnostics", [])
-        if d.get("stage") == "selection_metrics"
+        if d.get("stage") in {"selection_metrics", "retrieval_metrics", "binding_metrics"}
     ]
     result["dependency_errors"] = [
         {"error_code": d.get("error_code")} for d in record.get("dependency_errors", [])

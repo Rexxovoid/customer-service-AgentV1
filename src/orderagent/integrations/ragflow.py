@@ -136,7 +136,7 @@ class RagflowKnowledge:
     """通过官方检索获取证据，再用官方结构化输出选择原文，不创建第二个执行Agent。"""
 
     def __init__(self, settings, model):
-        if urlsplit(settings.api_base_url).hostname != "api.deepseek.com":
+        if model is not None and urlsplit(settings.api_base_url).hostname != "api.deepseek.com":
             raise ConfigurationError(
                 "规则选择低推理配置仅验证了DeepSeek官方服务；其他服务需先验证参数支持，不静默忽略。"
             )
@@ -154,6 +154,9 @@ class RagflowKnowledge:
             settings.ragflow_api_key.get_secret_value(),
             settings.api_key.get_secret_value(),
         ]
+        self.selector = None
+        if model is None:
+            return  # 仅测评的纯检索路径，不创建或请求选择模型。
         # 官方Pydantic模型复制只改选择器预算，主Agent模型实例及其1200上限不变。
         selector_model = model.model_copy(
             update={
@@ -166,11 +169,11 @@ class RagflowKnowledge:
             RuleSelection, method="json_mode", include_raw=True
         )
 
-    def find(self, query):
+    def find(self, query, *, retrieval_only=False):
         """仅检索指定库并核对助手绑定；异常由业务工具转人工，禁止回退常识答案。"""
         started = time.perf_counter()
         try:
-            return self._find(query)
+            return self._find(query, retrieval_only=retrieval_only)
         except Exception as exc:
             selecting = "rag_stage=selection" in getattr(exc, "__notes__", [])
             code = (
@@ -208,9 +211,11 @@ class RagflowKnowledge:
         finally:
             self._diagnostic({"stage": "rag_finished", "seconds": time.perf_counter() - started})
 
-    def _find(self, query):
+    def _find(self, query, *, retrieval_only=False):
         """官方检索与结构化选择，失败以稳定诊断码交给业务处理。"""
         self._diagnostic({"stage": "retrieval_started"})
+        binding_started = time.perf_counter()
+        retrieval_started = None
         try:
             datasets = self.client.list_datasets(name=self.dataset_name)
             datasets = [item for item in datasets if item.name == self.dataset_name]
@@ -218,6 +223,14 @@ class RagflowKnowledge:
             chats = [item for item in chats if item.name == self.assistant_name]
             if len(datasets) != 1 or len(chats) != 1 or datasets[0].id not in chats[0].dataset_ids:
                 raise ValueError("RAG_BINDING_MISMATCH")
+            self._diagnostic(
+                {
+                    "stage": "binding_metrics",
+                    "seconds": time.perf_counter() - binding_started,
+                    "completed": True,
+                }
+            )
+            retrieval_started = time.perf_counter()
             chunks = self.client.retrieve(
                 dataset_ids=[datasets[0].id],
                 question=(
@@ -228,7 +241,21 @@ class RagflowKnowledge:
                 top_k=64,
                 similarity_threshold=0.3,
             )
+            retrieval_seconds = time.perf_counter() - retrieval_started
         except Exception as exc:
+            self._diagnostic(
+                {
+                    "stage": "binding_metrics"
+                    if retrieval_started is None
+                    else "retrieval_metrics",
+                    "seconds": time.perf_counter()
+                    - (retrieval_started if retrieval_started is not None else binding_started),
+                    "completed": False,
+                    "error_type": type(exc).__name__,
+                    "raw_candidate_count": None,
+                    "filtered_candidate_count": None,
+                }
+            )
             exc.add_note("rag_stage=retrieval")
             raise
         evidence = {
@@ -256,11 +283,29 @@ class RagflowKnowledge:
                     for item in chunks[:5]
                     if item.content
                 ],
+                "filtered_candidate_ids": list(evidence),
             }
         )
+        self._diagnostic(
+            {
+                "stage": "retrieval_metrics",
+                "seconds": retrieval_seconds,
+                "completed": True,
+                "raw_candidate_count": len(chunks),
+                "nonempty_candidate_count": sum(bool(item.content) for item in chunks[:5]),
+                "filtered_candidate_count": len(evidence),
+                "candidate_limit": 5,
+                "top_k": 64,
+                "similarity_threshold": 0.3,
+            }
+        )
+        if retrieval_only:
+            return None  # 空候选也属于检索正常返回，由测评金标判断命中，不运行规则选择。
         if not evidence:
             self._diagnostic({"stage": "no_candidates"})
             raise ValueError("RAG_NO_CANDIDATES")
+        if self.selector is None:
+            raise ValueError("RAG_SELECTION_ERROR")
         messages = [
             ("system", load_prompt("rag_selection_prompt")),
             (

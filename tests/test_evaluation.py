@@ -28,6 +28,132 @@ def test_dataset_load_and_fixtures_are_explicit():
         cases[5].model_validate({**cases[5].model_dump(), "fixture": "unknown"})
 
 
+@pytest.mark.parametrize(
+    "review,documents,status,hit",
+    [
+        ("pending", ["故障知识.md"], "unjudgeable", None),
+        ("approved", ["故障知识.md"], "pass", True),
+        ("approved", ["不同文档.md"], "fail", False),
+        ("approved", [], "unjudgeable", None),
+    ],
+)
+def test_retrieval_only_runs_without_model_and_preserves_metrics(
+    tmp_path, monkeypatch, review, documents, status, hit
+):
+    from orderagent.evaluation.report import compact_record
+    from orderagent.evaluation.schemas import Case
+    from orderagent.integrations import ragflow
+    from tests.test_ragflow_after_sales import FakeRagClient
+
+    monkeypatch.setattr(ragflow, "TimeoutRAGFlow", lambda *args: FakeRagClient())
+    monkeypatch.setattr(
+        "orderagent.evaluation.runner.create_deepseek_model",
+        lambda settings: pytest.fail("纯检索不应创建模型"),
+    )
+    case = Case(
+        id="E67",
+        category="retrieval",
+        user_id="DEMO-U-004",
+        mode="live_rag",
+        retrieval_only=True,
+        query={"category": "headphones", "issue": "左耳没声音"},
+        reference="检索测试，不判断维修方案",
+        review_status=review,
+        relevant_documents=documents,
+    )
+    result = execute(
+        case,
+        Settings(ragflow_api_url="https://rag.example.invalid", ragflow_api_key="test-key"),
+        tmp_path,
+    )
+    assert result["status"] == status
+    assert result.get("hit_at_5") == hit
+    assert result["model_calls"] == 0 and result["judge_status"] == "disabled"
+    assert not result["turns"] and result["retrieval_only"] is True
+    assert result["knowledge_source"] == "ragflow_retrieval_only"
+    summary = summarize([result])
+    assert summary == summarize([compact_record(result)])
+    assert summary["retrieval"]["completed_requests"] == 1
+    assert summary["retrieval"]["p50_seconds"] is not None
+    assert summary["retrieval"]["labeled_runs"] == (0 if hit is None else 1)
+
+
+def test_retrieval_only_is_for_rag_and_no_gold_does_not_mean_zero_accuracy():
+    from orderagent.evaluation.schemas import Case
+
+    with pytest.raises(ValidationError):
+        Case(
+            id="E67",
+            category="x",
+            user_id="demo",
+            mode="live_agent",
+            retrieval_only=True,
+            reference="x",
+            turns=[{"user": "x", "expect": [], "forbid": []}],
+        )
+    result = summarize([])["retrieval"]
+    assert result["labeled_runs"] == 0 and result["hit_at_5_rate"] is None
+    assert result["p50_seconds"] is None and result["raw_candidate_mean"] is None
+
+
+@pytest.mark.parametrize("judge", [False, True])
+def test_retrieval_cli_needs_no_deep_key_and_rejects_judge(tmp_path, monkeypatch, judge):
+    import sys
+
+    from orderagent.evaluation import cli
+    from orderagent.integrations import ragflow
+    from tests.test_ragflow_after_sales import FakeRagClient
+
+    dataset = tmp_path / "retrieval.jsonl"
+    dataset.write_text(
+        json.dumps(
+            {
+                "id": "E67",
+                "category": "retrieval",
+                "user_id": "demo",
+                "mode": "live_rag",
+                "retrieval_only": True,
+                "query": {"category": "headphones", "issue": "左耳无声"},
+                "reference": "仅检索",
+                "review_status": "pending",
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(cli, "PROJECT_ROOT", tmp_path)
+    monkeypatch.setattr(
+        Settings,
+        "load",
+        classmethod(
+            lambda cls: Settings(
+                ragflow_api_url="https://rag.example.invalid", ragflow_api_key="test-key"
+            )
+        ),
+    )
+    monkeypatch.setattr(ragflow, "TimeoutRAGFlow", lambda *args: FakeRagClient())
+    monkeypatch.setattr(
+        "orderagent.evaluation.runner.create_deepseek_model",
+        lambda settings: pytest.fail("不应初始化模型"),
+    )
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["orderagent-eval", "run", "--cases", str(dataset)] + (["--judge"] if judge else []),
+    )
+    if judge:
+        with pytest.raises(SystemExit) as exc:
+            cli.main()
+        assert exc.value.code == 2
+    else:
+        cli.main()
+        root = next((tmp_path / "evals/results").iterdir())
+        experiment = json.loads((root / "experiment.json").read_text(encoding="utf-8"))
+        summary = json.loads((root / "summary.json").read_text(encoding="utf-8"))
+        assert experiment["agent_model"] is None and experiment["retrieval_only"]
+        assert summary["overall"]["model_calls"] == 0
+        assert summary["overall"]["retrieval"]["completed_requests"] == 1
+
+
 def test_quality_score_requires_all_five_dimensions():
     with pytest.raises(ValidationError):
         QualityScore.model_validate({"expression": {"score": 4, "reason": "ok", "evidence": "x"}})

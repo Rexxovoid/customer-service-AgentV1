@@ -41,6 +41,7 @@ class Case(BaseModel):
     reference: str
     review_status: Literal["pending", "approved"] = "pending"
     content_upload_approved: bool = False
+    retrieval_only: bool = False
     # 真实检索金标由人工填写，不根据Agent当前输出自动产生。
     relevant_documents: list[str] = Field(default_factory=list)
 
@@ -55,6 +56,8 @@ class Case(BaseModel):
             "trusted_refunded_order",
             "handoff_error_and_no_rule",
         }
+        if self.retrieval_only and self.mode != "live_rag":
+            raise ValueError("retrieval_only仅适用于live_rag")
         if self.mode == "controlled_agent" and self.fixture not in allowed:
             raise ValueError("受控案例必须指定已知fixture")
         if self.mode == "live_rag" and (not self.query or self.turns):

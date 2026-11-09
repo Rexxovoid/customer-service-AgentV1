@@ -60,6 +60,32 @@ def test_index_deduplication_preserves_all_details_and_metrics(tmp_path):
     assert not (tmp_path / "retention.json").exists()
 
 
+def test_retrieval_summary_keeps_failure_denominators_and_missing_values():
+    from orderagent.evaluation.report import compact_record
+
+    row = sample("retrieval-error", "error")
+    row["retrieval_only"] = True
+    row["diagnostics"] = [
+        {"stage": "binding_metrics", "seconds": 0.1, "completed": True},
+        {
+            "stage": "retrieval_metrics",
+            "seconds": 30,
+            "completed": False,
+            "raw_candidate_count": None,
+            "filtered_candidate_count": None,
+        },
+    ]
+    summary = summarize([row])
+    assert summary == summarize([compact_record(row)])
+    assert summary["planned"] == 1 and summary["target_error_rate"] == 1
+    metrics = summary["retrieval"]
+    assert metrics["request_samples"] == metrics["failed_requests"] == 1
+    assert metrics["completed_requests"] == 0
+    assert metrics["p50_seconds"] is None
+    assert metrics["raw_candidate_mean"] is None
+    assert metrics["labeled_runs"] == 0 and metrics["hit_at_5_rate"] is None
+
+
 def test_manual_comparison_matches_legacy_and_survives_manual_detail_removal(tmp_path):
     records = [sample()]
     write_report(tmp_path, records)

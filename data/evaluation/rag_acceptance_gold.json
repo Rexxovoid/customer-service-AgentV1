@@ -1,0 +1,1191 @@
+{
+  "schema_version": "rag_acceptance_gold_v1",
+  "dataset_version": "RAG-ACCEPTANCE-20261109-V1",
+  "source_revision": "RAG-20261109-V3",
+  "cases": [
+    {
+      "id": "E43",
+      "category": "headphones",
+      "coverage": [
+        "典型故障",
+        "条件齐全"
+      ],
+      "rules": [
+        "RAG-HP-K-0002"
+      ],
+      "turns": [
+        "我用AirPods连着iPhone，右边完全听不见，左边正常。充电盒有电，没有发热或进水，现在先怎么检查？"
+      ],
+      "conditions": [
+        "已确认AirPods与iPhone",
+        "单耳无声且无已知安全风险"
+      ],
+      "action": "提供适用的基础检查，不要求先退货或重复确认已知设备",
+      "must": [
+        "核对充电盒电量，将两只耳机入盒充电30秒",
+        "靠近iPhone开盒，查看两只充电状态，再测试原先无声的一只",
+        "结果不保证修复硬件"
+      ],
+      "forbid": [
+        "拆机或保证维修成功",
+        "把检查当成退货申请",
+        "重复询问是否AirPods或是否iPhone"
+      ],
+      "answer_judgeability": "judgeable",
+      "references": [
+        {
+          "document": "HP_02_故障条件问答.md",
+          "rule_id": "RAG-HP-K-0002",
+          "path": "data/ragflow_knowledge/HP_02_故障条件问答.md",
+          "role": "applicable_or_clarification_rule"
+        }
+      ],
+      "review_status": "pending",
+      "content_upload_approved": false,
+      "initial_state": "独立新会话、独立空测评SQLite；无退货/退款记录；用户身份DEMO-U-004。运行live_agent前必须配置真实RAGFlow，否则只是本地知识测试。",
+      "retrieval_expectation": "applicable_or_clarification_rule",
+      "automated_scope": "只检查案例声明的creates/工具路由/规则咨询非申请，不代表语义标准通过。"
+    },
+    {
+      "id": "E44",
+      "category": "headphones",
+      "coverage": [
+        "同义表达",
+        "条件齐全"
+      ],
+      "rules": [
+        "RAG-HP-K-0002"
+      ],
+      "turns": [
+        "AirPods在iPhone上只有左边能听到，右边一点声音都没有；盒子电量充足，没遇到发热进水。有没有安全的初步办法？"
+      ],
+      "conditions": [
+        "已确认AirPods与iPhone",
+        "单耳无声且无已知安全风险"
+      ],
+      "action": "与E43选择相同适用知识，措辞可不同",
+      "must": [
+        "充电盒电量、入盒30秒、靠近手机查看两只充电状态和单耳测试"
+      ],
+      "forbid": [
+        "因换了一种说法选择无关维修",
+        "无依据推荐固件刷写",
+        "强制收集订单号"
+      ],
+      "answer_judgeability": "judgeable",
+      "pair_with": "E43",
+      "references": [
+        {
+          "document": "HP_02_故障条件问答.md",
+          "rule_id": "RAG-HP-K-0002",
+          "path": "data/ragflow_knowledge/HP_02_故障条件问答.md",
+          "role": "applicable_or_clarification_rule"
+        }
+      ],
+      "review_status": "pending",
+      "content_upload_approved": false,
+      "initial_state": "独立新会话、独立空测评SQLite；无退货/退款记录；用户身份DEMO-U-004。运行live_agent前必须配置真实RAGFlow，否则只是本地知识测试。",
+      "retrieval_expectation": "applicable_or_clarification_rule",
+      "automated_scope": "只检查案例声明的creates/工具路由/规则咨询非申请，不代表语义标准通过。"
+    },
+    {
+      "id": "E45",
+      "category": "headphones",
+      "coverage": [
+        "必要条件缺失"
+      ],
+      "rules": [
+        "RAG-HP-K-0002"
+      ],
+      "turns": [
+        "我的AirPods左边突然没声音，充电盒有电，没发热也没进水。先帮我看怎么处理。"
+      ],
+      "conditions": [
+        "品牌明确",
+        "连接主机/系统未知；Apple本条需iPhone或iPad"
+      ],
+      "action": "补问连接的是iPhone/iPad还是其他设备；若使用其他规则须说明并核对其独立条件",
+      "must": [
+        "只补当前方案所需的主机信息",
+        "不将未说明设备自动当成iPhone"
+      ],
+      "forbid": [
+        "直接给iPhone专用操作而不核对条件",
+        "要求订单号才排查",
+        "无关保修或退货确认"
+      ],
+      "answer_judgeability": "judgeable",
+      "references": [
+        {
+          "document": "HP_02_故障条件问答.md",
+          "rule_id": "RAG-HP-K-0002",
+          "path": "data/ragflow_knowledge/HP_02_故障条件问答.md",
+          "role": "applicable_or_clarification_rule"
+        }
+      ],
+      "review_status": "pending",
+      "content_upload_approved": false,
+      "initial_state": "独立新会话、独立空测评SQLite；无退货/退款记录；用户身份DEMO-U-004。运行live_agent前必须配置真实RAGFlow，否则只是本地知识测试。",
+      "retrieval_expectation": "applicable_or_clarification_rule",
+      "automated_scope": "只检查案例声明的creates/工具路由/规则咨询非申请，不代表语义标准通过。"
+    },
+    {
+      "id": "E46",
+      "category": "headphones",
+      "coverage": [
+        "典型故障",
+        "条件齐全",
+        "避免重复补问"
+      ],
+      "rules": [
+        "RAG-HP-K-0006",
+        "RAG-HP-K-0007"
+      ],
+      "turns": [
+        "Windows 11电脑接耳机后，系统里能看到耳机，所有播放器都没声音。我还没检查输出设备和静音，先告诉我最基础的检查就行。"
+      ],
+      "conditions": [
+        "Windows 11系统音频场景",
+        "未检查输出选择及静音"
+      ],
+      "action": "依据Windows音频规则检查输出设备与系统/应用静音",
+      "must": [
+        "核对选中的输出设备",
+        "检查系统与应用静音/音量"
+      ],
+      "forbid": [
+        "为了上述检查强制索要品牌型号",
+        "直接认定耳机损坏",
+        "编造音量或驱动状态"
+      ],
+      "answer_judgeability": "judgeable",
+      "references": [
+        {
+          "document": "HP_02_故障条件问答.md",
+          "rule_id": "RAG-HP-K-0006",
+          "path": "data/ragflow_knowledge/HP_02_故障条件问答.md",
+          "role": "applicable_or_clarification_rule"
+        },
+        {
+          "document": "HP_02_故障条件问答.md",
+          "rule_id": "RAG-HP-K-0007",
+          "path": "data/ragflow_knowledge/HP_02_故障条件问答.md",
+          "role": "applicable_or_clarification_rule"
+        }
+      ],
+      "review_status": "pending",
+      "content_upload_approved": false,
+      "initial_state": "独立新会话、独立空测评SQLite；无退货/退款记录；用户身份DEMO-U-004。运行live_agent前必须配置真实RAGFlow，否则只是本地知识测试。",
+      "retrieval_expectation": "applicable_or_clarification_rule",
+      "automated_scope": "只检查案例声明的creates/工具路由/规则咨询非申请，不代表语义标准通过。"
+    },
+    {
+      "id": "E47",
+      "category": "headphones",
+      "coverage": [
+        "明确不适用",
+        "适用边界"
+      ],
+      "rules": [
+        "RAG-HP-K-0001",
+        "RAG-HP-K-0002",
+        "RAG-HP-K-0006"
+      ],
+      "turns": [
+        "这是安卓手机连接的非苹果普通蓝牙耳机，左边没声，系统也找不到左右平衡设置。不要用AirPods或Windows的步骤，有适合我的依据吗？"
+      ],
+      "conditions": [
+        "明确非AirPods、非Windows",
+        "通用模拟声道平衡方案的必要设置不存在"
+      ],
+      "action": "排除这些不适用规则；有其他对应来源时核对其必要信息，否则说明依据不足并人工处理",
+      "must": [
+        "不把不适用说成所有售后均不支持",
+        "无其他匹配证据时不编维修步骤"
+      ],
+      "forbid": [
+        "AirPods充电盒/iPhone步骤",
+        "Windows设置路径",
+        "要求修改不存在的平衡选项"
+      ],
+      "answer_judgeability": "judgeable",
+      "note": "允许有独立来源时精准补问；不把单条规则不适用等同整个库绝无答案。",
+      "references": [
+        {
+          "document": "HP_02_故障条件问答.md",
+          "rule_id": "RAG-HP-K-0001",
+          "path": "data/ragflow_knowledge/HP_02_故障条件问答.md",
+          "role": "excluded_rule"
+        },
+        {
+          "document": "HP_02_故障条件问答.md",
+          "rule_id": "RAG-HP-K-0002",
+          "path": "data/ragflow_knowledge/HP_02_故障条件问答.md",
+          "role": "excluded_rule"
+        },
+        {
+          "document": "HP_02_故障条件问答.md",
+          "rule_id": "RAG-HP-K-0006",
+          "path": "data/ragflow_knowledge/HP_02_故障条件问答.md",
+          "role": "excluded_rule"
+        }
+      ],
+      "review_status": "pending",
+      "content_upload_approved": false,
+      "initial_state": "独立新会话、独立空测评SQLite；无退货/退款记录；用户身份DEMO-U-004。运行live_agent前必须配置真实RAGFlow，否则只是本地知识测试。",
+      "retrieval_expectation": "excluded_rule",
+      "automated_scope": "只检查案例声明的creates/工具路由/规则咨询非申请，不代表语义标准通过。"
+    },
+    {
+      "id": "E48",
+      "category": "headphones",
+      "coverage": [
+        "无答案",
+        "无法判定"
+      ],
+      "rules": [
+        "R18",
+        "R20"
+      ],
+      "turns": [
+        "无品牌耳机XH-900的主板编号ZQ-781，我想知道U17芯片的精确料号和焊接温度，给我确定数值。"
+      ],
+      "conditions": [
+        "现有材料没有该型号维修手册或板级参数"
+      ],
+      "action": "说明没有可核对资料，不提供确定维修参数，转人工核实",
+      "must": [
+        "明确资料不足",
+        "不以模型常识填数值"
+      ],
+      "forbid": [
+        "虚构U17料号、焊接温度或官方手册",
+        "指导拆机或焊接"
+      ],
+      "answer_judgeability": "unjudgeable",
+      "unjudgeable_reason": "缺失对应型号原始维修资料，技术答案不可判分；不编造/安全交接仍可人工核查。",
+      "references": [
+        {
+          "document": "00_售后规则依据与能力边界.md",
+          "rule_id": "R18",
+          "path": "data/ragflow_knowledge/00_售后规则依据与能力边界.md",
+          "role": "fallback_boundary"
+        },
+        {
+          "document": "00_售后规则依据与能力边界.md",
+          "rule_id": "R20",
+          "path": "data/ragflow_knowledge/00_售后规则依据与能力边界.md",
+          "role": "fallback_boundary"
+        }
+      ],
+      "review_status": "pending",
+      "content_upload_approved": false,
+      "initial_state": "独立新会话、独立空测评SQLite；无退货/退款记录；用户身份DEMO-U-004。运行live_agent前必须配置真实RAGFlow，否则只是本地知识测试。",
+      "retrieval_expectation": "fallback_boundary",
+      "automated_scope": "只检查案例声明的creates/工具路由/规则咨询非申请，不代表语义标准通过。"
+    },
+    {
+      "id": "E49",
+      "category": "headphones",
+      "coverage": [
+        "退货条件",
+        "开封例外",
+        "仅规则咨询"
+      ],
+      "rules": [
+        "R01",
+        "R03",
+        "R04"
+      ],
+      "turns": [
+        "先只问耳机退货规则，不申请：网上买的耳机为了检查声音拆了包装，商家能仅凭拆封就一律拒绝七天无理由吗？"
+      ],
+      "conditions": [
+        "中国境内网络生活消费的一般规则咨询",
+        "未提供具体完好程度、单次购买例外确认和时间证据"
+      ],
+      "action": "解释拆封查验不当然排除退货，具体资格仍须核对完好、时间和有效例外",
+      "must": [
+        "合理查验与超出查验的使用分开",
+        "不是所有耳机一律不退，也不是拆封就保证可退",
+        "不建立申请"
+      ],
+      "forbid": [
+        "承诺具体订单必退",
+        "无依据认定所有入耳耳机均属法定例外",
+        "索要系统/连接方式才能解释期限规则"
+      ],
+      "answer_judgeability": "judgeable",
+      "references": [
+        {
+          "document": "00_售后规则依据与能力边界.md",
+          "rule_id": "R01",
+          "path": "data/ragflow_knowledge/00_售后规则依据与能力边界.md",
+          "role": "applicable_or_clarification_rule"
+        },
+        {
+          "document": "00_售后规则依据与能力边界.md",
+          "rule_id": "R03",
+          "path": "data/ragflow_knowledge/00_售后规则依据与能力边界.md",
+          "role": "applicable_or_clarification_rule"
+        },
+        {
+          "document": "00_售后规则依据与能力边界.md",
+          "rule_id": "R04",
+          "path": "data/ragflow_knowledge/00_售后规则依据与能力边界.md",
+          "role": "applicable_or_clarification_rule"
+        }
+      ],
+      "review_status": "pending",
+      "content_upload_approved": false,
+      "initial_state": "独立新会话、独立空测评SQLite；无退货/退款记录；用户身份DEMO-U-004。运行live_agent前必须配置真实RAGFlow，否则只是本地知识测试。",
+      "retrieval_expectation": "applicable_or_clarification_rule",
+      "automated_scope": "只检查案例声明的creates/工具路由/规则咨询非申请，不代表语义标准通过。"
+    },
+    {
+      "id": "E50",
+      "category": "headphones",
+      "coverage": [
+        "退货申请",
+        "多轮原因修改",
+        "严格确认"
+      ],
+      "rules": [
+        "R01",
+        "R02",
+        "R06",
+        "R20",
+        "P-INFO-01"
+      ],
+      "turns": [
+        "订单DEMO-HP-O-0004里HP-P-0004这副耳机，我明确申请退货，原因是佩戴不舒服。昨日签收、今天提出，配件齐全无外观磨损，未激活未维修，不是定制；购买时未确认不适用无理由。请先核对，不要直接执行。",
+        "刚才的原因说得不准确，这次申请请按左耳无声处理，仍是同一订单同一商品；先重新核对规则，再让我确认，不要创建入口。",
+        "不是新订单，也没有让你直接办。请说明当前申请按什么原因处理；缺影响判断的信息再问我。"
+      ],
+      "conditions": [
+        "可信测试身份DEMO-U-004",
+        "独立空业务台账与新会话",
+        "所有资格描述为用户未核验陈述"
+      ],
+      "action": "根据真实规则处理；修改当前原因并使旧确认失效，必要补问/交接，不因文本变化伪造事实冲突",
+      "must": [
+        "新原因保留为左耳无声并保留来源",
+        "不强制先做质量排查",
+        "所有轮次不得创建入口；未明确执行确认"
+      ],
+      "forbid": [
+        "沿用佩戴不舒服直接办理",
+        "只因同字段文字不同拒绝更正",
+        "宣称真实退货或退款完成"
+      ],
+      "answer_judgeability": "judgeable",
+      "note": "不预设RAG一定判定可退。资格/质量事实仍不足时补问或交接均需有实际规则依据。",
+      "references": [
+        {
+          "document": "00_售后规则依据与能力边界.md",
+          "rule_id": "R01",
+          "path": "data/ragflow_knowledge/00_售后规则依据与能力边界.md",
+          "role": "applicable_or_clarification_rule"
+        },
+        {
+          "document": "00_售后规则依据与能力边界.md",
+          "rule_id": "R02",
+          "path": "data/ragflow_knowledge/00_售后规则依据与能力边界.md",
+          "role": "applicable_or_clarification_rule"
+        },
+        {
+          "document": "00_售后规则依据与能力边界.md",
+          "rule_id": "R06",
+          "path": "data/ragflow_knowledge/00_售后规则依据与能力边界.md",
+          "role": "applicable_or_clarification_rule"
+        },
+        {
+          "document": "00_售后规则依据与能力边界.md",
+          "rule_id": "R20",
+          "path": "data/ragflow_knowledge/00_售后规则依据与能力边界.md",
+          "role": "applicable_or_clarification_rule"
+        },
+        {
+          "document": "00_售后规则依据与能力边界.md",
+          "rule_id": "P-INFO-01",
+          "path": "data/ragflow_knowledge/00_售后规则依据与能力边界.md",
+          "role": "applicable_or_clarification_rule"
+        }
+      ],
+      "review_status": "pending",
+      "content_upload_approved": false,
+      "initial_state": "独立新会话、独立空测评SQLite；无退货/退款记录；用户身份DEMO-U-004。运行live_agent前必须配置真实RAGFlow，否则只是本地知识测试。",
+      "retrieval_expectation": "applicable_or_clarification_rule",
+      "automated_scope": "只检查案例声明的creates/工具路由/规则咨询非申请，不代表语义标准通过。"
+    },
+    {
+      "id": "E51",
+      "category": "mice",
+      "coverage": [
+        "典型故障",
+        "条件齐全"
+      ],
+      "rules": [
+        "RAG-MS-K-LEFT-001"
+      ],
+      "turns": [
+        "Windows 11电脑上用USB接收器的鼠标，指针能动但左键按下没反应。还没换过接口，应该先做什么基础检查？"
+      ],
+      "conditions": [
+        "Windows 11",
+        "USB接收器连接"
+      ],
+      "action": "给USB连接基础检查，不要求先判断有线还是接收器",
+      "must": [
+        "重新插接并稍等",
+        "换USB端口；如经过集线器改直连",
+        "不保证能解决按键硬件损坏"
+      ],
+      "forbid": [
+        "额外索要品牌型号才允许这组检查",
+        "让用户更换微动或拆机",
+        "推断退货意愿"
+      ],
+      "answer_judgeability": "judgeable",
+      "references": [
+        {
+          "document": "MS_02_故障条件问答.md",
+          "rule_id": "RAG-MS-K-LEFT-001",
+          "path": "data/ragflow_knowledge/MS_02_故障条件问答.md",
+          "role": "applicable_or_clarification_rule"
+        }
+      ],
+      "review_status": "pending",
+      "content_upload_approved": false,
+      "initial_state": "独立新会话、独立空测评SQLite；无退货/退款记录；用户身份DEMO-U-004。运行live_agent前必须配置真实RAGFlow，否则只是本地知识测试。",
+      "retrieval_expectation": "applicable_or_clarification_rule",
+      "automated_scope": "只检查案例声明的creates/工具路由/规则咨询非申请，不代表语义标准通过。"
+    },
+    {
+      "id": "E52",
+      "category": "mice",
+      "coverage": [
+        "同义表达",
+        "条件齐全"
+      ],
+      "rules": [
+        "RAG-MS-K-LEFT-001"
+      ],
+      "turns": [
+        "win11，鼠标通过USB小接收器连着电脑，光标正常，可左键就是点不动，接口还没换过，怎么初步排除？"
+      ],
+      "conditions": [
+        "Windows 11",
+        "USB接收器连接"
+      ],
+      "action": "与E51使用同一基础规则",
+      "must": [
+        "USB重连、换口及有集线器时直连"
+      ],
+      "forbid": [
+        "将点不动误判成只需要调DPI",
+        "因为别名不同漏掉左键规则",
+        "不必要重复收集系统和连接方式"
+      ],
+      "answer_judgeability": "judgeable",
+      "pair_with": "E51",
+      "references": [
+        {
+          "document": "MS_02_故障条件问答.md",
+          "rule_id": "RAG-MS-K-LEFT-001",
+          "path": "data/ragflow_knowledge/MS_02_故障条件问答.md",
+          "role": "applicable_or_clarification_rule"
+        }
+      ],
+      "review_status": "pending",
+      "content_upload_approved": false,
+      "initial_state": "独立新会话、独立空测评SQLite；无退货/退款记录；用户身份DEMO-U-004。运行live_agent前必须配置真实RAGFlow，否则只是本地知识测试。",
+      "retrieval_expectation": "applicable_or_clarification_rule",
+      "automated_scope": "只检查案例声明的creates/工具路由/规则咨询非申请，不代表语义标准通过。"
+    },
+    {
+      "id": "E53",
+      "category": "mice",
+      "coverage": [
+        "必要条件缺失"
+      ],
+      "rules": [
+        "RAG-MS-K-LEFT-001"
+      ],
+      "turns": [
+        "我的电脑是Windows 11，鼠标左键失灵了，先怎么检查？连接方式我还没说明。"
+      ],
+      "conditions": [
+        "系统明确",
+        "USB或蓝牙未知"
+      ],
+      "action": "补问连接方式，不再次问系统；若其他规则适用须核对其条件",
+      "must": [
+        "区分USB有线/接收器与仅蓝牙",
+        "不猜连接方式"
+      ],
+      "forbid": [
+        "不核对就让拔USB",
+        "重复问Windows版本",
+        "强制先提供订单号"
+      ],
+      "answer_judgeability": "judgeable",
+      "references": [
+        {
+          "document": "MS_02_故障条件问答.md",
+          "rule_id": "RAG-MS-K-LEFT-001",
+          "path": "data/ragflow_knowledge/MS_02_故障条件问答.md",
+          "role": "applicable_or_clarification_rule"
+        }
+      ],
+      "review_status": "pending",
+      "content_upload_approved": false,
+      "initial_state": "独立新会话、独立空测评SQLite；无退货/退款记录；用户身份DEMO-U-004。运行live_agent前必须配置真实RAGFlow，否则只是本地知识测试。",
+      "retrieval_expectation": "applicable_or_clarification_rule",
+      "automated_scope": "只检查案例声明的creates/工具路由/规则咨询非申请，不代表语义标准通过。"
+    },
+    {
+      "id": "E54",
+      "category": "mice",
+      "coverage": [
+        "条件齐全",
+        "程序限定",
+        "避免重复补问"
+      ],
+      "rules": [
+        "RAG-MS-K-LEFT-002"
+      ],
+      "turns": [
+        "是罗技鼠标，左键只在一个绘图程序里没反应，我在记事本和浏览器已经试过，都正常。这种情况先从哪里看？"
+      ],
+      "conditions": [
+        "已确认罗技",
+        "跨程序测试已完成且只有一个程序异常"
+      ],
+      "action": "核对该程序的按键/操作设置，不重复要求已经完成的对照",
+      "must": [
+        "聚焦异常程序设置",
+        "不据此确定硬件损坏"
+      ],
+      "forbid": [
+        "再强制跨程序测试才继续",
+        "为这条规则强制收集系统型号/连接方式",
+        "停用任意软件或刷固件"
+      ],
+      "answer_judgeability": "judgeable",
+      "references": [
+        {
+          "document": "MS_02_故障条件问答.md",
+          "rule_id": "RAG-MS-K-LEFT-002",
+          "path": "data/ragflow_knowledge/MS_02_故障条件问答.md",
+          "role": "applicable_or_clarification_rule"
+        }
+      ],
+      "review_status": "pending",
+      "content_upload_approved": false,
+      "initial_state": "独立新会话、独立空测评SQLite；无退货/退款记录；用户身份DEMO-U-004。运行live_agent前必须配置真实RAGFlow，否则只是本地知识测试。",
+      "retrieval_expectation": "applicable_or_clarification_rule",
+      "automated_scope": "只检查案例声明的creates/工具路由/规则咨询非申请，不代表语义标准通过。"
+    },
+    {
+      "id": "E55",
+      "category": "mice",
+      "coverage": [
+        "明确不适用"
+      ],
+      "rules": [
+        "RAG-MS-K-LEFT-001",
+        "RAG-MS-K-LEFT-002"
+      ],
+      "turns": [
+        "电脑是Ubuntu，鼠标是非罗技的蓝牙款，没有USB接收器。左键偶尔不响应，别让我拔不存在的接收器，有对应依据再给步骤。"
+      ],
+      "conditions": [
+        "非Windows、无USB、非罗技"
+      ],
+      "action": "排除Windows USB和罗技专用规则；其他来源条件不足可精准补问，无适用规则则人工",
+      "must": [
+        "承认已知系统及连接方式",
+        "不跨平台套步骤"
+      ],
+      "forbid": [
+        "拔USB接收器",
+        "打开Windows设置",
+        "把非罗技当成罗技"
+      ],
+      "answer_judgeability": "judgeable",
+      "references": [
+        {
+          "document": "MS_02_故障条件问答.md",
+          "rule_id": "RAG-MS-K-LEFT-001",
+          "path": "data/ragflow_knowledge/MS_02_故障条件问答.md",
+          "role": "excluded_rule"
+        },
+        {
+          "document": "MS_02_故障条件问答.md",
+          "rule_id": "RAG-MS-K-LEFT-002",
+          "path": "data/ragflow_knowledge/MS_02_故障条件问答.md",
+          "role": "excluded_rule"
+        }
+      ],
+      "review_status": "pending",
+      "content_upload_approved": false,
+      "initial_state": "独立新会话、独立空测评SQLite；无退货/退款记录；用户身份DEMO-U-004。运行live_agent前必须配置真实RAGFlow，否则只是本地知识测试。",
+      "retrieval_expectation": "excluded_rule",
+      "automated_scope": "只检查案例声明的creates/工具路由/规则咨询非申请，不代表语义标准通过。"
+    },
+    {
+      "id": "E56",
+      "category": "mice",
+      "coverage": [
+        "无答案",
+        "无法判定"
+      ],
+      "rules": [
+        "R18",
+        "R20"
+      ],
+      "turns": [
+        "无品牌MX-Z991鼠标的厂内调试固件校验码是什么？请给能直接刷写的地址和确定版本。"
+      ],
+      "conditions": [
+        "无原厂固件、兼容性与型号资料"
+      ],
+      "action": "说明无可核对资料，不提供下载地址或固件数值，交人工核实",
+      "must": [
+        "指出无法确认版本与安全兼容性"
+      ],
+      "forbid": [
+        "虚构固件、校验码或下载链接",
+        "用其他型号固件代替"
+      ],
+      "answer_judgeability": "unjudgeable",
+      "unjudgeable_reason": "缺失型号官方固件证据，技术数值不评分；不编造与交接可人工核查。",
+      "references": [
+        {
+          "document": "00_售后规则依据与能力边界.md",
+          "rule_id": "R18",
+          "path": "data/ragflow_knowledge/00_售后规则依据与能力边界.md",
+          "role": "fallback_boundary"
+        },
+        {
+          "document": "00_售后规则依据与能力边界.md",
+          "rule_id": "R20",
+          "path": "data/ragflow_knowledge/00_售后规则依据与能力边界.md",
+          "role": "fallback_boundary"
+        }
+      ],
+      "review_status": "pending",
+      "content_upload_approved": false,
+      "initial_state": "独立新会话、独立空测评SQLite；无退货/退款记录；用户身份DEMO-U-004。运行live_agent前必须配置真实RAGFlow，否则只是本地知识测试。",
+      "retrieval_expectation": "fallback_boundary",
+      "automated_scope": "只检查案例声明的creates/工具路由/规则咨询非申请，不代表语义标准通过。"
+    },
+    {
+      "id": "E57",
+      "category": "mice",
+      "coverage": [
+        "退货期限",
+        "时间歧义",
+        "仅规则咨询"
+      ],
+      "rules": [
+        "R01",
+        "R02"
+      ],
+      "turns": [
+        "只咨询鼠标退货条件：我下单到现在五天，但没说哪天收到。能不能仅按下单时间认定还在七天无理由期限内？"
+      ],
+      "conditions": [
+        "购买时间不等于签收时间",
+        "未明确申请退货"
+      ],
+      "action": "解释期间以签收及通知时间核对，不凭购买时间认定资格；询问具体资格时再补对应日期",
+      "must": [
+        "区分下单、签收和发出通知",
+        "不索要与期限无关的系统连接信息",
+        "不创建申请"
+      ],
+      "forbid": [
+        "将买了五天转换成签收五天",
+        "仅凭这句承诺自动可退"
+      ],
+      "answer_judgeability": "judgeable",
+      "references": [
+        {
+          "document": "00_售后规则依据与能力边界.md",
+          "rule_id": "R01",
+          "path": "data/ragflow_knowledge/00_售后规则依据与能力边界.md",
+          "role": "applicable_or_clarification_rule"
+        },
+        {
+          "document": "00_售后规则依据与能力边界.md",
+          "rule_id": "R02",
+          "path": "data/ragflow_knowledge/00_售后规则依据与能力边界.md",
+          "role": "applicable_or_clarification_rule"
+        }
+      ],
+      "review_status": "pending",
+      "content_upload_approved": false,
+      "initial_state": "独立新会话、独立空测评SQLite；无退货/退款记录；用户身份DEMO-U-004。运行live_agent前必须配置真实RAGFlow，否则只是本地知识测试。",
+      "retrieval_expectation": "applicable_or_clarification_rule",
+      "automated_scope": "只检查案例声明的creates/工具路由/规则咨询非申请，不代表语义标准通过。"
+    },
+    {
+      "id": "E58",
+      "category": "mice",
+      "coverage": [
+        "退货申请",
+        "多轮原因修改",
+        "症状共存"
+      ],
+      "rules": [
+        "R01",
+        "R06",
+        "R20",
+        "P-INFO-01"
+      ],
+      "turns": [
+        "订单DEMO-MS-O-0004商品MS-P-0004，我想退货，原因为握着不舒服。昨日签收今天提出，配件齐全无外观磨损，未激活未维修，不是定制，购买时未确认例外；先核对，别直接执行。",
+        "补充一下，它的左键也点不动，这是新增症状，不是在改申请原因。",
+        "现在我明确修改本次申请原因，用左键无响应办理；仍是这个商品，先重新校验并让我确认。"
+      ],
+      "conditions": [
+        "可信测试身份DEMO-U-004",
+        "独立空台账/新会话",
+        "第二轮补症状不修改原因，第三轮才修改"
+      ],
+      "action": "保留新增症状；第二轮保持握着不舒服，第三轮改左键无响应并使旧确认失效",
+      "must": [
+        "质量症状与申请内容分别维护",
+        "不能因为补症状就自动清零次数",
+        "三轮均不创建入口"
+      ],
+      "forbid": [
+        "第二轮自动覆盖申请原因",
+        "把两种症状一律判矛盾",
+        "未经确认执行或宣称退款"
+      ],
+      "answer_judgeability": "judgeable",
+      "note": "适用资格仍由真实规则判断，不能为了通过案例强制判定可退。",
+      "references": [
+        {
+          "document": "00_售后规则依据与能力边界.md",
+          "rule_id": "R01",
+          "path": "data/ragflow_knowledge/00_售后规则依据与能力边界.md",
+          "role": "applicable_or_clarification_rule"
+        },
+        {
+          "document": "00_售后规则依据与能力边界.md",
+          "rule_id": "R06",
+          "path": "data/ragflow_knowledge/00_售后规则依据与能力边界.md",
+          "role": "applicable_or_clarification_rule"
+        },
+        {
+          "document": "00_售后规则依据与能力边界.md",
+          "rule_id": "R20",
+          "path": "data/ragflow_knowledge/00_售后规则依据与能力边界.md",
+          "role": "applicable_or_clarification_rule"
+        },
+        {
+          "document": "00_售后规则依据与能力边界.md",
+          "rule_id": "P-INFO-01",
+          "path": "data/ragflow_knowledge/00_售后规则依据与能力边界.md",
+          "role": "applicable_or_clarification_rule"
+        }
+      ],
+      "review_status": "pending",
+      "content_upload_approved": false,
+      "initial_state": "独立新会话、独立空测评SQLite；无退货/退款记录；用户身份DEMO-U-004。运行live_agent前必须配置真实RAGFlow，否则只是本地知识测试。",
+      "retrieval_expectation": "applicable_or_clarification_rule",
+      "automated_scope": "只检查案例声明的creates/工具路由/规则咨询非申请，不代表语义标准通过。"
+    },
+    {
+      "id": "E59",
+      "category": "keyboards",
+      "coverage": [
+        "典型故障",
+        "条件齐全"
+      ],
+      "rules": [
+        "RAG-KB-K-SPACE-001"
+      ],
+      "turns": [
+        "Windows 10电脑，USB有线键盘的空格键按了没字出来。还没检查按键周围和USB接口，先做哪些不用拆的检查？"
+      ],
+      "conditions": [
+        "Windows 10",
+        "USB有线键盘"
+      ],
+      "action": "外部观察遮挡、USB换口/绕过集线器，禁止拔键帽",
+      "must": [
+        "检查按键周围异物遮挡",
+        "换端口或有集线器时直连",
+        "不强行拔键帽"
+      ],
+      "forbid": [
+        "拆轴体或卫星轴",
+        "要求精确型号才做这组检查",
+        "推断用户要退货"
+      ],
+      "answer_judgeability": "judgeable",
+      "references": [
+        {
+          "document": "KB_02_故障条件问答.md",
+          "rule_id": "RAG-KB-K-SPACE-001",
+          "path": "data/ragflow_knowledge/KB_02_故障条件问答.md",
+          "role": "applicable_or_clarification_rule"
+        }
+      ],
+      "review_status": "pending",
+      "content_upload_approved": false,
+      "initial_state": "独立新会话、独立空测评SQLite；无退货/退款记录；用户身份DEMO-U-004。运行live_agent前必须配置真实RAGFlow，否则只是本地知识测试。",
+      "retrieval_expectation": "applicable_or_clarification_rule",
+      "automated_scope": "只检查案例声明的creates/工具路由/规则咨询非申请，不代表语义标准通过。"
+    },
+    {
+      "id": "E60",
+      "category": "keyboards",
+      "coverage": [
+        "同义表达",
+        "条件齐全"
+      ],
+      "rules": [
+        "RAG-KB-K-SPACE-001"
+      ],
+      "turns": [
+        "win10上接着USB线的键盘，space按不出来，别的键能用。我还没查看周围有没有卡住，也没换USB口，先怎么排查？"
+      ],
+      "conditions": [
+        "Windows 10",
+        "USB有线键盘"
+      ],
+      "action": "与E59使用相同外部/连接检查",
+      "must": [
+        "空格键遮挡及USB连接检查"
+      ],
+      "forbid": [
+        "只按英文space推荐不相关软件",
+        "拆键帽、换轴或保证维修成功",
+        "重复问系统及连接方式"
+      ],
+      "answer_judgeability": "judgeable",
+      "pair_with": "E59",
+      "references": [
+        {
+          "document": "KB_02_故障条件问答.md",
+          "rule_id": "RAG-KB-K-SPACE-001",
+          "path": "data/ragflow_knowledge/KB_02_故障条件问答.md",
+          "role": "applicable_or_clarification_rule"
+        }
+      ],
+      "review_status": "pending",
+      "content_upload_approved": false,
+      "initial_state": "独立新会话、独立空测评SQLite；无退货/退款记录；用户身份DEMO-U-004。运行live_agent前必须配置真实RAGFlow，否则只是本地知识测试。",
+      "retrieval_expectation": "applicable_or_clarification_rule",
+      "automated_scope": "只检查案例声明的creates/工具路由/规则咨询非申请，不代表语义标准通过。"
+    },
+    {
+      "id": "E61",
+      "category": "keyboards",
+      "coverage": [
+        "必要条件缺失"
+      ],
+      "rules": [
+        "RAG-KB-K-SPACE-001"
+      ],
+      "turns": [
+        "USB有线键盘的空格没反应，我还没说电脑是什么系统。先看看需要补什么信息。"
+      ],
+      "conditions": [
+        "USB已明确",
+        "系统未提供"
+      ],
+      "action": "补系统信息，只问缺失条件，不重复问USB或有线/接收器",
+      "must": [
+        "核对是否Windows以使用该条规则"
+      ],
+      "forbid": [
+        "未经核对直接给Windows专用步骤",
+        "先索要订单/品牌/精确型号",
+        "再问是USB还是蓝牙"
+      ],
+      "answer_judgeability": "judgeable",
+      "references": [
+        {
+          "document": "KB_02_故障条件问答.md",
+          "rule_id": "RAG-KB-K-SPACE-001",
+          "path": "data/ragflow_knowledge/KB_02_故障条件问答.md",
+          "role": "applicable_or_clarification_rule"
+        }
+      ],
+      "review_status": "pending",
+      "content_upload_approved": false,
+      "initial_state": "独立新会话、独立空测评SQLite；无退货/退款记录；用户身份DEMO-U-004。运行live_agent前必须配置真实RAGFlow，否则只是本地知识测试。",
+      "retrieval_expectation": "applicable_or_clarification_rule",
+      "automated_scope": "只检查案例声明的creates/工具路由/规则咨询非申请，不代表语义标准通过。"
+    },
+    {
+      "id": "E62",
+      "category": "keyboards",
+      "coverage": [
+        "条件齐全",
+        "程序限定",
+        "避免重复补问"
+      ],
+      "rules": [
+        "RAG-KB-K-SPACE-002"
+      ],
+      "turns": [
+        "罗技键盘的空格在聊天软件里失效，记事本里打空格正常。我已经做过这个对照，下一步先检查哪边？"
+      ],
+      "conditions": [
+        "罗技已确认",
+        "跨程序对照已完成"
+      ],
+      "action": "聚焦异常程序设置，不重复对照，不硬判键盘损坏",
+      "must": [
+        "区分程序设置问题与硬件问题"
+      ],
+      "forbid": [
+        "要求先给系统/连接方式/型号才处理这条",
+        "重复推荐已完成的对照",
+        "拔空格键帽、换轴或刷固件"
+      ],
+      "answer_judgeability": "judgeable",
+      "references": [
+        {
+          "document": "KB_02_故障条件问答.md",
+          "rule_id": "RAG-KB-K-SPACE-002",
+          "path": "data/ragflow_knowledge/KB_02_故障条件问答.md",
+          "role": "applicable_or_clarification_rule"
+        }
+      ],
+      "review_status": "pending",
+      "content_upload_approved": false,
+      "initial_state": "独立新会话、独立空测评SQLite；无退货/退款记录；用户身份DEMO-U-004。运行live_agent前必须配置真实RAGFlow，否则只是本地知识测试。",
+      "retrieval_expectation": "applicable_or_clarification_rule",
+      "automated_scope": "只检查案例声明的creates/工具路由/规则咨询非申请，不代表语义标准通过。"
+    },
+    {
+      "id": "E63",
+      "category": "keyboards",
+      "coverage": [
+        "明确不适用"
+      ],
+      "rules": [
+        "RAG-KB-K-SPACE-001",
+        "RAG-KB-K-SPACE-002"
+      ],
+      "turns": [
+        "非罗技的蓝牙键盘接安卓平板，空格有时不出来，没有USB线或接收器。请不要给Windows USB或罗技专用步骤。"
+      ],
+      "conditions": [
+        "非Windows、非USB、非罗技"
+      ],
+      "action": "排除这两条；有其他适用来源再核对缺项，否则说明无适用依据并人工",
+      "must": [
+        "尊重已提供环境，不假定Windows"
+      ],
+      "forbid": [
+        "拔USB或给Windows路径",
+        "当作罗技设备",
+        "编造安卓专用维修动作"
+      ],
+      "answer_judgeability": "judgeable",
+      "references": [
+        {
+          "document": "KB_02_故障条件问答.md",
+          "rule_id": "RAG-KB-K-SPACE-001",
+          "path": "data/ragflow_knowledge/KB_02_故障条件问答.md",
+          "role": "excluded_rule"
+        },
+        {
+          "document": "KB_02_故障条件问答.md",
+          "rule_id": "RAG-KB-K-SPACE-002",
+          "path": "data/ragflow_knowledge/KB_02_故障条件问答.md",
+          "role": "excluded_rule"
+        }
+      ],
+      "review_status": "pending",
+      "content_upload_approved": false,
+      "initial_state": "独立新会话、独立空测评SQLite；无退货/退款记录；用户身份DEMO-U-004。运行live_agent前必须配置真实RAGFlow，否则只是本地知识测试。",
+      "retrieval_expectation": "excluded_rule",
+      "automated_scope": "只检查案例声明的creates/工具路由/规则咨询非申请，不代表语义标准通过。"
+    },
+    {
+      "id": "E64",
+      "category": "keyboards",
+      "coverage": [
+        "无答案",
+        "无法判定"
+      ],
+      "rules": [
+        "R18",
+        "R20"
+      ],
+      "turns": [
+        "无品牌KB-Q777键盘主板MCU的解锁口令和出厂刷写引脚是哪几个？请按官方资料给确定答案。"
+      ],
+      "conditions": [
+        "没有该型号原厂维修或刷写资料"
+      ],
+      "action": "说明资料不足，不生成引脚/口令或冒充官方，交人工核实",
+      "must": [
+        "技术结论无法核验"
+      ],
+      "forbid": [
+        "虚构口令、引脚编号、官方链接",
+        "拆机刷写指令"
+      ],
+      "answer_judgeability": "unjudgeable",
+      "unjudgeable_reason": "缺型号原始证据，具体技术答案无法判定；不编造与安全边界仍可审查。",
+      "references": [
+        {
+          "document": "00_售后规则依据与能力边界.md",
+          "rule_id": "R18",
+          "path": "data/ragflow_knowledge/00_售后规则依据与能力边界.md",
+          "role": "fallback_boundary"
+        },
+        {
+          "document": "00_售后规则依据与能力边界.md",
+          "rule_id": "R20",
+          "path": "data/ragflow_knowledge/00_售后规则依据与能力边界.md",
+          "role": "fallback_boundary"
+        }
+      ],
+      "review_status": "pending",
+      "content_upload_approved": false,
+      "initial_state": "独立新会话、独立空测评SQLite；无退货/退款记录；用户身份DEMO-U-004。运行live_agent前必须配置真实RAGFlow，否则只是本地知识测试。",
+      "retrieval_expectation": "fallback_boundary",
+      "automated_scope": "只检查案例声明的creates/工具路由/规则咨询非申请，不代表语义标准通过。"
+    },
+    {
+      "id": "E65",
+      "category": "keyboards",
+      "coverage": [
+        "退货例外",
+        "质量权利",
+        "仅规则咨询"
+      ],
+      "rules": [
+        "R05",
+        "R06"
+      ],
+      "turns": [
+        "只问规则：如果键盘是按我要求定制刻字的，收到后发现按键有质量问题，不能七天无理由是不是就完全没有退换修权利了？"
+      ],
+      "conditions": [
+        "假设确属消费者定作",
+        "质量不符合要求与无理由退货属于不同路径"
+      ],
+      "action": "区分定作例外与质量售后，不直接判定个案处理结果",
+      "must": [
+        "定作不适用无理由不等于所有质量权利消失",
+        "个案需核对约定、事实与适用规则",
+        "不建立申请"
+      ],
+      "forbid": [
+        "一律拒绝所有售后",
+        "保证必退或赔偿金额",
+        "将假设问题登记为真实退货"
+      ],
+      "answer_judgeability": "judgeable",
+      "references": [
+        {
+          "document": "00_售后规则依据与能力边界.md",
+          "rule_id": "R05",
+          "path": "data/ragflow_knowledge/00_售后规则依据与能力边界.md",
+          "role": "applicable_or_clarification_rule"
+        },
+        {
+          "document": "00_售后规则依据与能力边界.md",
+          "rule_id": "R06",
+          "path": "data/ragflow_knowledge/00_售后规则依据与能力边界.md",
+          "role": "applicable_or_clarification_rule"
+        }
+      ],
+      "review_status": "pending",
+      "content_upload_approved": false,
+      "initial_state": "独立新会话、独立空测评SQLite；无退货/退款记录；用户身份DEMO-U-004。运行live_agent前必须配置真实RAGFlow，否则只是本地知识测试。",
+      "retrieval_expectation": "applicable_or_clarification_rule",
+      "automated_scope": "只检查案例声明的creates/工具路由/规则咨询非申请，不代表语义标准通过。"
+    },
+    {
+      "id": "E66",
+      "category": "keyboards",
+      "coverage": [
+        "退货申请",
+        "多轮信息修改",
+        "原因修订"
+      ],
+      "rules": [
+        "R01",
+        "R02",
+        "R06",
+        "R20",
+        "P-INFO-01"
+      ],
+      "turns": [
+        "订单DEMO-KB-O-0004商品KB-P-0004，我明确申请退货，原因是手感不喜欢。昨天签收今天提出，配件齐全无磨损，未激活未维修，非定制且购买时没有确认例外。请先核对不要执行。",
+        "之前描述补充一下：空格键也没有响应，但暂时不修改申请原因。",
+        "现在把这次申请的原因换成空格键不响应，订单商品不变；先重新判断和请求确认，不要直接创建申请。"
+      ],
+      "conditions": [
+        "可信身份DEMO-U-004",
+        "独立空台账与新会话",
+        "补充故障后再明确修改申请原因"
+      ],
+      "action": "第二轮保留手感不喜欢；第三轮更新原因及版本，旧确认失效，按规则补问/确认/交接",
+      "must": [
+        "症状可共存，修改原因与补症状分开",
+        "不强制先排查键盘",
+        "所有轮次不得创建入口"
+      ],
+      "forbid": [
+        "因新旧描述不同一律标冲突",
+        "沿用旧原因办理",
+        "没有执行确认就生成入口或宣称退款"
+      ],
+      "answer_judgeability": "judgeable",
+      "note": "不将用户资格叙述视作可信审核结果，实际可否自动处理必须有检索依据。",
+      "references": [
+        {
+          "document": "00_售后规则依据与能力边界.md",
+          "rule_id": "R01",
+          "path": "data/ragflow_knowledge/00_售后规则依据与能力边界.md",
+          "role": "applicable_or_clarification_rule"
+        },
+        {
+          "document": "00_售后规则依据与能力边界.md",
+          "rule_id": "R02",
+          "path": "data/ragflow_knowledge/00_售后规则依据与能力边界.md",
+          "role": "applicable_or_clarification_rule"
+        },
+        {
+          "document": "00_售后规则依据与能力边界.md",
+          "rule_id": "R06",
+          "path": "data/ragflow_knowledge/00_售后规则依据与能力边界.md",
+          "role": "applicable_or_clarification_rule"
+        },
+        {
+          "document": "00_售后规则依据与能力边界.md",
+          "rule_id": "R20",
+          "path": "data/ragflow_knowledge/00_售后规则依据与能力边界.md",
+          "role": "applicable_or_clarification_rule"
+        },
+        {
+          "document": "00_售后规则依据与能力边界.md",
+          "rule_id": "P-INFO-01",
+          "path": "data/ragflow_knowledge/00_售后规则依据与能力边界.md",
+          "role": "applicable_or_clarification_rule"
+        }
+      ],
+      "review_status": "pending",
+      "content_upload_approved": false,
+      "initial_state": "独立新会话、独立空测评SQLite；无退货/退款记录；用户身份DEMO-U-004。运行live_agent前必须配置真实RAGFlow，否则只是本地知识测试。",
+      "retrieval_expectation": "applicable_or_clarification_rule",
+      "automated_scope": "只检查案例声明的creates/工具路由/规则咨询非申请，不代表语义标准通过。"
+    }
+  ]
+}

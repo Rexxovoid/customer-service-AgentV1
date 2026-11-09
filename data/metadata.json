@@ -29,7 +29,7 @@
     "synthetic=false表示事实依据为真实来源，不表示问句或摘要未经整理。",
     "原始字段保存在original_fields中；原Markdown已移除，历史位置仅用于审计。"
   ],
-  "updated_on": "2026-10-27",
+  "updated_on": "2026-11-09",
   "collection_merges": [
     {
       "date": "2026-10-22",
@@ -43,13 +43,13 @@
   ],
   "markdown_knowledge": {
     "directory": "ragflow_knowledge",
-    "qa_record_count": 1504,
+    "qa_record_count": 304,
     "product_qa": 180,
     "scoped_fault_qa": 64,
-    "conditional_policy_qa": 1260,
+    "conditional_policy_qa": 60,
     "reference_document_count": 2,
     "total_markdown_files": 17,
-    "counting_note": "按唯一RAG条目ID计数；不是独立法规、产品或新增事实。基础文档与来源登记不计入增量。"
+    "counting_note": "304个带RAG ID单元；60个品类规则复用20条规则，不等于60个独立法规；基础文档另计。"
   },
   "expansion_batches": [
     {
@@ -130,5 +130,20 @@
     "fault_markdown_entries": 64,
     "note": "Three canonical fault documents updated locally; remote upload not performed.",
     "local_policy_documents_updated": 12
+  },
+  "rag_revision_20261109": {
+    "version": "RAG-20261109-V3",
+    "archive": "archive/ragflow_knowledge/2026-11-09-before-v3",
+    "previous_markdown_knowledge": {
+      "directory": "ragflow_knowledge",
+      "qa_record_count": 1504,
+      "product_qa": 180,
+      "scoped_fault_qa": 64,
+      "conditional_policy_qa": 1260,
+      "reference_document_count": 2,
+      "total_markdown_files": 17,
+      "counting_note": "按唯一RAG条目ID计数；不是独立法规、产品或新增事实。基础文档与来源登记不计入增量。"
+    },
+    "changes": "历史场景压缩为规则单元，技术步骤和商品参数不扩写；远端未上传。"
   }
 }

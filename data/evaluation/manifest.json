@@ -1,24 +1,24 @@
 {
   "schema_version": "1.0",
-  "dataset_version": "0.7-draft",
+  "dataset_version": "0.9-draft",
   "cases": 20,
   "review_status": "mixed",
   "note": "Independent evaluation data, excluded from RAG ingestion and root business manifest. Update hashes after human edits.",
   "files": [
     {
-      "path": "cases.jsonl",
-      "bytes": 16011,
-      "sha256": "3b1725832d187511fd7756fa401f9480f7e6401292a042e93695c8402e6adea3"
+      "path": "RAG_ACCEPTANCE_24.md",
+      "bytes": 21649,
+      "sha256": "39b929d3b9841f60cb22e9319dcec93744e8f72ce5ec6f4f1bd6f882eeb912bf"
     },
     {
       "path": "README.md",
-      "bytes": 4421,
-      "sha256": "50a227c1b88a02b002e6903e2fe992c3d8ec9646fa6b7eeab821ea276fd138a1"
+      "bytes": 5733,
+      "sha256": "916a51478c020eef1ec9f6c1ae85d298083790e3ab45ce3e1cccf44bf5c1014d"
     },
     {
-      "path": "optimization_cases.jsonl",
-      "bytes": 4728,
-      "sha256": "0e4a36265c7ba83de064d0f02244adfbaa5ce6ce9ed464be724dd95ac2703116"
+      "path": "cases.jsonl",
+      "bytes": 16011,
+      "sha256": "3b1725832d187511fd7756fa401f9480f7e6401292a042e93695c8402e6adea3"
     },
     {
       "path": "confirmation_cases.jsonl",
@@ -27,11 +27,31 @@
     },
     {
       "path": "multiturn_cases.jsonl",
-      "bytes": 14434,
-      "sha256": "ad66fc74f4f7452d9511449a4f7e21e65c58f65aa95a5f4c40562dd15f61867d"
+      "bytes": 14337,
+      "sha256": "fc1655b948ab690fac1667b95af4b62e5f4106c38b5de02cc5355891238fa0ee"
+    },
+    {
+      "path": "optimization_cases.jsonl",
+      "bytes": 4728,
+      "sha256": "0e4a36265c7ba83de064d0f02244adfbaa5ce6ce9ed464be724dd95ac2703116"
+    },
+    {
+      "path": "rag_acceptance_cases.jsonl",
+      "bytes": 34572,
+      "sha256": "db9fc75d8b73a1f02007b38ac7f97f96af122a676ec3082fd1ecca6d428a2d61"
+    },
+    {
+      "path": "rag_acceptance_gold.json",
+      "bytes": 47250,
+      "sha256": "de672d0ba8b51f6b1c64ad235350ed0f35e1152cb33e862bb8cc1922db2f4f39"
+    },
+    {
+      "path": "rag_retrieval_cases.jsonl",
+      "bytes": 21019,
+      "sha256": "b3dff4357727b6b7115632e3bfdeac321d539ab0964ee4ef2c401c371377e954"
     }
   ],
-  "updated_on": "2026-11-06",
+  "updated_on": "2026-11-09",
   "approved_case_ids": [
     "E01",
     "E02",
@@ -52,7 +72,41 @@
     "E20"
   ],
   "pending_cases": 3,
-  "supplemental_cases": 20,
-  "total_cases": 40,
-  "supplemental_pending_cases": 12
+  "supplemental_cases": 68,
+  "total_cases": 88,
+  "supplemental_pending_cases": 50,
+  "rag_acceptance_cases": 24,
+  "rag_acceptance_technical_unjudgeable": [
+    "E48",
+    "E56",
+    "E64"
+  ],
+  "retrieval_only_cases": 24,
+  "retrieval_case_sources": {
+    "E67": "E43",
+    "E68": "E44",
+    "E69": "E45",
+    "E70": "E46",
+    "E71": "E47",
+    "E72": "E48",
+    "E73": "E49",
+    "E74": "E50",
+    "E75": "E51",
+    "E76": "E52",
+    "E77": "E53",
+    "E78": "E54",
+    "E79": "E55",
+    "E80": "E56",
+    "E81": "E57",
+    "E82": "E58",
+    "E83": "E59",
+    "E84": "E60",
+    "E85": "E61",
+    "E86": "E62",
+    "E87": "E63",
+    "E88": "E64",
+    "E89": "E65",
+    "E90": "E66"
+  },
+  "independent_prompt_cases": 64
 }

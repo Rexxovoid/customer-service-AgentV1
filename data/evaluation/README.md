@@ -1,4 +1,16 @@
-# 独立测评数据集 v0.7-draft
+# 独立测评数据集 v0.9-draft
+
+## 纯检索性能补充集
+
+`rag_retrieval_cases.jsonl`含E67—E90共24条，派生自E43—E66第1轮，全部pending。仅用现有live_rag的retrieval_only选项测检索及过滤，不调用生成模型或裁判；不要加--judge。含此集总计88条运行案例，其中24条为派生请求，不是88道独立题。原有案例审批及内容上传许可不变，映射见manifest.retrieval_case_sources。
+
+运行、指标与正例审批口径见[纯检索测评说明](../../evals/EVALUATION_GUIDE.md#纯rag检索性能)。需要远程RAG及绑定；未审批前仍记录耗时，命中率为空不是0。
+
+## 2026-11-09：RAG验收补充集
+
+新增`rag_acceptance_cases.jsonl`（E43—E66），三类产品各8题，共24例30轮；独立标准见[RAG_ACCEPTANCE_24.md](RAG_ACCEPTANCE_24.md)与`rag_acceptance_gold.json`。均为live_agent、pending且未授权正文上传，旧案例审批不变。加上原40例，共64例；下文早期数量为历史批次口径。
+
+运行前确认远程RAG启用并同步新版文档；本地JSON知识不是远端验收。无答案题的技术标准为unjudgeable，不编造/安全行为可另审；显式checks通过不代表全部内容正确。所有题目和标准禁止入库，详情见[导入与验收指南](../RAG_IMPORT_GUIDE.md)。
 
 2026-10-27策略更新：E06现在包含同问题6次处理、新问题和结束清零；E13改为第4—5次建议、第6次人工。checks新增answer_contains检查建议文案。旧实验保留当时结果，不能拿旧E06“一次后交接”作为当前金标；修改后的案例仍待人工重新确认。
 

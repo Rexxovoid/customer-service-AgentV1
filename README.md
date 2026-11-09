@@ -108,7 +108,9 @@ LANGFUSE_ENABLED=true
 
 ## 目录与职责
 
-独立测评新增 [10条多轮案例 E33—E42](data/evaluation/multiturn_cases.jsonl)，共31轮、均待人工审批，场景说明和运行命令见[测评指南](evals/EVALUATION_GUIDE.md)。
+独立测评包含 [10条多轮案例 E33—E42](data/evaluation/multiturn_cases.jsonl)及新增的 [24题RAG验收集](data/evaluation/RAG_ACCEPTANCE_24.md)（三类各8题、30轮）。新题全部待人工审批，原案例审批以实际文件为准；知识同步与验收见[RAG导入指南](data/RAG_IMPORT_GUIDE.md)，运行操作见[测评指南](evals/EVALUATION_GUIDE.md)。
+
+只测RAG检索耗时/候选，可运行 `uv run orderagent-eval run --cases data/evaluation/rag_retrieval_cases.jsonl --repeat 3`。该集为24题首轮派生的E67—E90，不调用主模型或规则选择，不能加`--judge`；命中率需先人工核对正例并审批，指标见[纯检索说明](evals/EVALUATION_GUIDE.md#纯rag检索性能)。
 
 ```text
 src/orderagent/
