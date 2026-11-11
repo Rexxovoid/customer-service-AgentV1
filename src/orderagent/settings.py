@@ -31,6 +31,8 @@ class Settings(BaseModel):
     ragflow_selection_max_tokens: int = Field(default=4096, ge=1024, le=16384)
     ragflow_selection_reasoning_effort: Literal["low", "high", "max"] = "low"
     ragflow_evidence_debug: bool = False
+    # 测评可隔离覆盖；不从.env加载，日常入口默认0.5。
+    ragflow_vector_weight: float = Field(default=0.5, ge=0, le=1, allow_inf_nan=False)
     ragflow_dataset_name: str = "售后规则知识库"
     ragflow_assistant_name: str = "售后助手"
     mock_handoff_scenario: Literal["success", "error"] = "success"

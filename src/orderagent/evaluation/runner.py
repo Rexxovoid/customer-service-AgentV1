@@ -305,6 +305,7 @@ def run_case(case, settings, root, *, judge=False, repetition_index=None):
             tracking=tracking,
             run_id=run_id,
             repetition_index=repetition_index,
+            vector_weight=experiment.get("vector_similarity_weight", 0.5),
         )
         if case.mode == "live_rag":
             observability.diagnostics(record.get("events", []))
@@ -327,7 +328,15 @@ def run_case(case, settings, root, *, judge=False, repetition_index=None):
 
 
 def _run_case(
-    case, settings, root, *, judge=False, tracking=None, run_id=None, repetition_index=None
+    case,
+    settings,
+    root,
+    *,
+    judge=False,
+    tracking=None,
+    run_id=None,
+    repetition_index=None,
+    vector_weight=0.5,
 ):
     """每案例新图、新会话、新SQLite；同案例保留多轮状态，失败分支不继续确认。"""
     started = time.perf_counter()
@@ -337,6 +346,7 @@ def _run_case(
     isolated = settings.model_copy(
         update={
             "after_sales_db_path": work / "state.sqlite3",
+            "ragflow_vector_weight": 0.5 if vector_weight is None else vector_weight,
             "mock_handoff_scenario": (
                 "error" if case.fixture == "handoff_error_and_no_rule" else "success"
             ),
@@ -352,6 +362,9 @@ def _run_case(
         "repetition_index": repetition_index,
         "mode": case.mode,
         "retrieval_only": case.retrieval_only,
+        "vector_similarity_weight": isolated.ragflow_vector_weight
+        if case.mode != "controlled_agent" and isolated.ragflow_api_url
+        else None,
         "category": case.category,
         "review_status": case.review_status,
         "turns": [],
@@ -387,7 +400,11 @@ def _run_case(
             )
             try:
                 lookup = (
-                    (lambda query: repo.find(query, retrieval_only=True))
+                    (
+                        lambda query: repo.find(
+                            query, retrieval_only=True, vector_weight=vector_weight
+                        )
+                    )
                     if case.retrieval_only
                     else repo.find
                 )

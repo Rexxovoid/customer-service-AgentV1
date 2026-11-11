@@ -4,13 +4,13 @@
   "files": [
     {
       "path": "RAG_IMPORT_GUIDE.md",
-      "bytes": 6029,
-      "sha256": "9eb3c53c400080d7f1f165ce8dbf48c1682fe80cb71119fd51afe2438256f2eb"
+      "bytes": 6657,
+      "sha256": "201d786c488096453d2ecb9fdf6a035b1bcefc0ae021dc07917307d0ad9b39a7"
     },
     {
       "path": "README.md",
-      "bytes": 4702,
-      "sha256": "a1cae799a0d38a34926d45ecbc72adfc6e5eec2afd01ed3b800fe840b9954e44"
+      "bytes": 4911,
+      "sha256": "e6a01f0116694fdb67f18bd763b465379cf19e4d7d3c086a8b13f66cf44fc9b3"
     },
     {
       "path": "after_sales_cases.json",
@@ -59,8 +59,8 @@
     },
     {
       "path": "ragflow_knowledge/HP_02_故障条件问答.md",
-      "bytes": 19497,
-      "sha256": "c7bf20cc96fc2b0861cc80009edad0c6caa60d5e0877fdb9a5a14dbeb33db081"
+      "bytes": 18691,
+      "sha256": "c8963459df0bc0e8989cd518fc51f992e477661525a6f56cd97dfc9f7ee25a5a"
     },
     {
       "path": "ragflow_knowledge/HP_03_售后规则场景_01.md",
@@ -84,8 +84,8 @@
     },
     {
       "path": "ragflow_knowledge/KB_02_故障条件问答.md",
-      "bytes": 22284,
-      "sha256": "79c602ddbe6cda199d64a9d1775642a23b3784169fe51b1b997297abf34d2ffe"
+      "bytes": 21453,
+      "sha256": "0c31b5c3f795fd1439af82c0c46d8db1658486af475aa9d1c5f1bd4581a0f188"
     },
     {
       "path": "ragflow_knowledge/KB_03_售后规则场景_01.md",
@@ -109,8 +109,8 @@
     },
     {
       "path": "ragflow_knowledge/MS_02_故障条件问答.md",
-      "bytes": 21880,
-      "sha256": "1f5990a02bb0d17da822de95dc7c4086b4a7c4dc80c4e3fa7ddb0d495d017614"
+      "bytes": 21054,
+      "sha256": "6a71c68ae0d98e8f8ddfcdc37e9b053f203f6c87790834a5208f5174965b9614"
     },
     {
       "path": "ragflow_knowledge/MS_03_售后规则场景_01.md",

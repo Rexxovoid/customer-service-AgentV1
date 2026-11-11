@@ -244,6 +244,8 @@ def test_retrieval_only_measures_same_candidate_window_and_skips_selector():
     assert parameters[0]["page_size"] == 5 and parameters[0]["top_k"] == 64
     assert parameters[0]["similarity_threshold"] == 0.3
     retrieved = next(e for e in events if e["stage"] == "retrieved")
+    assert retrieved["retrieval_question"] == parameters[0]["question"]
+    assert retrieved["similarity_threshold"] == parameters[0]["similarity_threshold"]
     assert retrieved["filtered_candidate_ids"] == ["policy"]
     assert not any(e["stage"].startswith("selection") for e in events)
 
@@ -295,7 +297,8 @@ def test_rag_quality_never_uses_raw_excerpt_when_customer_reply_invalid(reply):
         RuleSelection(
             applicable=True,
             chunk_id="chunk",
-            excerpt="如果支持声道平衡，请恢复居中。",
+            paragraph_start=1,
+            paragraph_end=1,
             handling="basic_troubleshooting",
             customer_reply=reply,
         )
@@ -330,7 +333,8 @@ def test_quality_customer_reply_is_separate_from_raw_evidence(tmp_path):
         RuleSelection(
             applicable=True,
             chunk_id="source-id",
-            excerpt=evidence,
+            paragraph_start=1,
+            paragraph_end=1,
             handling="basic_troubleshooting",
             customer_reply=reply,
         )
@@ -364,14 +368,14 @@ def test_quality_customer_reply_is_separate_from_raw_evidence(tmp_path):
 
 
 @pytest.mark.parametrize(
-    "excerpt,expected",
+    "end,expected",
     [
-        ("如果支持声道平衡，请恢复居中。", True),
-        ("拆开耳机焊接。", False),
-        ("", False),
+        (1, True),
+        (99, False),
+        (99, False),
     ],
 )
-def test_rag_answer_must_be_exact_retrieved_evidence(excerpt, expected):
+def test_rag_answer_uses_only_valid_candidate_range(end, expected):
     repository = object.__new__(RagflowKnowledge)
     repository.client = FakeRagClient()
     repository.dataset_name = "售后规则知识库"
@@ -380,7 +384,8 @@ def test_rag_answer_must_be_exact_retrieved_evidence(excerpt, expected):
         RuleSelection(
             applicable=True,
             chunk_id="chunk",
-            excerpt=excerpt,
+            paragraph_start=1,
+            paragraph_end=end,
             handling="basic_troubleshooting",
             customer_reply="如果支持声道平衡，请恢复居中。",
         )

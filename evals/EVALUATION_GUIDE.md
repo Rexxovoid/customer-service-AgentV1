@@ -1,5 +1,28 @@
 # 测评操作指南
 
+## RAG混合权重对照
+
+`--vector-weight`支持live_rag及live_agent，范围0—1（拒绝NaN/Infinity），不填使用0.5，与日常网页/终端默认一致；显式指定需完整远端RAG配置，不支持controlled_agent夹具。参数覆盖只影响当前测评的隔离配置；官方SDK直接接收vector_similarity_weight，无新增模型、重排或重复检索。三次运行使用同一案例集与知识版本，只改变权重，阈值仍0.3、top_k仍64、page_size仍5：
+
+```powershell
+uv run orderagent-eval run --cases data/evaluation/rag_retrieval_cases.jsonl --vector-weight 0.3 --repeat 3 --concurrency 1
+uv run orderagent-eval run --cases data/evaluation/rag_retrieval_cases.jsonl --vector-weight 0.5 --repeat 3 --concurrency 1
+uv run orderagent-eval run --cases data/evaluation/rag_retrieval_cases.jsonl --vector-weight 0.7 --repeat 3 --concurrency 1
+```
+
+完整Agent验收使用同一参数（会调用真实主模型和规则选择模型，费用及耗时高于纯检索）：
+
+```powershell
+uv run orderagent-eval run --cases data/evaluation/rag_acceptance_cases.jsonl --vector-weight 0.5 --repeat 3 --concurrency 1
+uv run orderagent-eval run --cases data/evaluation/rag_acceptance_cases.jsonl --vector-weight 0.7 --repeat 3 --concurrency 1
+```
+
+完整验收可按原规则增加--judge，但纯检索仍不能加。权重作用于本次质量/退货的RAG检索，不修改LLM温度、推理强度、确认及幂等；无工具检索的轮次不会凭空增加请求。
+
+每次产生独立实验目录。experiment.json、案例result.json和精简索引记录vector_similarity_weight，report.md的检索排名区展示实际权重；候选正文仍只保留在evidence.json。比较规则命中、误召回和耗时，不以分数提高判定胜出；未审核金标仍为unjudgeable。0/1作为接口合法端点，不将其描述为所有服务后端的严格纯词项/纯向量召回。历史实验不改写，远端版本变化时需记录后重新对照。
+
+新实验的`report.md`增加“检索问句与候选排名”：按案例运行及每次检索展示实际发送的question、相似度阈值、返回顺序、文档、分块ID、相似度及本地过滤状态。完整正文仅保留在案例`evidence.json`；报告链接到该文件，不在索引重复正文。排名仅针对服务实际返回的候选，不包含阈值以下结果，不是全库排名。空返回明确显示0条，不等于全库无答案。旧记录缺失问句或阈值时显示未记录，不根据案例原话猜测；本次不追改历史报告，也不自动降阈值复查。
+
 更新：2026-11-06。本文负责测评操作，不重复定义业务规则；当前边界见[规则规范](../docs/rules.md)，职责和修改清单见[边界维护分工](../docs/boundary-maintenance.md)。原evals/README.md已更名为本文件。
 
 ## 案例与执行方式
@@ -158,7 +181,7 @@ compare生成comparison.json，不改人工表。输出人工与机器显式硬�
 
 ## 规则选择现场与配置对照
 
-质量答复新增customer_reply，与原excerpt证据分离。人工核对步骤是否有依据、前提和警告是否保留，不因用户回复未显示分块ID或文档名扣分；原文和来源可在tool_results/artifact核对。新回复模式与旧的原文直出不同，比较实验时记录提示词/代码版本，不能把文案更短直接算作业务更正确。
+质量答复customer_reply与原文证据分离。规则选择模型返回chunk_id及paragraph_start/paragraph_end，程序从本次候选连续提取原文；不再让模型复制excerpt。人工在evidence.json的retrieved、selected、evidence_checked中核对候选、范围和extracted_excerpt，并在tool_results/artifact核对最终依据。段落按空行划分，编号只在本次候选内有效；连续提取不证明规则适用或证据完整。核对步骤是否有依据、前提和警告是否保留，不因回复未显示来源扣分。保留历史实验，不将新旧schema混为同一配置；文案更短不能直接算作业务更正确。
 
 裁判现使用官方流式累积，实验judge_parameters和judge_diagnostics的stream=true。诊断新增first_event_seconds、first_content_seconds、received_events、content_characters、max_event_gap_seconds；按服务端数据块统计，最后一块至超时的等待不计入相邻间隔。首块前超时相关指标为null；只有一个块时最大间隔null。无用量尾块时usage=null。
 

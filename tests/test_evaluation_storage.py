@@ -60,6 +60,53 @@ def test_index_deduplication_preserves_all_details_and_metrics(tmp_path):
     assert not (tmp_path / "retention.json").exists()
 
 
+def test_report_renders_retrieval_order_query_and_empty_results(tmp_path):
+    record = sample()
+    work = tmp_path / record["run_id"]
+    work.mkdir()
+    events = [
+        {
+            "turn": 1,
+            "data": {
+                "stage": "retrieved",
+                "retrieval_question": "mouse <test>",
+                "similarity_threshold": 0.3,
+                "filtered_candidate_ids": ["second"],
+                "candidates": [
+                    {
+                        "id": "first",
+                        "document": "a|b.md",
+                        "similarity": 0.4,
+                        "content": "PRIVATE_BODY",
+                    },
+                    {"id": "second", "document": "other.md", "similarity": None},
+                ],
+            },
+        },
+        {
+            "turn": 2,
+            "data": {
+                "stage": "retrieved",
+                "retrieval_question": "empty query",
+                "similarity_threshold": 0.3,
+                "candidates": [],
+                "filtered_candidate_ids": [],
+            },
+        },
+        {"turn": 3, "data": {"stage": "retrieved", "candidates": []}},
+    ]
+    (work / "evidence.json").write_text(json.dumps({"diagnostics": events}), encoding="utf-8")
+    write_report(tmp_path, [record])
+    text = (tmp_path / "report.md").read_text(encoding="utf-8")
+    assert "mouse &lt;test&gt;" in text
+    assert "|1|a&#124;b.md|first|0.4|" in text
+    assert "|2|other.md|second|" in text
+    assert "empty query" in text and "0.3" in text
+    assert "PRIVATE_BODY" not in text
+    assert "sample/evidence.json" in text
+    assert "retrieval_question" not in (tmp_path / "results.jsonl").read_text()
+
+
 def test_retrieval_summary_keeps_failure_denominators_and_missing_values():
     from orderagent.evaluation.report import compact_record
 

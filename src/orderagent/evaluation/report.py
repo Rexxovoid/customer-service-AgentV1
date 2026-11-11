@@ -163,6 +163,7 @@ def archive_case(record, work):
                 "candidate_limit",
                 "top_k",
                 "similarity_threshold",
+                "vector_similarity_weight",
             )
             if k in data
         }
@@ -544,6 +545,7 @@ def compact_record(record):
         "hit_at_5",
         "filtered_hit_at_5",
         "retrieval_only",
+        "vector_similarity_weight",
         "error_type",
         "error_code",
         "judge_error_type",
@@ -683,6 +685,76 @@ def write_report(root, records):
             f"|{r['case_id']}|{r['run_id']}|{r['mode']}|{r['status']}|"
             f"{r.get('failure') or ''}|{r['judge_status']}|"
         )
+    lines.extend(
+        [
+            "",
+            "## 检索问句与候选排名",
+            "",
+            "排名为本次服务返回顺序，仅含当前阈值下返回的候选，不代表全库排名。正文见各案例证据文件。",
+            "",
+        ]
+    )
+    for r in records:
+        # 复用唯一脱敏证据，不把候选正文再写入报告或结果索引。
+        evidence_path = root / r["run_id"] / "evidence.json"
+        if evidence_path.exists():
+            try:
+                events = json.loads(evidence_path.read_text(encoding="utf-8")).get(
+                    "diagnostics", []
+                )
+            except (OSError, ValueError):
+                lines.extend([f"### {r['case_id']} / {r['run_id']}", "", "检索证据无法读取。", ""])
+                continue
+        else:
+            events = r.get("events") or [{"data": d} for d in r.get("diagnostics", [])]
+        for event in events:
+            data = event.get("data", {})
+            if data.get("stage") != "retrieved":
+                continue
+            # JSON字符串转义控制字符，HTML转义及表格竖线转义避免正文破坏Markdown。
+            from html import escape
+
+            question = data.get("retrieval_question")
+            displayed = (
+                escape(json.dumps(question, ensure_ascii=False))
+                if question is not None
+                else "未记录（旧记录不推算）"
+            )
+            lines.extend(
+                [
+                    f"### {r['case_id']} / {r['run_id']} / 轮次 {event.get('turn', '未记录')}",
+                    "",
+                    f"实际检索问句：<code>{displayed}</code>",
+                    "",
+                    f"相似度阈值：{data.get('similarity_threshold', '未记录')}。",
+                    f"向量权重：{data.get('vector_similarity_weight', '未记录')}。",
+                    f"[完整证据]({r['run_id']}/evidence.json)",
+                    "",
+                ]
+            )
+            candidates = data.get("candidates", [])
+            if not candidates:
+                lines.extend(["当前请求返回0条候选；不代表全库没有相关知识。", ""])
+                continue
+            lines.extend(["|排名|文档|分块ID|相似度|本地过滤后保留|", "|---|---|---|---|---|"])
+            kept = data.get("filtered_candidate_ids")
+            for rank, candidate in enumerate(candidates, 1):
+                cells = [
+                    rank,
+                    candidate.get("document"),
+                    candidate.get("id"),
+                    candidate.get("similarity"),
+                    "未记录" if kept is None else ("是" if candidate.get("id") in kept else "否"),
+                ]
+                cells = [
+                    escape(str(v) if v is not None else "未返回")
+                    .replace("|", "&#124;")
+                    .replace("\r", " ")
+                    .replace("\n", " ")
+                    for v in cells
+                ]
+                lines.append("|" + "|".join(cells) + "|")
+            lines.append("")
     (root / "report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 

@@ -49,7 +49,8 @@ def test_local_evidence_capture_is_opt_in_and_never_changes_rejection(tmp_path, 
             {
                 "applicable": True,
                 "chunk_id": "chunk",
-                "excerpt": "rewritten private-test-key",
+                "paragraph_start": 1,
+                "paragraph_end": 99,
                 "handling": "clarify",
                 "missing_information": ["condition"],
             }
@@ -71,7 +72,8 @@ def test_local_evidence_capture_is_opt_in_and_never_changes_rejection(tmp_path, 
         body = (debug_dir / diagnostic["debug_record"]).read_text(encoding="utf-8")
         payload = json.loads(body)
         assert payload["candidate_text"]
-        assert "[REDACTED]" in payload["model_excerpt"]
+        assert payload["paragraph_end"] == 99
+        assert payload["extracted_excerpt"] == ""
         assert "--- candidate" in payload["diff"]
         assert "private-test-key" not in body
         assert "private-user-question" in body  # 调用现场现在显式包含实际选择输入。
@@ -84,12 +86,9 @@ def test_local_evidence_capture_is_opt_in_and_never_changes_rejection(tmp_path, 
     "changes,expected",
     [
         ({"chunk_id": "unknown"}, ["UNKNOWN_CHUNK"]),
-        ({"excerpt": " "}, ["EMPTY_EXCERPT"]),
-        ({"excerpt": "rewritten"}, ["EXCERPT_NOT_IN_SOURCE"]),
-        (
-            {"excerpt": "x" * 2501},
-            ["EXCERPT_NOT_IN_SOURCE", "EXCERPT_TOO_LONG"],
-        ),
+        ({"paragraph_start": 0}, ["INVALID_PARAGRAPH_RANGE"]),
+        ({"paragraph_end": 99}, ["INVALID_PARAGRAPH_RANGE"]),
+        ({"paragraph_start": 2, "paragraph_end": 1}, ["INVALID_PARAGRAPH_RANGE"]),
         (
             {"handling": "clarify", "missing_information": []},
             ["MISSING_CLARIFICATION_FIELDS"],
@@ -100,7 +99,8 @@ def test_evidence_rejection_records_specific_reasons(changes, expected):
     selection = {
         "applicable": True,
         "chunk_id": "chunk",
-        "excerpt": "如果支持声道平衡，请恢复居中。",
+        "paragraph_start": 1,
+        "paragraph_end": 1,
         "handling": "basic_troubleshooting",
         **changes,
     }
@@ -114,7 +114,7 @@ def test_evidence_rejection_records_specific_reasons(changes, expected):
         e["data"] for e in collector.events if e["data"]["stage"] == "selection_rejected"
     )
     assert diagnostic["failure_reasons"] == expected
-    assert diagnostic["excerpt_length"] == len(selection["excerpt"])
+    assert diagnostic["excerpt_length"] >= 0
     assert diagnostic["excerpt_limit"] == 2500
     assert "excerpt" not in diagnostic
 
@@ -129,7 +129,8 @@ def test_evidence_failure_is_available_in_native_custom_stream():
                     {
                         "applicable": True,
                         "chunk_id": "unknown",
-                        "excerpt": "rewritten",
+                        "paragraph_start": 1,
+                        "paragraph_end": 1,
                         "handling": "return_eligible",
                     }
                 )
@@ -239,7 +240,8 @@ def repository(client=None, selector=None):
             {
                 "applicable": True,
                 "chunk_id": "chunk",
-                "excerpt": "如果支持声道平衡，请恢复居中。",
+                "paragraph_start": 1,
+                "paragraph_end": 1,
                 "handling": "basic_troubleshooting",
                 "customer_reply": "如果支持声道平衡，请恢复居中。",
             }
@@ -312,7 +314,13 @@ def test_no_candidates_and_no_applicable_rule_are_different():
     with pytest.raises(ValueError, match="RAG_NO_APPLICABLE_RULE"):
         repository(
             selector=Selector(
-                {"applicable": False, "chunk_id": "", "excerpt": "", "handling": "human"}
+                {
+                    "applicable": False,
+                    "chunk_id": "",
+                    "paragraph_start": 0,
+                    "paragraph_end": 0,
+                    "handling": "human",
+                }
             )
         ).find(SupportQuery(category="mice", issue="左键没反应"))
 
@@ -351,7 +359,8 @@ def test_native_raw_response_metrics_are_recorded_without_private_reasoning():
     selected = {
         "applicable": True,
         "chunk_id": "chunk",
-        "excerpt": "如果支持声道平衡，请恢复居中。",
+        "paragraph_start": 1,
+        "paragraph_end": 1,
         "handling": "basic_troubleshooting",
         "customer_reply": "如果支持声道平衡，请恢复居中。",
     }
@@ -398,7 +407,8 @@ def test_native_parser_body_and_error_are_saved_locally(tmp_path, monkeypatch, f
     payload = {
         "applicable": True,
         "chunk_id": "chunk",
-        "excerpt": "如果支持声道平衡，请恢复居中。",
+        "paragraph_start": 1,
+        "paragraph_end": 1,
         "handling": "basic_troubleshooting",
         "customer_reply": "如果支持声道平衡，请恢复居中。",
     }
@@ -463,7 +473,8 @@ def test_inconsistent_return_decision_is_rejected():
             {
                 "applicable": True,
                 "chunk_id": "chunk",
-                "excerpt": "如果支持声道平衡，请恢复居中。",
+                "paragraph_start": 1,
+                "paragraph_end": 1,
                 "handling": "return_eligible",
                 "missing_information": ["签收日期"],
                 "decision": "missing_information",
@@ -488,7 +499,8 @@ def test_evidence_matching_normalizes_line_endings_only(source_break):
             {
                 "applicable": True,
                 "chunk_id": "chunk",
-                "excerpt": "条件A\n\n步骤B",
+                "paragraph_start": 1,
+                "paragraph_end": 2,
                 "handling": "basic_troubleshooting",
                 "customer_reply": "满足条件A时执行步骤B。",
             }
@@ -498,7 +510,7 @@ def test_evidence_matching_normalizes_line_endings_only(source_break):
     answer = RunnableLambda(repo.find).invoke(
         SupportQuery(category="headphones", issue="左耳无声"), config={"callbacks": [collector]}
     )
-    assert answer.answer == "条件A\n\n步骤B"
+    assert answer.answer == client.retrieve()[0].content
     diagnostic = next(
         e["data"] for e in collector.events if e["data"]["stage"] == "evidence_checked"
     )
@@ -526,27 +538,91 @@ def test_search_description_is_not_presented_as_user_fact_to_selector():
     assert "耳机单侧声音异常" in requests[0]["question"]
 
 
-@pytest.mark.parametrize(
-    "excerpt", ["条件A\n步骤B", "条件A。\n\n步骤B", "条件 A\n\n步骤B", "条件A\n\n不同步骤"]
-)
-def test_evidence_still_rejects_punctuation_space_paragraph_or_content_changes(excerpt):
-    client = FakeRagClient()
-    client.retrieve = lambda **kwargs: [
-        SimpleNamespace(id="chunk", document_name="test", content="条件A\r\n\r\n步骤B")
-    ]
+@pytest.mark.parametrize("start,end", [(0, 1), (-1, 1), (2, 1), (1, 3)])
+def test_invalid_paragraph_ranges_are_rejected(start, end):
     repo = repository(
-        client=client,
         selector=Selector(
             {
                 "applicable": True,
                 "chunk_id": "chunk",
-                "excerpt": excerpt,
-                "handling": "basic_troubleshooting",
+                "paragraph_start": start,
+                "paragraph_end": end,
+                "handling": "clarify",
+                "missing_information": ["system"],
             }
-        ),
+        )
     )
     with pytest.raises(ValueError, match="RAG_EVIDENCE_INVALID"):
-        repo.find(SupportQuery(category="headphones", issue="左耳无声"))
+        repo.find(SupportQuery(category="headphones", issue="test"))
+
+
+@pytest.mark.parametrize("newline", ["\n", "\r\n", "\r"])
+def test_range_extraction_keeps_intermediate_conditions_and_exact_text(newline):
+    import json
+
+    # E51 regression: the model no longer copies/pastes conditions + steps while skipping P2.
+    source = (newline * 2).join(
+        [
+            "Conditions: Windows USB mouse.",
+            "Required: Windows and USB; no model number required.",
+            "Steps: reconnect; try another USB port.",
+            "Limits: no hardware repair guarantee.",
+        ]
+    )
+    client = FakeRagClient()
+    client.retrieve = lambda **kwargs: [
+        SimpleNamespace(id="chunk", document_name="mouse", content=source)
+    ]
+
+    def select(messages):
+        paragraphs = json.loads(messages[1][1])["evidence"]["chunk"]["paragraphs"]
+        assert [p["id"] for p in paragraphs] == [1, 2, 3, 4]
+        return {
+            "applicable": True,
+            "chunk_id": "chunk",
+            "paragraph_start": 1,
+            "paragraph_end": 4,
+            "handling": "basic_troubleshooting",
+            "customer_reply": "Reconnect the USB receiver.",
+        }
+
+    repo = repository(client=client, selector=SimpleNamespace(invoke=select))
+    events = []
+    repo._diagnostic = events.append
+    answer = repo.find(SupportQuery(category="mice", issue="left button not responding"))
+    assert answer.answer == source
+    event = next(e for e in events if e["stage"] == "evidence_checked")
+    assert event["extracted_excerpt"] == source
+    assert event["paragraph_start"] == 1 and event["paragraph_end"] == 4
+
+
+@pytest.mark.parametrize("value", [True, "1", 1.5])
+def test_range_numbers_are_strict_integers(value):
+    from orderagent.integrations.ragflow import RuleSelection
+
+    with pytest.raises(ValidationError):
+        RuleSelection(
+            applicable=True,
+            chunk_id="chunk",
+            paragraph_start=value,
+            paragraph_end=1,
+            handling="clarify",
+        )
+
+
+def test_extracted_evidence_length_limit_is_preserved():
+    client = FakeRagClient()
+    client.retrieve = lambda **kwargs: [
+        SimpleNamespace(id="chunk", document_name="test", content="x" * 2501)
+    ]
+    repo = repository(client=client)
+    events = []
+    repo._diagnostic = events.append
+    with pytest.raises(ValueError, match="RAG_EVIDENCE_INVALID"):
+        repo.find(SupportQuery(category="mice", issue="test"))
+    assert next(e for e in events if e["stage"] == "selection_rejected")["failure_reasons"] == [
+        "EXCERPT_TOO_LONG"
+    ]
 
 
 @pytest.mark.parametrize("value", [0, 1023, 16385])

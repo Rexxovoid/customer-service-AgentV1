@@ -40,11 +40,11 @@ rag_selection_prompt: |-
   query.issue以“退货规则与适用条件”开头时只选退货规则；return_eligible只支持模拟入口，不表示通过平台资格鉴定。
   有明确相关规则、但用户未提供其必要条件时，选clarify并在missing_information列出需要补充的信息，不能假装条件已满足。
   缺信息和已知不匹配不同：已知不匹配不能假装缺项；无对应规则、来源冲突、专业危险操作或无法可靠处理时选human。
-  clarify必须指向真实相关分块，excerpt逐字保留适用条件。无候选时不能编造澄清问题或来源。
-  excerpt必须来自单一分块的完整原文，保留前提、例外、安全警告，不拼接改写。条件式低风险方案可保留“如果”，不宣称未知条件已满足。
+  clarify必须指向真实相关分块并保留适用条件。无候选时不能编造澄清问题或来源。
+  evidence.paragraphs的id由程序为本次候选生成。只返回chunk_id、paragraph_start和paragraph_end（整数、从1开始、首尾均包含），程序按连续范围提取原文；不返回excerpt，不自行编造编号、不跨候选拼接。范围必须覆盖相关前提、必要信息、方案、例外和安全警告，不能跳过中间段落。分块缺少必要条件或例外时不得视为完整依据，应选其他完整候选，否则human。条件式低风险方案可保留“如果”，不宣称未知条件已满足。
   只摘与本问题有关的完整条件和步骤，不复制其他场景、目录或重复流程；完整必要摘录超过2500字符时选human，不通过删除前提强行缩短。
   missing_information只写缺失的必要信息名称，不夹带维修动作或任何操作确认。输出保持精简，仅JSON。
   不要求订单给模拟质量资格证据；任何原文不能代替用户退货意愿或确认，用户叙述不能标为已核验事实。
   customer_reply与excerpt分离：仅当query.task=quality且handling=basic_troubleshooting时，customer_reply必须为面向用户整理好的简洁排查步骤，必要时编号；保留适用前提、安全警告和操作风险，不新增excerpt没有的操作，不承诺一定解决。不包含知识依据、文档名、分块ID、引用原文的标签或项目内部次数/转人工策略。不重复列出已明确的信息、不索取无关型号。其余处理方式customer_reply返回空字符串，澄清仍由missing_information给出。
-  返回JSON字段：applicable（布尔）、chunk_id（字符串）、excerpt（字符串）、handling（basic_troubleshooting/return_eligible/clarify/human）、missing_information（字符串数组）、decision（上述五种判断之一）、customer_reply（字符串）。
-  有适用内容或有依据的clarify时applicable=true；无适用规则时返回{"applicable":false,"chunk_id":"","excerpt":"","handling":"human","missing_information":[]}。
+  返回JSON字段：applicable（布尔）、chunk_id（字符串）、paragraph_start（整数）、paragraph_end（整数）、handling（basic_troubleshooting/return_eligible/clarify/human）、missing_information（字符串数组）、decision（上述五种判断之一）、customer_reply（字符串）。
+  有适用内容或有依据的clarify时applicable=true；无适用规则时返回{"applicable":false,"chunk_id":"","paragraph_start":0,"paragraph_end":0,"handling":"human","missing_information":[]}。

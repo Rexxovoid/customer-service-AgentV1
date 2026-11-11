@@ -114,9 +114,14 @@ class TimeoutRAGFlow(RAGFlow):
 class RuleSelection(BaseModel):
     """模型只能选择适用原文；不允许生成脱离来源的维修步骤或资格证据。"""
 
+    model_config = {"extra": "forbid"}
+
     applicable: bool = Field(description="是否有直接适用且足够完整的安全处理知识")
     chunk_id: str = Field(description="所选分块ID；不适用时为空")
-    excerpt: str = Field(description="逐字摘录该分块中完整且带条件的答案；不改写")
+    paragraph_start: int = Field(strict=True, description="起始段落编号，从1开始；无适用规则时为0")
+    paragraph_end: int = Field(
+        strict=True, description="结束段落编号，包含该段；必须连续且属于同一候选；无适用规则时为0"
+    )
     handling: Literal["basic_troubleshooting", "return_eligible", "clarify", "human"] = Field(
         description="按用户描述匹配的处理方式；return_eligible只表示支持模拟入口，不是已核验资格"
     )
@@ -146,6 +151,7 @@ class RagflowKnowledge:
             settings.ragflow_timeout_seconds,
         )
         self.dataset_name = settings.ragflow_dataset_name
+        self.vector_weight = settings.ragflow_vector_weight
         self.assistant_name = settings.ragflow_assistant_name
         self.selection_budget = settings.ragflow_selection_max_tokens
         self.selection_effort = settings.ragflow_selection_reasoning_effort
@@ -169,11 +175,15 @@ class RagflowKnowledge:
             RuleSelection, method="json_mode", include_raw=True
         )
 
-    def find(self, query, *, retrieval_only=False):
+    def find(self, query, *, retrieval_only=False, vector_weight=None):
         """仅检索指定库并核对助手绑定；异常由业务工具转人工，禁止回退常识答案。"""
         started = time.perf_counter()
         try:
-            return self._find(query, retrieval_only=retrieval_only)
+            if vector_weight is not None and (not retrieval_only or not 0 <= vector_weight <= 1):
+                raise ValueError(
+                    "vector_weight requires retrieval_only and a finite value in [0,1]"
+                )
+            return self._find(query, retrieval_only=retrieval_only, vector_weight=vector_weight)
         except Exception as exc:
             selecting = "rag_stage=selection" in getattr(exc, "__notes__", [])
             code = (
@@ -211,8 +221,11 @@ class RagflowKnowledge:
         finally:
             self._diagnostic({"stage": "rag_finished", "seconds": time.perf_counter() - started})
 
-    def _find(self, query, *, retrieval_only=False):
+    def _find(self, query, *, retrieval_only=False, vector_weight=None):
         """官方检索与结构化选择，失败以稳定诊断码交给业务处理。"""
+        vector_weight = (
+            vector_weight if vector_weight is not None else getattr(self, "vector_weight", 0.5)
+        )
         self._diagnostic({"stage": "retrieval_started"})
         binding_started = time.perf_counter()
         retrieval_started = None
@@ -231,15 +244,19 @@ class RagflowKnowledge:
                 }
             )
             retrieval_started = time.perf_counter()
+            retrieval_question = (
+                f"{dict(headphones='耳机', mice='鼠标', keyboards='键盘')[query.category]} "
+                f"{query.issue} {query.environment} {query.search_description}"
+            )
             chunks = self.client.retrieve(
                 dataset_ids=[datasets[0].id],
-                question=(
-                    f"{dict(headphones='耳机', mice='鼠标', keyboards='键盘')[query.category]} "
-                    f"{query.issue} {query.environment} {query.search_description}"
-                ),
+                question=retrieval_question,
                 page_size=5,
                 top_k=64,
                 similarity_threshold=0.3,
+                **(
+                    {"vector_similarity_weight": vector_weight} if vector_weight is not None else {}
+                ),
             )
             retrieval_seconds = time.perf_counter() - retrieval_started
         except Exception as exc:
@@ -273,6 +290,9 @@ class RagflowKnowledge:
         self._diagnostic(
             {
                 "stage": "retrieved",
+                "retrieval_question": retrieval_question,
+                "vector_similarity_weight": vector_weight if vector_weight is not None else 0.5,
+                "similarity_threshold": 0.3,
                 "candidates": [
                     {
                         "id": str(item.id),
@@ -306,6 +326,25 @@ class RagflowKnowledge:
             raise ValueError("RAG_NO_CANDIDATES")
         if self.selector is None:
             raise ValueError("RAG_SELECTION_ERROR")
+        # 编号仅对本次实际候选有效；偏移保留原始换行及段间空白。
+        paragraph_spans = {}
+        numbered_evidence = {}
+        for chunk_id, item in evidence.items():
+            source = item["content"]
+            spans = [
+                (match.start(), match.end())
+                for match in re.finditer(
+                    r"\S[^\r\n]*(?:(?:\r\n|\r|\n)(?![ \t]*(?:\r\n|\r|\n))[^\r\n]+)*", source
+                )
+            ]
+            paragraph_spans[chunk_id] = spans
+            numbered_evidence[chunk_id] = {
+                "document": item["document"],
+                "paragraphs": [
+                    {"id": index, "text": source[start:end]}
+                    for index, (start, end) in enumerate(spans, 1)
+                ],
+            }
         messages = [
             ("system", load_prompt("rag_selection_prompt")),
             (
@@ -313,7 +352,7 @@ class RagflowKnowledge:
                 json.dumps(
                     {
                         "query": query.model_dump(exclude={"search_description"}),
-                        "evidence": evidence,
+                        "evidence": numbered_evidence,
                     },
                     ensure_ascii=False,
                 ),
@@ -485,15 +524,29 @@ class RagflowKnowledge:
             self._diagnostic({"stage": "no_applicable_rule"})
             raise ValueError("RAG_NO_APPLICABLE_RULE")
         failure_reasons = []
-        normalized_excerpt = selection.excerpt.replace("\r\n", "\n").replace("\r", "\n")
+        spans = paragraph_spans.get(selection.chunk_id, [])
+        start, end = selection.paragraph_start, selection.paragraph_end
+        valid_range = 1 <= start <= end <= len(spans)
+        excerpt = (
+            chosen["content"][spans[start - 1][0] : spans[end - 1][1]]
+            if chosen and valid_range
+            else ""
+        )
+        if chosen is not None and not valid_range:
+            failure_reasons.append("INVALID_PARAGRAPH_RANGE")
+        capture.update(
+            paragraph_start=start,
+            paragraph_end=end,
+            extracted_excerpt=excerpt,
+            paragraph_spans=spans,
+        )
+        normalized_excerpt = excerpt.replace("\r\n", "\n").replace("\r", "\n")
         normalized_source = (
             chosen["content"].replace("\r\n", "\n").replace("\r", "\n") if chosen else ""
         )
-        raw_match = bool(
-            chosen and selection.excerpt.strip() and selection.excerpt in chosen["content"]
-        )
+        raw_match = bool(chosen and excerpt.strip() and excerpt in chosen["content"])
         normalized_match = bool(
-            chosen and selection.excerpt.strip() and normalized_excerpt in normalized_source
+            chosen and excerpt.strip() and normalized_excerpt in normalized_source
         )
         capture.update(
             raw_excerpt_match=raw_match,
@@ -503,6 +556,10 @@ class RagflowKnowledge:
         self._diagnostic(
             {
                 "stage": "evidence_checked",
+                "chunk_id": selection.chunk_id,
+                "paragraph_start": start,
+                "paragraph_end": end,
+                "extracted_excerpt": excerpt,
                 "raw_excerpt_match": raw_match,
                 "normalized_excerpt_match": normalized_match,
                 "normalization": "CRLF/CR_to_LF_only",
@@ -511,11 +568,11 @@ class RagflowKnowledge:
         )
         if chosen is None:
             failure_reasons.append("UNKNOWN_CHUNK")
-        if not selection.excerpt.strip():
+        if chosen is not None and valid_range and not excerpt.strip():
             failure_reasons.append("EMPTY_EXCERPT")
-        elif chosen is not None and not normalized_match:
+        elif chosen is not None and valid_range and not normalized_match:
             failure_reasons.append("EXCERPT_NOT_IN_SOURCE")
-        if len(selection.excerpt) > 2500:
+        if len(excerpt) > 2500:
             failure_reasons.append("EXCERPT_TOO_LONG")
         if selection.handling == "clarify" and not selection.missing_information:
             failure_reasons.append("MISSING_CLARIFICATION_FIELDS")
@@ -529,14 +586,13 @@ class RagflowKnowledge:
                 error_code="RAG_EVIDENCE_INVALID",
                 failure_reasons=failure_reasons,
                 candidate_text=str(chosen["content"]) if chosen else "",
-                model_excerpt=selection.excerpt[:16000],
-                text_truncated=len(selection.excerpt) > 16000,
+                text_truncated=len(excerpt) > 16000,
                 diff="\n".join(
                     unified_diff(
                         (str(chosen["content"]) if chosen else "").splitlines(),
-                        selection.excerpt[:16000].splitlines(),
+                        excerpt[:16000].splitlines(),
                         fromfile="candidate",
-                        tofile="model_excerpt",
+                        tofile="extracted_excerpt",
                         lineterm="",
                     )
                 )[:64000],
@@ -549,16 +605,13 @@ class RagflowKnowledge:
                     "_local_capture": capture,
                     "chunk_id": selection.chunk_id[:200],
                     "document": str(chosen["document"])[:200] if chosen else None,
-                    "excerpt_length": len(selection.excerpt),
+                    "excerpt_length": len(excerpt),
                     "excerpt_limit": 2500,
                     "applicable": selection.applicable,
                     "known_chunk": chosen is not None,
                     "handling": selection.handling,
                     "excerpt_valid": bool(
-                        chosen
-                        and selection.excerpt.strip()
-                        and normalized_match
-                        and len(selection.excerpt) <= 2500
+                        chosen and excerpt.strip() and normalized_match and len(excerpt) <= 2500
                     ),
                 }
             )
@@ -599,7 +652,7 @@ class RagflowKnowledge:
             id=selection.chunk_id,
             category=query.category,
             question=query.issue,
-            answer=selection.excerpt,
+            answer=excerpt,
             customer_reply=selection.customer_reply.strip(),
             applicability="仅适用所引原文明确列出的条件；未知条件需核实",
             source={

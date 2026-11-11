@@ -33,6 +33,8 @@ META = {
     "applicable",
     "decision",
     "excerpt_valid",
+    "paragraph_start",
+    "paragraph_end",
     "support_phase",
     "return_stage",
     "return_error_code",

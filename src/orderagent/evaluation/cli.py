@@ -28,6 +28,12 @@ def main():
     parser.add_argument("--repeat", type=int, default=1)
     parser.add_argument("--concurrency", type=int, default=1)
     parser.add_argument("--judge", action="store_true")
+    parser.add_argument(
+        "--vector-weight",
+        type=float,
+        default=None,
+        help="远端RAG测评（含完整Agent）：向量权重0—1，默认0.5；不改变日常Agent",
+    )
     parser.add_argument("--upload", action="store_true", help="显式上传LangSmith；详情输入输出隐藏")
     parser.add_argument("--result", help="compare/verify时指定已有实验目录")
     args = parser.parse_args()
@@ -71,8 +77,7 @@ def main():
                     "case_id": row["case_id"],
                     "cloud_content": proof,
                     "verification_scope": (
-                        "specified_turn_content_only; "
-                        "all_spans_scores_usage_not_checked"
+                        "specified_turn_content_only; all_spans_scores_usage_not_checked"
                     ),
                     "local_evidence": local_evidence,
                     "trace_id": trace_id,
@@ -102,6 +107,13 @@ def main():
         return 0
     settings = Settings.load()
     retrieval_only = all(case.retrieval_only for case in cases)
+    if args.vector_weight is not None:
+        if not 0 <= args.vector_weight <= 1:
+            parser.error("--vector-weight必须在0—1之间且为有限数")
+        if any(case.mode == "controlled_agent" for case in cases):
+            parser.error("--vector-weight不支持使用本地夹具的controlled_agent案例")
+        if not settings.ragflow_api_url or not settings.ragflow_api_key.get_secret_value():
+            parser.error("--vector-weight需要远端RAG配置，不允许回退本地JSON")
     if any(case.retrieval_only for case in cases) and args.judge:
         parser.error("纯检索没有最终答复，不能使用--judge；完整链路请使用原验收集")
     if any(case.retrieval_only for case in cases) and (
@@ -132,6 +144,9 @@ def main():
         selected_ids=[c.id for c in cases],
         judge_enabled=args.judge,
         retrieval_only=retrieval_only,
+        vector_similarity_weight=(args.vector_weight if args.vector_weight is not None else 0.5)
+        if settings.ragflow_api_url and any(c.mode != "controlled_agent" for c in cases)
+        else None,
         dataset_hash=meta["files"][str(dataset)],
         storage_policy="manual",
     )

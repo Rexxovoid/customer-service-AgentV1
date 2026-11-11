@@ -97,7 +97,8 @@ def test_retrieval_only_is_for_rag_and_no_gold_does_not_mean_zero_accuracy():
 
 
 @pytest.mark.parametrize("judge", [False, True])
-def test_retrieval_cli_needs_no_deep_key_and_rejects_judge(tmp_path, monkeypatch, judge):
+@pytest.mark.parametrize("weight", [None, 0.3, 0.5, 0.7])
+def test_retrieval_cli_needs_no_deep_key_and_rejects_judge(tmp_path, monkeypatch, judge, weight):
     import sys
 
     from orderagent.evaluation import cli
@@ -130,7 +131,11 @@ def test_retrieval_cli_needs_no_deep_key_and_rejects_judge(tmp_path, monkeypatch
             )
         ),
     )
-    monkeypatch.setattr(ragflow, "TimeoutRAGFlow", lambda *args: FakeRagClient())
+    requests = []
+    client = FakeRagClient()
+    retrieve = client.retrieve
+    client.retrieve = lambda **kwargs: (requests.append(kwargs), retrieve(**kwargs))[1]
+    monkeypatch.setattr(ragflow, "TimeoutRAGFlow", lambda *args: client)
     monkeypatch.setattr(
         "orderagent.evaluation.runner.create_deepseek_model",
         lambda settings: pytest.fail("不应初始化模型"),
@@ -138,7 +143,9 @@ def test_retrieval_cli_needs_no_deep_key_and_rejects_judge(tmp_path, monkeypatch
     monkeypatch.setattr(
         sys,
         "argv",
-        ["orderagent-eval", "run", "--cases", str(dataset)] + (["--judge"] if judge else []),
+        ["orderagent-eval", "run", "--cases", str(dataset)]
+        + (["--judge"] if judge else [])
+        + (["--vector-weight", str(weight)] if weight is not None else []),
     )
     if judge:
         with pytest.raises(SystemExit) as exc:
@@ -150,6 +157,8 @@ def test_retrieval_cli_needs_no_deep_key_and_rejects_judge(tmp_path, monkeypatch
         experiment = json.loads((root / "experiment.json").read_text(encoding="utf-8"))
         summary = json.loads((root / "summary.json").read_text(encoding="utf-8"))
         assert experiment["agent_model"] is None and experiment["retrieval_only"]
+        assert experiment["vector_similarity_weight"] == (0.5 if weight is None else weight)
+        assert requests[0]["vector_similarity_weight"] == experiment["vector_similarity_weight"]
         assert summary["overall"]["model_calls"] == 0
         assert summary["overall"]["retrieval"]["completed_requests"] == 1
 
@@ -157,6 +166,83 @@ def test_retrieval_cli_needs_no_deep_key_and_rejects_judge(tmp_path, monkeypatch
 def test_quality_score_requires_all_five_dimensions():
     with pytest.raises(ValidationError):
         QualityScore.model_validate({"expression": {"score": 4, "reason": "ok", "evidence": "x"}})
+
+
+@pytest.mark.parametrize("weight", ["-0.1", "1.1", "nan", "inf"])
+def test_cli_rejects_invalid_vector_weights(monkeypatch, weight):
+    import sys
+
+    from orderagent.evaluation import cli
+
+    monkeypatch.setattr(Settings, "load", classmethod(lambda cls: Settings()))
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "orderagent-eval",
+            "run",
+            "--cases",
+            str(cli.PROJECT_ROOT / "data/evaluation/rag_retrieval_cases.jsonl"),
+            "--vector-weight=" + weight,
+        ],
+    )
+    with pytest.raises(SystemExit) as exc:
+        cli.main()
+    assert exc.value.code == 2
+
+
+def test_cli_rejects_weight_for_non_retrieval_cases(monkeypatch):
+    import sys
+
+    from orderagent.evaluation import cli
+
+    monkeypatch.setattr(Settings, "load", classmethod(lambda cls: Settings()))
+    monkeypatch.setattr(sys, "argv", ["orderagent-eval", "run", "--vector-weight", "0.5"])
+    with pytest.raises(SystemExit) as exc:
+        cli.main()
+    assert exc.value.code == 2
+
+
+@pytest.mark.parametrize("weight", [0.5, 0.7])
+def test_full_agent_uses_isolated_rag_weight(tmp_path, monkeypatch, weight):
+    from orderagent.agents import agent_factory
+    from orderagent.evaluation.runner import _run_case
+    from orderagent.evaluation.schemas import Case
+    from tests.fake_chat_model import ScriptedChatModel, tool_call
+    from tests.test_rag_diagnostics import repository
+
+    requests = []
+
+    def knowledge(settings, model):
+        repo = repository()
+        repo.vector_weight = settings.ragflow_vector_weight
+        retrieve = repo.client.retrieve
+        repo.client.retrieve = lambda **kw: (requests.append(kw), retrieve(**kw))[1]
+        return repo
+
+    monkeypatch.setattr(agent_factory, "RagflowKnowledge", knowledge)
+    monkeypatch.setattr(
+        "orderagent.agents.agent_factory.create_deepseek_model",
+        lambda settings: ScriptedChatModel(
+            responses=[
+                tool_call("query_quality_support", {"category": "headphones", "issue": "左耳无声"})
+            ]
+        ),
+    )
+    settings = Settings(ragflow_api_url="https://rag.example.invalid", ragflow_api_key="test")
+    case = Case(
+        id="E99",
+        category="test",
+        user_id="demo",
+        mode="live_agent",
+        reference="test",
+        turns=[{"user": "耳机左耳无声怎么办", "expect": [], "forbid": []}],
+    )
+    result = _run_case(case, settings, tmp_path, vector_weight=weight)
+    assert requests[0]["vector_similarity_weight"] == weight
+    assert result["vector_similarity_weight"] == weight
+    assert settings.ragflow_vector_weight == 0.5
+    assert result.get("error_type") is None
 
 
 def test_judge_records_response_metadata_before_validation(monkeypatch):
