@@ -19,12 +19,14 @@ dependencies = [
     "fastapi==0.162.0",
     "uvicorn==0.54.0",
     "langfuse>=5,<6",
+    "pwdlib[argon2]>=0.3,<0.4",
 ]
 
 [project.scripts]
 orderagent = "orderagent.cli:main"
 orderagent-eval = "orderagent.evaluation.cli:main"
 orderagent-web = "orderagent.web:main"
+orderagent-accounts = "orderagent.accounts:main"
 
 [dependency-groups]
 dev = ["pytest>=8,<10", "ruff>=0.9,<1"]

@@ -654,3 +654,16 @@ textarea::placeholder{
     transition:none!important
   }
 }
+/* 登录覆盖层沿用页面色系；hidden显式优先于布局规则。 */
+.login-panel { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; background: #f5f7f2; padding: 24px; }
+.login-panel[hidden] { display: none; }
+.login-card { width: min(100%, 420px); display: grid; gap: 14px; padding: 32px; border: 1px solid #dce4d5; border-radius: 20px; background: white; }
+.login-card h1 { font-size: 26px; margin: 0; }
+.login-card p, .login-card small { color: #61705a; }
+.login-card input { width: 100%; padding: 12px; border: 1px solid #bfcab8; border-radius: 8px; }
+.login-card button, #logout { padding: 10px 16px; border-radius: 8px; border: 1px solid #c6d2bd; background: #e8efdf; cursor: pointer; }
+#login-error { color: #a43e31; overflow-wrap: anywhere; }
+.history-section { min-height: 80px; overflow: auto; margin-top: 16px; }
+.history-list { max-height: 26vh; overflow-y: auto; display: grid; gap: 6px; }
+.history-list button { text-align: left; padding: 9px; border: 1px solid #dce4d5; background: #f5f7f2; border-radius: 8px; overflow-wrap: anywhere; cursor: pointer; }
+#history-more, #messages-more, #end-service { padding: 8px; border: 1px solid #c6d2bd; border-radius: 8px; background: #e8efdf; cursor: pointer; }

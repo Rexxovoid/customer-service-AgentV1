@@ -215,6 +215,7 @@ def test_concurrent_sessions_keep_separate_traces(captured):
 def test_web_correlates_existing_request_log(captured, monkeypatch, tmp_path):
     from fastapi.testclient import TestClient
 
+    from orderagent.accounts import AccountStore, initialize
     from orderagent.agents.agent_factory import create_order_agent
     from orderagent.web import create_web_app
     from tests.fake_chat_model import ScriptedChatModel
@@ -225,8 +226,25 @@ def test_web_correlates_existing_request_log(captured, monkeypatch, tmp_path):
     graph = create_order_agent(
         settings, model=ScriptedChatModel(responses=[AIMessage(content="private customer answer")])
     )
-    app = create_web_app(settings, "DEMO-U-004", graph=graph, log_dir=tmp_path / "logs")
+    accounts = AccountStore(tmp_path / "accounts.sqlite3")
+    initialize(
+        accounts,
+        {"DEMO-U-004": {"order_count": 1, "example_order_ids": []}},
+        tmp_path / "credentials.json",
+        True,
+    )
+    accounts.reset("demo_demo-u-004", "private-login-password")
+    app = create_web_app(settings, graph=graph, log_dir=tmp_path / "logs", accounts=accounts)
     with TestClient(app, base_url="http://127.0.0.1") as client:
+        session = client.get("/api/session").json()
+        assert (
+            client.post(
+                "/api/login",
+                json={"username": "demo_demo-u-004", "password": "private-login-password"},
+                headers={"X-CSRF-Token": session["csrf_token"]},
+            ).status_code
+            == 200
+        )
         session = client.get("/api/session").json()
         response = client.post(
             "/api/chat",
@@ -242,6 +260,7 @@ def test_web_correlates_existing_request_log(captured, monkeypatch, tmp_path):
     for forbidden in (
         "private user question",
         "private customer answer",
+        "private-login-password",
         "DEMO-U-004",
         session["csrf_token"],
     ):

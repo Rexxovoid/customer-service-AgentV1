@@ -6,6 +6,7 @@ import pytest
 from fastapi.testclient import TestClient
 from langchain_core.messages import AIMessage
 
+from orderagent.accounts import AccountStore, initialize
 from orderagent.agents.agent_factory import create_order_agent
 from orderagent.repositories.after_sales_repository import AfterSalesRepository
 from orderagent.settings import Settings
@@ -27,11 +28,31 @@ def web(tmp_path):
     settings = Settings(after_sales_db_path=tmp_path / "after_sales.sqlite3")
     model = ScriptedChatModel(responses=[AIMessage(content="测试回答")])
     graph = create_order_agent(settings, model=model)
-    app = create_web_app(settings, "DEMO-U-004", graph=graph, log_dir=tmp_path / "logs")
+    accounts = AccountStore(tmp_path / "accounts.sqlite3")
+    initialize(
+        accounts,
+        {
+            "DEMO-U-004": {"order_count": 1, "example_order_ids": []},
+            "OTHER": {"order_count": 0, "example_order_ids": []},
+        },
+        tmp_path / "credentials.json",
+        True,
+    )
+    accounts.reset("demo_demo-u-004", "test-password")
+    accounts.reset("demo_other", "other-password")
+    app = create_web_app(settings, graph=graph, log_dir=tmp_path / "logs", accounts=accounts)
+    app.state.accounts = accounts
     with TestClient(app, base_url="http://127.0.0.1") as client:
         response = client.get("/api/session")
         assert response.status_code == 200
         client.headers["X-CSRF-Token"] = response.json()["csrf_token"]
+        assert (
+            client.post(
+                "/api/login", json={"username": "demo_demo-u-004", "password": "test-password"}
+            ).status_code
+            == 200
+        )
+        client.headers["X-CSRF-Token"] = client.get("/api/session").json()["csrf_token"]
         yield client, app, graph, model, settings
 
 
@@ -79,6 +100,13 @@ def test_web_isolates_browser_threads(web):
         data = second.get("/api/session").json()
         assert data["messages"] == []
         second.headers["X-CSRF-Token"] = data["csrf_token"]
+        assert (
+            second.post(
+                "/api/login", json={"username": "demo_other", "password": "other-password"}
+            ).status_code
+            == 200
+        )
+        second.headers["X-CSRF-Token"] = second.get("/api/session").json()["csrf_token"]
         second.post("/api/chat", json={"message": "第二位访客的消息"})
         assert all(m.text != "第一位访客的消息" for m in model._requests[-1])
     assert len(client.get("/api/session").json()["messages"]) == 2
@@ -92,6 +120,111 @@ def test_web_reset_clears_chat_but_retains_business_records(web):
     assert client.post("/api/reset", json={}).status_code == 200
     assert client.get("/api/session").json()["messages"] == []
     assert repo.get_status("DEMO-U-004", "DEMO-HP-O-0004") == "refunded"
+
+
+def test_login_rotation_logout_and_password_reset_invalidate_session(web):
+    client, app, _, _, _ = web
+    old = client.cookies.get(COOKIE_NAME)
+    assert client.post("/api/logout", json={}).status_code == 200
+    assert client.post("/api/chat", json={"message": "hello"}).status_code == 401
+    client.cookies.set(COOKIE_NAME, old)
+    assert client.post("/api/chat", json={"message": "hello"}).status_code == 401
+    client.cookies.clear()
+    data = client.get("/api/session").json()
+    assert data["authenticated"] is False and data["messages"] == []
+    client.headers["X-CSRF-Token"] = data["csrf_token"]
+    anonymous = client.cookies.get(COOKIE_NAME)
+    assert (
+        client.post(
+            "/api/login", json={"username": "demo_other", "password": "other-password"}
+        ).status_code
+        == 200
+    )
+    assert client.cookies.get(COOKIE_NAME) != anonymous
+    data = client.get("/api/session").json()
+    assert data["user_id"] == "OTHER"
+    client.headers["X-CSRF-Token"] = data["csrf_token"]
+    app.state.accounts.reset("demo_other", "changed")
+    assert client.post("/api/chat", json={"message": "hello"}).status_code == 401
+    assert client.get("/api/session").json()["messages"] == []
+
+
+def test_login_csrf_failure_throttling_and_secret_free_logs(web):
+    client, _, _, _, settings = web
+    payload = {"username": "unknown", "password": "LOGIN_SECRET_MARKER"}
+    assert (
+        client.post(
+            "/api/login", json=payload, headers={"Origin": "https://evil.invalid"}
+        ).status_code
+        == 403
+    )
+    assert (
+        client.post("/api/login", json=payload, headers={"X-CSRF-Token": "wrong"}).status_code
+        == 403
+    )
+    for _ in range(10):
+        assert client.post("/api/login", json=payload).status_code == 401
+    assert client.post("/api/login", json=payload).status_code == 429
+    for row in read_web_logs(settings, "requests"):
+        assert "LOGIN_SECRET_MARKER" not in json.dumps(row)
+        assert "unknown" not in json.dumps(row)
+
+
+def test_account_disable_and_session_expiry(web, monkeypatch):
+    client, app, _, _, _ = web
+    with app.state.accounts.connect() as db:
+        db.execute("UPDATE accounts SET enabled=0 WHERE user_id='DEMO-U-004'")
+    assert client.post("/api/chat", json={"message": "hi"}).status_code == 401
+    with app.state.accounts.connect() as db:
+        db.execute("UPDATE accounts SET enabled=1 WHERE user_id='DEMO-U-004'")
+    import orderagent.web as module
+
+    before = module.time.time()
+    monkeypatch.setattr(module.time, "time", lambda: before + 3601)
+    assert client.post("/api/chat", json={"message": "hi"}).status_code == 401
+
+
+def test_logged_in_other_account_cannot_read_first_users_order(web):
+    client, app, _, model, _ = web
+    with TestClient(app, base_url="http://127.0.0.1") as other:
+        other.headers["X-CSRF-Token"] = other.get("/api/session").json()["csrf_token"]
+        other.post("/api/login", json={"username": "demo_other", "password": "other-password"})
+        other.headers["X-CSRF-Token"] = other.get("/api/session").json()["csrf_token"]
+        model.responses = [
+            tool_call("query_order", {"order_id": "DEMO-HP-O-0004"}),
+            AIMessage(content="无法查询该订单"),
+        ]
+        assert other.post("/api/chat", json={"message": "查询 DEMO-HP-O-0004"}).status_code == 200
+        tools = [m for m in model._requests[-1] if getattr(m, "type", "") == "tool"]
+        assert tools and "ORDER_NOT_FOUND" in tools[-1].content
+    assert client.get("/api/session").json()["user_id"] == "DEMO-U-004"
+
+
+def test_two_accounts_can_chat_concurrently_without_context_or_history_leak(web):
+    from threading import Barrier
+
+    first, app, graph, _, _ = web
+    barrier = Barrier(2)
+    contexts = []
+    original = graph.invoke
+
+    def invoke(*args, **kwargs):
+        contexts.append(kwargs["context"].user_id)
+        barrier.wait(timeout=5)
+        return original(*args, **kwargs)
+
+    graph.invoke = invoke
+    with TestClient(app, base_url="http://127.0.0.1") as second:
+        second.headers["X-CSRF-Token"] = second.get("/api/session").json()["csrf_token"]
+        second.post("/api/login", json={"username": "demo_other", "password": "other-password"})
+        second.headers["X-CSRF-Token"] = second.get("/api/session").json()["csrf_token"]
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            a = pool.submit(first.post, "/api/chat", json={"message": "ACCOUNT_A_ONLY"})
+            b = pool.submit(second.post, "/api/chat", json={"message": "ACCOUNT_B_ONLY"})
+            assert a.result().status_code == b.result().status_code == 200
+        assert set(contexts) == {"DEMO-U-004", "OTHER"}
+        assert "ACCOUNT_B_ONLY" not in json.dumps(first.get("/api/session").json()["messages"])
+        assert "ACCOUNT_A_ONLY" not in json.dumps(second.get("/api/session").json()["messages"])
 
 
 def test_web_security_and_static_assets(web):

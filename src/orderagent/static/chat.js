@@ -9,12 +9,19 @@ const notice = document.querySelector("#notice");
 const scrollArea = document.querySelector("#scroll-area");
 let csrf = "";
 let busy = true;
+let authenticated = false;
+let conversation = null;
+let writable = false;
+let historyOffset = 0;
+let storedMessages = [];
+const statuses = {agent_consulting: "Agent咨询", human_active: "模拟人工处理中", waiting_human: "等待人工", transfer_failed: "交接失败", closed: "已结束"};
 
 function setBusy(value) {
   busy = value;
-  input.disabled = value;
-  sendButton.disabled = value || !input.value.trim();
+  input.disabled = value || !writable;
+  sendButton.disabled = value || !writable || !input.value.trim();
   newChat.disabled = value;
+  document.querySelector("#end-service").disabled = value;
   document.querySelectorAll(".suggestion").forEach(button => { button.disabled = value; });
   messages.setAttribute("aria-busy", String(value));
 }
@@ -43,7 +50,7 @@ function addMessage(role, text, loading = false) {
   body.className = "message-body";
   const label = document.createElement("div");
   label.className = "message-label";
-  label.textContent = role === "user" ? "你" : "OrderAgent";
+  label.textContent = ({user: "你", simulated_agent: "模拟人工客服", system: "系统通知"})[role] || "OrderAgent";
   const content = document.createElement("div");
   content.className = "message-text";
   if (loading) {
@@ -72,7 +79,9 @@ async function request(path, body) {
   if (!response.ok) {
     const id = data.request_id || response.headers.get("X-Request-ID");
     const message = typeof data.detail === "string" ? data.detail : "请求未完成，请稍后再试。";
-    throw new Error(`${message}${id ? ` 问题编号：${id}` : ""}`);
+    const error = new Error(`${message}${id ? ` 问题编号：${id}` : ""}`);
+    error.status = response.status;
+    throw error;
   }
   return data;
 }
@@ -83,10 +92,25 @@ async function connect() {
   try {
     const session = await request("/api/session");
     csrf = session.csrf_token;
-    document.querySelector("#user-id").textContent = session.user_id;
+    authenticated = session.authenticated;
+    document.querySelector("#login-panel").hidden = authenticated;
+    document.querySelector("#logout").hidden = !authenticated;
+    document.querySelector("#user-id").textContent = authenticated ? session.username : "未登录";
     messages.replaceChildren();
-    welcome.hidden = session.messages.length > 0;
-    session.messages.forEach(message => addMessage(message.role, message.text));
+    if (!authenticated) {
+      conversation = null;
+      writable = false;
+      storedMessages = [];
+      document.querySelector("#history-list").replaceChildren();
+      document.querySelector("#history-more").hidden = true;
+      document.querySelector("#messages-more").hidden = true;
+      document.querySelector("#end-service").hidden = true;
+      welcome.hidden = false;
+      document.querySelector("#username").focus();
+      return;
+    }
+    renderConversation(session);
+    await loadHistory(true);
     setBusy(false);
     input.focus();
   } catch (error) {
@@ -94,10 +118,83 @@ async function connect() {
   }
 }
 
+function renderConversation(snapshot) {
+  conversation = snapshot.conversation;
+  writable = snapshot.writable;
+  storedMessages = snapshot.messages;
+  renderMessages();
+  document.querySelector("#conversation-label").textContent =
+    `${statuses[conversation.status] || conversation.status}${writable ? "" : " · 历史记录，仅供查看"}`;
+  document.querySelector("#end-service").hidden = conversation.channel !== "human" || conversation.status === "closed";
+  showNotice(writable ? "" : "此会话仅供查看。需要继续咨询时，请新建对话。");
+}
+
+function renderMessages() {
+  messages.replaceChildren();
+  welcome.hidden = storedMessages.length > 0;
+  storedMessages.forEach(message => {
+    const suffix = message.status === "unknown" ? "\n【结果待核查，不自动重试】" :
+      message.status === "processing" ? "\n【处理中】" : "";
+    addMessage(message.role, message.text + suffix);
+  });
+  document.querySelector("#messages-more").hidden = storedMessages.length < 100;
+}
+
+async function loadHistory(reset = false) {
+  if (reset) {
+    historyOffset = 0;
+    document.querySelector("#history-list").replaceChildren();
+  }
+  const data = await request(`/api/conversations?offset=${historyOffset}&limit=20`);
+  data.items.forEach(item => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = `${item.title} · ${statuses[item.status] || item.status}`;
+    button.addEventListener("click", async () => {
+      if (busy) return;
+      setBusy(true);
+      try { renderConversation(await request(`/api/conversations/${item.id}/select`, {})); }
+      catch (error) { showNotice(error.message); }
+      finally { setBusy(false); }
+    });
+    document.querySelector("#history-list").append(button);
+  });
+  historyOffset += data.items.length;
+  document.querySelector("#history-more").hidden = !data.has_more;
+}
+
+document.querySelector("#history-more").addEventListener("click", async () => {
+  if (busy) return;
+  setBusy(true);
+  try { await loadHistory(); } catch (error) { showNotice(error.message); }
+  finally { setBusy(false); }
+});
+document.querySelector("#messages-more").addEventListener("click", async () => {
+  if (busy || !conversation || !storedMessages.length) return;
+  setBusy(true);
+  try {
+    const data = await request(`/api/conversations/${conversation.id}?before=${storedMessages[0].seq}`);
+    const ids = new Set(storedMessages.map(m => m.id));
+    storedMessages = [...data.messages.filter(m => !ids.has(m.id)), ...storedMessages];
+    renderMessages();
+    document.querySelector("#messages-more").hidden = data.messages.length < 100;
+  } catch (error) { showNotice(error.message); }
+  finally { setBusy(false); }
+});
+document.querySelector("#end-service").addEventListener("click", async () => {
+  if (busy || !conversation || !window.confirm("结束本次模拟人工服务？历史仍可查看，未完成退货不会被取消。")) return;
+  setBusy(true);
+  try {
+    renderConversation(await request(`/api/conversations/${conversation.id}/close`, {}));
+    await loadHistory(true);
+  } catch (error) { showNotice(error.message); }
+  finally { setBusy(false); }
+});
+
 document.querySelector("#chat-form").addEventListener("submit", async event => {
   event.preventDefault();
   const text = input.value.trim();
-  if (busy || !text || text.length > 4000 || !csrf) return;
+  if (busy || !writable || !text || text.length > 4000 || !csrf) return;
   setBusy(true);
   showNotice("");
   addMessage("user", text);
@@ -105,20 +202,21 @@ document.querySelector("#chat-form").addEventListener("submit", async event => {
   input.style.height = "auto";
   const pending = addMessage("assistant", "", true);
   try {
-    const data = await request("/api/chat", {message: text});
+    await request("/api/chat", {message: text, message_id: crypto.randomUUID(), conversation_id: conversation.id});
     pending.remove();
-    addMessage("assistant", data.answer);
+    await connect();
   } catch (error) {
+    if (error.status === 401) await connect();
     pending.remove();
     showNotice(`${error.message} 如连接中断，处理可能仍在继续；请先查询进度，不要重复提交确认。`, true);
   } finally {
-    setBusy(false);
-    input.focus();
+    setBusy(!authenticated);
+    if (authenticated) input.focus();
   }
 });
 
 input.addEventListener("input", () => {
-  sendButton.disabled = busy || !input.value.trim();
+  sendButton.disabled = busy || !writable || !input.value.trim();
   input.style.height = "auto";
   input.style.height = `${Math.min(input.scrollHeight, 150)}px`;
 });
@@ -136,10 +234,11 @@ document.querySelectorAll(".suggestion").forEach(button => {
   });
 });
 newChat.addEventListener("click", async () => {
-  if (busy || !csrf || !window.confirm("开始新对话？聊天记录和咨询次数将清空，退货记录仍会保留。")) return;
+  if (busy || !csrf || !window.confirm("开启新咨询？历史记录及未结束人工服务仍会保留。")) return;
   setBusy(true);
   try {
     await request("/api/reset", {});
+    await connect();
     messages.replaceChildren();
     welcome.hidden = false;
     input.value = "";
@@ -151,5 +250,30 @@ newChat.addEventListener("click", async () => {
     setBusy(false);
     input.focus();
   }
+});
+document.querySelector("#login-form").addEventListener("submit", async event => {
+  event.preventDefault();
+  const button = document.querySelector("#login-button");
+  button.disabled = true;
+  document.querySelector("#login-error").textContent = "";
+  try {
+    await request("/api/login", {
+      username: document.querySelector("#username").value,
+      password: document.querySelector("#password").value
+    });
+    document.querySelector("#password").value = "";
+    await connect();
+  } catch (error) {
+    document.querySelector("#login-error").textContent = error.message;
+    if (error.status === 401 || error.status === 403) await connect();
+  } finally { button.disabled = false; }
+});
+document.querySelector("#logout").addEventListener("click", async () => {
+  if (busy) return;
+  try {
+    await request("/api/logout", {});
+    authenticated = false;
+    await connect();
+  } catch (error) { showNotice(error.message); }
 });
 connect();

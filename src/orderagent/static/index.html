@@ -10,6 +10,19 @@
   <script src="/static/chat.js" defer></script>
 </head>
 <body>
+  <section id="login-panel" class="login-panel">
+    <form id="login-form" class="login-card">
+      <h1>登录 OrderAgent</h1>
+      <p>模拟账号测试环境。密码见本地演示账号清单。</p>
+      <label for="username">账号</label>
+      <input id="username" name="username" autocomplete="username" maxlength="120" required>
+      <label for="password">密码</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" maxlength="256" required>
+      <button id="login-button" type="submit">登录</button>
+      <p id="login-error" role="status"></p>
+      <small>本阶段不恢复退出前的聊天历史；人工与退货均为模拟。</small>
+    </form>
+  </section>
   <aside class="sidebar">
     <a class="brand" href="/" aria-label="OrderAgent首页"><span class="brand-icon">o<span>•</span></span><span>OrderAgent<small>数码服务助手</small></span></a>
     <button id="new-chat" class="new-chat" type="button"><span>＋</span> 新建对话 <span class="shortcut">↗</span></button>
@@ -19,13 +32,19 @@
     <div class="capability"><span>01</span><div>查询订单<small>查看商品与物流状态</small></div></div>
     <div class="capability"><span>02</span><div>了解商品<small>耳机、鼠标与键盘参数</small></div></div>
     <div class="capability"><span>03</span><div>排查问题<small>根据知识提供处理建议</small></div></div>
+    <div class="history-section">
+      <div class="nav-label">历史会话</div>
+      <div id="history-list" class="history-list"></div>
+      <button id="history-more" type="button" hidden>加载更多会话</button>
+    </div>
     <div class="sidebar-bottom">
       <div class="demo-card"><span class="demo-label">本地演示</span><p>人工交接与退货入口为模拟，<br>不执行真实平台退款。</p></div>
       <div class="profile"><span class="avatar">U</span><div><strong>演示用户</strong><small id="user-id">正在连接…</small></div><span class="profile-dot"></span></div>
+      <button id="logout" type="button" hidden>退出登录</button>
     </div>
   </aside>
   <main>
-    <header class="topbar"><div><span class="breadcrumb">服务中心</span><span class="slash">/</span><strong>智能咨询</strong></div><span class="environment"><i></i> 本地演示环境</span></header>
+    <header class="topbar"><div><span class="breadcrumb">服务中心</span><span class="slash">/</span><strong id="conversation-label">智能咨询</strong></div><button id="end-service" type="button" hidden>结束本次人工服务</button><span class="environment"><i></i> 本地演示环境</span></header>
     <div class="conversation-area" id="scroll-area">
       <section id="welcome" class="welcome">
         <div class="eyebrow"><span></span> YOUR DIGITAL SUPPORT</div>
@@ -40,6 +59,7 @@
         </div>
       </section>
       <section id="messages" class="messages" aria-label="聊天记录" aria-live="polite" aria-relevant="additions"></section>
+      <button id="messages-more" type="button" hidden>加载更早消息</button>
     </div>
     <div class="composer-wrap">
       <div id="notice" class="notice" role="status" hidden></div>

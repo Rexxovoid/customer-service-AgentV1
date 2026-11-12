@@ -23,14 +23,18 @@ uv run orderagent --user-id DEMO-U-004
 ### 浏览器聊天
 
 ```powershell
-uv run orderagent-web --user-id DEMO-U-004
+uv run orderagent-accounts init
+uv run orderagent-accounts init --apply
+uv run orderagent-web
 ```
 
 打开 **http://127.0.0.1:8000**，输入问题后点击发送，或按Enter发送、Shift+Enter换行。端口被占用可加`--port 8001`。停止服务在终端按Ctrl+C。
 
-页面支持连续问答、快捷问题、等待与错误提示及新建对话；刷新可读取当前进程中的聊天历史。新建对话清空当前聊天和咨询计数，保留售后台账。服务重启后聊天历史不保留。演示身份由启动命令固定，页面不能切换用户；不同浏览器会话独立，同一浏览器的多个标签页共享会话。
+网页使用账号密码登录，账号与已有订单user_id关联。演示密码仅在本机[runtime/auth/demo_credentials.json](runtime/auth/demo_credentials.json)查看和复制，不提交或公开该文件；账号存储于独立SQLite。初始化重复执行只补新账号，不覆盖密码。操作与重置说明见[演示账号指南](docs/accounts-guide.md)。
 
-首期完整回答返回后展示，不是主Agent逐字流式输出。人工与退货继续使用模拟接口；无需安装Node或单独启动前端。默认仅本机访问，无生产认证与公网部署。Web接口及限制见[WEB规则](docs/rules.md#本地网页聊天)。
+页面支持连续问答、快捷问题、等待与错误提示及新建对话；同一登录会话刷新可读取当前进程中的聊天历史。新建对话清空聊天和咨询计数，保留售后台账。退出或重新登录开始新聊天，服务重启后需重新登录，不恢复历史。不同浏览器会话独立，同一浏览器标签页共享Cookie；聊天处理中登录/退出返回409。
+
+首期完整回答返回后展示，不是主Agent逐字流式输出。人工与退货继续使用模拟接口；无需安装Node或单独启动前端。默认仅本机单进程，已有本地模拟账号认证，但没有注册、找回密码、多进程共享或公网部署。HTTPS部署须启用--secure-cookie并另行配置TLS、Host及可信代理，不能直接公开当前开发服务。Web限制见[WEB规则](docs/rules.md#本地网页聊天)。
 
 网页错误会显示“问题编号”。在`runtime/logs/requests/<request_id>.json`查HTTP状态、耗时与异常分类，在`runtime/logs/agent/<request_id>.json`用相同`request_id`查模型/工具阶段、工具结果码及RAG诊断。每请求一份缩进JSON，各目录20MiB额度，超额清理旧编号文件，旧JSONL保留。默认不保存聊天和证据正文。HTTP 200不等于回答正确；网络断开且未收到响应时，页面可能拿不到编号。
 
@@ -165,3 +169,10 @@ uv run orderagent --user-id DEMO-U-004 --trace
 - [未来目标](docs/maintask.md)：后续网页、工作台、知识管理、部署与性能规划。
 
 历史方案和日期日志用于追踪演进，不替代当前规则；每次更新按[AGENTS.md](AGENTS.md)维护对应规范和日期日志。
+
+
+### Persistent chat history
+
+Chat messages are saved in `runtime/chat/chat.sqlite3`. Select a historical conversation in the sidebar. Unfinished simulated-human conversations can continue after login/restart; old Agent threads are read-only across logins. New chat preserves history. End-service closes only the selected human conversation, not orders or refunds. No automatic timeout or deletion is enabled.
+
+Development simulations: `uv run orderagent-web --development --human-scenario close` (or `error`). Normal startup uses `reply`. These options affect simulated-human messages, not real customer service.
